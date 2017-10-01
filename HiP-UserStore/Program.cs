@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using Microsoft.AspNetCore.Hosting;
 
-namespace PaderbornUniversity.SILab.Hip.DataStore
+namespace PaderbornUniversity.SILab.Hip.UserStore
 {
     public class Program
     {

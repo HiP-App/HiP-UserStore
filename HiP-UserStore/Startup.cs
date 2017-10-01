@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -6,11 +7,13 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PaderbornUniversity.SILab.Hip.EventSourcing;
 using PaderbornUniversity.SILab.Hip.UserStore.Core;
+using PaderbornUniversity.SILab.Hip.UserStore.Core.ReadModel;
+using PaderbornUniversity.SILab.Hip.UserStore.Core.WriteModel;
 using PaderbornUniversity.SILab.Hip.UserStore.Utility;
 using PaderbornUniversity.SILab.Hip.Webservice;
 using Swashbuckle.AspNetCore.Swagger;
 
-namespace PaderbornUniversity.SILab.Hip.DataStore
+namespace PaderbornUniversity.SILab.Hip.UserStore
 {
     public class Startup
     {
@@ -37,16 +40,46 @@ namespace PaderbornUniversity.SILab.Hip.DataStore
                 // Define a Swagger document
                 c.SwaggerDoc("v1", new Info { Title = Name, Version = Version });
                 c.OperationFilter<SwaggerOperationFilter>();
+                c.OperationFilter<SwaggerFileUploadOperationFilter>();
                 c.DescribeAllEnumsAsStrings();
             });
 
             services
                 .Configure<EndpointConfig>(Configuration.GetSection("Endpoints"))
+                .Configure<AuthConfig>(Configuration.GetSection("Auth"))
+                .Configure<UploadPhotoConfig>(Configuration.GetSection("UploadingPhoto"))
                 .Configure<CorsConfig>(Configuration);
 
             services
                 .AddSingleton<EventStoreClient>()
-                .AddSingleton<InMemoryCache>();
+                .AddSingleton<CacheDatabaseManager>()
+                .AddSingleton<InMemoryCache>()
+                .AddSingleton<IDomainIndex, EntityIndex>()
+                .AddSingleton<IDomainIndex, PhotoIndex>();
+
+            var serviceProvider = services.BuildServiceProvider(); // allows us to actually get the configured services
+            var authConfig = serviceProvider.GetService<IOptions<AuthConfig>>();
+
+            // Configure authentication
+            services
+                .AddAuthentication(options => options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    options.Audience = authConfig.Value.Audience;
+                    options.Authority = authConfig.Value.Authority;
+                });
+
+            // Configure authorization
+            var domain = authConfig.Value.Authority;
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("read:datastore",
+                    policy => policy.Requirements.Add(new HasScopeRequirement("read:datastore", domain)));
+                options.AddPolicy("write:datastore",
+                    policy => policy.Requirements.Add(new HasScopeRequirement("write:datastore", domain)));
+                options.AddPolicy("write:cms",
+                    policy => policy.Requirements.Add(new HasScopeRequirement("write:cms", domain)));
+            });
 
             services.AddCors();
             services.AddMvc();
@@ -59,21 +92,22 @@ namespace PaderbornUniversity.SILab.Hip.DataStore
                 .AddConsole(Configuration.GetSection("Logging"))
                 .AddDebug();
 
-            // EventStoreClient should start up immediately (not only when injected into a controller or
+            // CacheDatabaseManager should start up immediately (not only when injected into a controller or
             // something), so we manually request an instance here
-            app.ApplicationServices.GetService<EventStoreClient>();
+            app.ApplicationServices.GetService<CacheDatabaseManager>();
 
-            // Use CORS (important: must be before app.UseMvc())
-            app.UseCors(builder =>
-            {
-                var corsEnvConf = corsConfig.Value.Cors[env.EnvironmentName];
-                builder
-                    .WithOrigins(corsEnvConf.Origins)
-                    .WithMethods(corsEnvConf.Methods)
-                    .WithHeaders(corsEnvConf.Headers)
-                    .WithExposedHeaders(corsEnvConf.ExposedHeaders);
-            });
+            //// Use CORS (important: must be before app.UseMvc())
+            //app.UseCors(builder =>
+            //{
+            //    var corsEnvConf = corsConfig.Value.Cors[env.EnvironmentName];
+            //    builder
+            //        .WithOrigins(corsEnvConf.Origins)
+            //        .WithMethods(corsEnvConf.Methods)
+            //        .WithHeaders(corsEnvConf.Headers)
+            //        .WithExposedHeaders(corsEnvConf.ExposedHeaders);
+            //});
 
+            app.UseAuthentication();
             app.UseMvc();
 
             // Swagger / Swashbuckle configuration:

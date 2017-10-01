@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.12
+VisualStudioVersion = 15.0.26730.16
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HiP-UserStore", "HiP-UserStore\HiP-UserStore.csproj", "{0828C175-9D49-4B4D-8CA4-EAC3D9814326}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HiP-UserStore", "HiP-UserStore\HiP-UserStore.csproj", "{0828C175-9D49-4B4D-8CA4-EAC3D9814326}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HIP-UserStore.Model", "HIP-UserStore.Model\HIP-UserStore.Model.csproj", "{4939D0DE-7DBC-42C1-8A11-80D756665193}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{0828C175-9D49-4B4D-8CA4-EAC3D9814326}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0828C175-9D49-4B4D-8CA4-EAC3D9814326}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0828C175-9D49-4B4D-8CA4-EAC3D9814326}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4939D0DE-7DBC-42C1-8A11-80D756665193}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4939D0DE-7DBC-42C1-8A11-80D756665193}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4939D0DE-7DBC-42C1-8A11-80D756665193}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4939D0DE-7DBC-42C1-8A11-80D756665193}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

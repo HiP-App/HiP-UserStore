@@ -1,9 +1,9 @@
 ﻿using EventStore.ClientAPI;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using PaderbornUniversity.SILab.Hip.UserStore.Utility;
 using PaderbornUniversity.SILab.Hip.EventSourcing;
 using PaderbornUniversity.SILab.Hip.EventSourcing.Migrations;
-using PaderbornUniversity.SILab.Hip.UserStore.Utility;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -45,22 +45,24 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Core
             if (Debugger.IsAttached)
             {
                 Debug.Assert(config.Value.EventStoreHost.Contains("localhost"),
-                    "It looks like you are trying to connect to a production Event Store database. Are you sure you wish to continue?");
+                   "It looks like you are trying to connect to a production Event Store database. Are you sure you wish to continue?");
             }
 
             // Establish connection to Event Store
             var uri = new Uri(config.Value.EventStoreHost);
             var connection = EventStoreConnection.Create(settings, uri);
             connection.ConnectAsync().Wait();
-            
+
             _store = new ESL.EventStore(connection);
 
             logger.LogInformation($"Connected to Event Store on '{uri.Host}', using stream '{_streamName}'");
 
+            ///TODO: Add Migration
             // Update stream to the latest version
-            var migrationResult = StreamMigrator.MigrateAsync(_store, _streamName).Result;
-            if (migrationResult.fromVersion != migrationResult.toVersion)
-                logger.LogInformation($"Migrated stream '{_streamName}' from version '{migrationResult.fromVersion}' to version '{migrationResult.toVersion}'");
+            //var thisAssembly = typeof(Startup).Assembly;
+            //var migrationResult = StreamMigrator.MigrateAsync(_store, _streamName, thisAssembly).Result;
+            //if (migrationResult.fromVersion != migrationResult.toVersion)
+            //    logger.LogInformation($"Migrated stream '{_streamName}' from version '{migrationResult.fromVersion}' to version '{migrationResult.toVersion}'");
 
             // Setup IDomainIndex-indices
             _cache = cache;
