@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
-    <RootNamespace>PaderbornUniversity.SILab.Hip.DataStore</RootNamespace>
+    <RootNamespace>PaderbornUniversity.SILab.Hip.UserStore</RootNamespace>
     <AssemblyName>HiP-UserStore</AssemblyName>
   </PropertyGroup>
 

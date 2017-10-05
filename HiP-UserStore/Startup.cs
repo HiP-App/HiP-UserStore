@@ -47,8 +47,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore
             services
                 .Configure<EndpointConfig>(Configuration.GetSection("Endpoints"))
                 .Configure<AuthConfig>(Configuration.GetSection("Auth"))
-                .Configure<UploadPhotoConfig>(Configuration.GetSection("UploadingPhoto"))
-                .Configure<CorsConfig>(Configuration);
+                .Configure<UploadPhotoConfig>(Configuration.GetSection("UploadingPhoto"));
 
             services
                 .AddSingleton<EventStoreClient>()
@@ -88,9 +87,8 @@ namespace PaderbornUniversity.SILab.Hip.UserStore
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory,
             IOptions<CorsConfig> corsConfig, IOptions<EndpointConfig> endpointConfig)
         {
-            loggerFactory
-                .AddConsole(Configuration.GetSection("Logging"))
-                .AddDebug();
+            loggerFactory.AddConsole(Configuration.GetSection("Logging"))
+                         .AddDebug();
 
             // CacheDatabaseManager should start up immediately (not only when injected into a controller or
             // something), so we manually request an instance here

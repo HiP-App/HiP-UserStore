@@ -34,13 +34,9 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Core.WriteModel
         {
             switch (e)
             {
-                case PhotoCreated ev:
+                case PhotoUploaded ev:
                     lock (_lockObject)
-                        _photo.Add(ev.UserId, new PhotoInfo { Path = ev.Path });
-                    break;
-                case PhotoUpdated ev:
-                    lock (_lockObject)
-                        _photo.Add(ev.UserId, new PhotoInfo { Path = ev.Path });
+                        _photo[ev.UserId]= new PhotoInfo() { Path = ev.Path };
                     break;
 
                 case PhotoDeleted ev:

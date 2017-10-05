@@ -1,6 +1,6 @@
 ﻿namespace PaderbornUniversity.SILab.Hip.UserStore.Model.Events
 {
-    public class PhotoUpdated : UserActivityBaseEvent, IUpdateEvent
+    public class PhotoUploaded : UserActivityBaseEvent, IUpdateEvent
     {
         public string Path { get; set; }
 

@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Principal;
-using System.Threading.Tasks;
 
 namespace PaderbornUniversity.SILab.Hip.UserStore.Core.WriteModel
 {
@@ -64,13 +63,16 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Core.WriteModel
         {
             switch (e)
             {
-                case ICreateEvent ev:
+                case IUpdateEvent ev:
                     lock (_lockObject)
                     {
                         var owner = (ev as UserActivityBaseEvent)?.UserId;
                         var info = GetOrCreateEntityTypeInfo(ev.GetEntityType());
-                        info.MaximumId = Math.Max(info.MaximumId, ev.Id);
-                        info.Entities.Add(ev.Id, new EntityInfo { UserId = owner });
+                        if (!info.Entities.Any(x => x.Value.UserId == owner))
+                        {
+                            info.MaximumId = Math.Max(info.MaximumId, ev.Id);
+                            info.Entities.Add(ev.Id, new EntityInfo { UserId = owner });
+                        }
                     }
                     break;
 

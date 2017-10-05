@@ -3,13 +3,13 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PaderbornUniversity.SILab.Hip.UserStore.Utility;
 using PaderbornUniversity.SILab.Hip.EventSourcing;
-using PaderbornUniversity.SILab.Hip.EventSourcing.Migrations;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using ESL = PaderbornUniversity.SILab.Hip.EventSourcing.EventStoreLlp;
+using PaderbornUniversity.SILab.Hip.EventSourcing.Migrations;
 
 namespace PaderbornUniversity.SILab.Hip.UserStore.Core
 {
@@ -57,12 +57,11 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Core
 
             logger.LogInformation($"Connected to Event Store on '{uri.Host}', using stream '{_streamName}'");
 
-            ///TODO: Add Migration
             // Update stream to the latest version
-            //var thisAssembly = typeof(Startup).Assembly;
-            //var migrationResult = StreamMigrator.MigrateAsync(_store, _streamName, thisAssembly).Result;
-            //if (migrationResult.fromVersion != migrationResult.toVersion)
-            //    logger.LogInformation($"Migrated stream '{_streamName}' from version '{migrationResult.fromVersion}' to version '{migrationResult.toVersion}'");
+            var thisAssembly = typeof(Startup).Assembly;
+            var migrationResult = StreamMigrator.MigrateAsync(_store, _streamName, thisAssembly).Result;
+            if (migrationResult.fromVersion != migrationResult.toVersion)
+                logger.LogInformation($"Migrated stream '{_streamName}' from version '{migrationResult.fromVersion}' to version '{migrationResult.toVersion}'");
 
             // Setup IDomainIndex-indices
             _cache = cache;

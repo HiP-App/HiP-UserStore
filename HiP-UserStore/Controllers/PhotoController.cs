@@ -44,58 +44,25 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
         [ProducesResponseType(404)]
         public IActionResult Get()
         {
-            var media = _db.Database.GetCollection<Photo>(ResourceType.Photo.Name)
+            var photo = _db.Database.GetCollection<Photo>(ResourceType.Photo.Name)
                  .AsQueryable()
                  .FirstOrDefault(x => x.UserId == User.Identity.GetUserIdentity());
 
-            if (media?.Path == null || !System.IO.File.Exists(media.Path))
+            if (photo?.Path == null || !System.IO.File.Exists(photo.Path))
                 return NotFound();
 
-            new FileExtensionContentTypeProvider().TryGetContentType(media.Path, out string mimeType);
+            new FileExtensionContentTypeProvider().TryGetContentType(photo.Path, out string mimeType);
             mimeType = mimeType ?? "application/octet-stream";
 
-            return File(new FileStream(media.Path, FileMode.Open), mimeType, Path.GetFileName(media.Path));
+            return File(new FileStream(photo.Path, FileMode.Open), mimeType, Path.GetFileName(photo.Path));
         }
 
-        [HttpPost]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(400)]
-        [ProducesResponseType(409)]
-        public async Task<IActionResult> Create([Required]IFormFile file)
-        {
-            if (file == null)
-                ModelState.AddModelError("Argument Error", "File argument not provided");
-
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            if (_photoIndex.ContainsUser(User.Identity))
-                return StatusCode(409);
-
-            var extension = file.FileName.Split('.').Last();
-
-            // Checking supported extensions
-            if (!_photoConfig.SupportedFormats.Contains(extension.ToLower()))
-                return BadRequest(new { Message = $"Extension '{extension}' is not supported" });
-
-            var filePath = SaveNewFile(file);
-            var ev = new PhotoCreated
-            {
-                Id = _entityIndex.NextId(ResourceType.Photo),
-                UserId = User.Identity.GetUserIdentity(),
-                Path = filePath,
-                Timestamp = DateTimeOffset.Now
-            };
-
-            await _eventStore.AppendEventAsync(ev);
-            return Created($"{Request.Scheme}://{Request.Host}/api/Photo/{ev.Id}", ev.Id);
-        }
 
         [HttpPut]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
-        public async Task<IActionResult> Update([Required]IFormFile file)
+        public async Task<IActionResult> Upload([Required]IFormFile file)
         {
             if (file == null)
                 ModelState.AddModelError("Argument Error", "File argument not provided");
@@ -103,14 +70,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            if (!_photoIndex.ContainsUser(User.Identity))
-                return NotFound();
-
-            /// TODO: Add Permission System
-            //if (!UserPermissions.IsAllowedToEdit(User.Identity, status, _entityIndex.Owner(ResourceType.Media, id)))
-            //    return Forbid();
-
-            var extension = file.FileName.Split('.').Last();
+            var extension = Path.GetExtension(file.FileName).Replace(".","");
 
             // Checking supported extensions
             if (!_photoConfig.SupportedFormats.Contains(extension.ToLower()))
@@ -122,7 +82,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
                 System.IO.File.Delete(oldFilePath);
 
             var filePath = SaveNewFile(file);            
-            var ev = new PhotoUpdated
+            var ev = new PhotoUploaded
             {
                 Id = _entityIndex.Id(ResourceType.Photo, User.Identity),
                 UserId = User.Identity.GetUserIdentity(),
@@ -132,6 +92,36 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
 
             await _eventStore.AppendEventAsync(ev);
             return StatusCode(204);
+        }
+
+        [HttpDelete]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(403)]
+        [ProducesResponseType(404)]
+        public async Task<IActionResult> Delete()
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            if (!_photoIndex.ContainsUser(User.Identity))
+                return NotFound();
+
+            // Remove photo
+            var directoryPath = Path.GetDirectoryName(_photoIndex.GetFilePath(User.Identity));
+            if (directoryPath != null && Directory.Exists(directoryPath))
+                Directory.Delete(directoryPath, true);
+
+            var ev = new PhotoDeleted
+            {
+                Id = _entityIndex.Id(ResourceType.Photo, User.Identity),
+                UserId = User.Identity.GetUserIdentity(),
+                Timestamp = DateTimeOffset.Now
+            };
+
+            await _eventStore.AppendEventAsync(ev);
+            return StatusCode(204);
+
         }
 
         // Return path to file

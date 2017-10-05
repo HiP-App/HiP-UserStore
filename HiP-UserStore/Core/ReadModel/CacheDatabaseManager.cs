@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using PaderbornUniversity.SILab.Hip.EventSourcing;
 using Microsoft.Extensions.Options;
 using PaderbornUniversity.SILab.Hip.UserStore.Utility;
@@ -48,7 +47,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Core.ReadModel
         {
             switch (ev)
             {
-                case PhotoCreated e:
+               case PhotoUploaded e:
                     var newPhoto = new Photo()
                     {
                         Id = e.Id,
@@ -57,15 +56,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Core.ReadModel
                         LastUpdatedBy = e.UserId,
                         Path = e.Path
                     };
-                    _db.GetCollection<Photo>(ResourceType.Photo.Name).InsertOne(newPhoto);
-                    break;
-
-                case PhotoUpdated e:
-                    var photo = _db.GetCollection<Photo>(ResourceType.Photo.Name).AsQueryable().First(x => x.UserId == e.UserId);
-                    photo.LastUpdatedBy = e.UserId;
-                    photo.Path = e.Path;
-                    photo.Timestamp = e.Timestamp;
-                    _db.GetCollection<Photo>(ResourceType.Photo.Name).ReplaceOne(x => x.UserId == e.UserId, photo);
+                    _db.GetCollection<Photo>(ResourceType.Photo.Name).ReplaceOne(x => x.UserId == e.UserId, newPhoto, options: new UpdateOptions { IsUpsert = true });
                     break;
 
                 case PhotoDeleted e:
