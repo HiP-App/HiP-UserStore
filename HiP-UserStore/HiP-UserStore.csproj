@@ -31,7 +31,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\HIP-UserStore.Model\HIP-UserStore.Model.csproj" />
+    <ProjectReference Include="..\HiP-UserStore.Model\HiP-UserStore.Model.csproj" />
   </ItemGroup>
 
 </Project>
