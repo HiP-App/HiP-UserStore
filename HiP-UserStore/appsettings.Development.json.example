@@ -1,0 +1,16 @@
+﻿{
+  "Logging": {
+    "IncludeScopes": false,
+    "LogLevel": {
+      "Default": "Debug",
+      "System": "Information",
+      "Microsoft": "None"
+    }
+  },
+  "Endpoints": {
+    // To connect to an Event Store cluster use this instead:
+    // "EventStoreHost": "discover://username:password@myserver:1113",
+    "EventStoreHost": "tcp://localhost:1113",
+    "EventStoreStream": "userstore-develop"
+  }
+}
