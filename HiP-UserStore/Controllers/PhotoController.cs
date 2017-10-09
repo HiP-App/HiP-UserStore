@@ -61,7 +61,6 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
         [HttpPut]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
-        [ProducesResponseType(404)]
         public async Task<IActionResult> Upload([Required]IFormFile file)
         {
             if (file == null)
@@ -97,7 +96,6 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
         [HttpDelete]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
-        [ProducesResponseType(403)]
         [ProducesResponseType(404)]
         public async Task<IActionResult> Delete()
         {
