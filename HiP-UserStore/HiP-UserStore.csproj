@@ -27,10 +27,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="appsettings.Development.json" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\HiP-UserStore.Model\HiP-UserStore.Model.csproj" />
   </ItemGroup>
 
