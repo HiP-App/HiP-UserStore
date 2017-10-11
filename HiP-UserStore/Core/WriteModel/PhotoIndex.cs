@@ -14,20 +14,20 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Core.WriteModel
         private readonly Dictionary<string, PhotoInfo> _photo = new Dictionary<string, PhotoInfo>();
         private readonly object _lockObject = new object();
 
-        public string GetFilePath(IIdentity User)
+        public string GetFilePath(IIdentity user)
         {
             lock (_lockObject)
             {
-                if (_photo.TryGetValue(User.GetUserIdentity(), out var photoInfo))
+                if (_photo.TryGetValue(user.GetUserIdentity(), out var photoInfo))
                     return photoInfo.Path;
                 return null;
             }
         }
 
-        public bool ContainsUser(IIdentity User)
+        public bool ContainsUser(IIdentity user)
         {
             lock (_lockObject)
-                return _photo.ContainsKey(User.GetUserIdentity());
+                return _photo.ContainsKey(user.GetUserIdentity());
         }
 
         public void ApplyEvent(IEvent e)

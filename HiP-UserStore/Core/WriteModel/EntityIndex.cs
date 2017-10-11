@@ -41,11 +41,11 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Core.WriteModel
 
             return null;
         }
-        public int Id(ResourceType entityType, IIdentity UserId)
+        public int Id(ResourceType entityType, IIdentity userId)
         {
             var info = GetOrCreateEntityTypeInfo(entityType);
 
-            return info.Entities.FirstOrDefault(x => x.Value.UserId == UserId.GetUserIdentity()).Key;
+            return info.Entities.FirstOrDefault(x => x.Value.UserId == userId.GetUserIdentity()).Key;
         }
         /// <summary>
         /// Determines whether an entity with the specified type and ID exists.

@@ -69,6 +69,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
+            // ReSharper disable once PossibleNullReferenceException (we already handled file == null)
             var extension = Path.GetExtension(file.FileName).Replace(".","");
 
             // Checking supported extensions
