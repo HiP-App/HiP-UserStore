@@ -1,22 +1,22 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Options;
+using MongoDB.Driver;
+using PaderbornUniversity.SILab.Hip.EventSourcing;
+using PaderbornUniversity.SILab.Hip.EventSourcing.EventStoreLlp;
 using PaderbornUniversity.SILab.Hip.UserStore.Core.ReadModel;
+using PaderbornUniversity.SILab.Hip.UserStore.Core.WriteModel;
+using PaderbornUniversity.SILab.Hip.UserStore.Model;
+using PaderbornUniversity.SILab.Hip.UserStore.Model.Entity;
+using PaderbornUniversity.SILab.Hip.UserStore.Model.Events;
 using PaderbornUniversity.SILab.Hip.UserStore.Utility;
-using PaderbornUniversity.SILab.Hip.UserStore.Core;
 using System;
+using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using PaderbornUniversity.SILab.Hip.EventSourcing;
-using PaderbornUniversity.SILab.Hip.UserStore.Core.WriteModel;
-using PaderbornUniversity.SILab.Hip.UserStore.Model.Events;
-using PaderbornUniversity.SILab.Hip.UserStore.Model;
-using Microsoft.AspNetCore.StaticFiles;
-using MongoDB.Driver;
-using PaderbornUniversity.SILab.Hip.UserStore.Model.Entity;
-using System.ComponentModel.DataAnnotations;
 
 namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
 {
@@ -24,13 +24,13 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
     [Route("api/[controller]")]
     public class PhotoController : Controller
     {
-        private readonly EventStoreClient _eventStore;
+        private readonly EventStoreService _eventStore;
         private readonly CacheDatabaseManager _db;
         private readonly PhotoIndex _photoIndex;
         private readonly EntityIndex _entityIndex;
         private readonly UploadPhotoConfig _photoConfig;
         
-        public PhotoController(EventStoreClient eventStore, CacheDatabaseManager db, InMemoryCache cache, IOptions<UploadPhotoConfig> photoConfig)
+        public PhotoController(EventStoreService eventStore, CacheDatabaseManager db, InMemoryCache cache, IOptions<UploadPhotoConfig> photoConfig)
         {
             _eventStore = eventStore;
             _db = db;
