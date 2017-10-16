@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using PaderbornUniversity.SILab.Hip.EventSourcing;
@@ -14,6 +15,7 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
@@ -27,15 +29,18 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
         private readonly UserIndex _userIndex;
         private readonly UploadPhotoConfig _photoConfig;
         private readonly EndpointConfig _endpointConfig;
-        
+        private readonly ILogger<PhotoController> _logger;
+
         public PhotoController(EventStoreClient eventStore, CacheDatabaseManager db, InMemoryCache cache,
-            IOptions<UploadPhotoConfig> photoConfig, IOptions<EndpointConfig> endpointConfig)
+            IOptions<UploadPhotoConfig> photoConfig, IOptions<EndpointConfig> endpointConfig,
+            ILogger<PhotoController> logger)
         {
             _eventStore = eventStore;
             _db = db;
             _userIndex = cache.Index<UserIndex>();
             _photoConfig = photoConfig.Value;
             _endpointConfig = endpointConfig.Value;
+            _logger = logger;
         }
 
         [HttpGet("{userId}/Photo")]
@@ -100,6 +105,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             };
 
             await _eventStore.AppendEventAsync(ev);
+            await InvalidateThumbnailCacheAsync(userId);
             return StatusCode(204);
         }
 
@@ -128,6 +134,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             };
 
             await _eventStore.AppendEventAsync(ev);
+            await InvalidateThumbnailCacheAsync(userId);
             return StatusCode(204);
         }
 
@@ -147,6 +154,30 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
                 }
             }
             return filePath;
+        }
+
+        private async Task InvalidateThumbnailCacheAsync(string userId)
+        {
+            if (!string.IsNullOrWhiteSpace(_endpointConfig.ThumbnailUrlPattern))
+            {
+                var url = string.Format(_endpointConfig.ThumbnailUrlPattern, userId);
+
+                try
+                {
+                    using (var http = new HttpClient())
+                    {
+                        http.DefaultRequestHeaders.Add("Authorization", Request.Headers["Authorization"].ToString());
+                        var response = await http.DeleteAsync(url);
+                        response.EnsureSuccessStatusCode();
+                    }
+                }
+                catch (HttpRequestException e)
+                {
+                    _logger.LogWarning(e,
+                        $"Request to clear thumbnail cache failed for user '{userId}'; " +
+                        $"thumbnail service might return outdated images (request URL was '{url}').");
+                }
+            }
         }
     }
 }

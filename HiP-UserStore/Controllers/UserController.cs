@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using PaderbornUniversity.SILab.Hip.EventSourcing;
@@ -12,7 +11,6 @@ using PaderbornUniversity.SILab.Hip.UserStore.Model.Rest;
 using PaderbornUniversity.SILab.Hip.UserStore.Utility;
 using System;
 using System.Linq;
-using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
@@ -26,18 +24,15 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
         private readonly EntityIndex _entityIndex;
         private readonly UserIndex _userIndex;
         private readonly EndpointConfig _endpointConfig;
-        private readonly ILogger<UserController> _logger;
 
         public UserController(EventStoreClient eventStore, CacheDatabaseManager db, InMemoryCache cache,
-            IOptions<EndpointConfig> endpointConfig,
-            ILogger<UserController> logger)
+            IOptions<EndpointConfig> endpointConfig)
         {
             _eventStore = eventStore;
             _db = db;
             _entityIndex = cache.Index<EntityIndex>();
             _userIndex = cache.Index<UserIndex>();
             _endpointConfig = endpointConfig.Value;
-            _logger = logger;
         }
 
         [HttpGet("{userId}")]
@@ -106,30 +101,6 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             {
                 // Return direct URL
                 return $"{Request.Scheme}://{Request.Host}/api/User/{userId}/Photo";
-            }
-        }
-
-        private async Task InvalidateThumbnailCacheAsync(string userId)
-        {
-            if (!string.IsNullOrWhiteSpace(_endpointConfig.ThumbnailUrlPattern))
-            {
-                var url = string.Format(_endpointConfig.ThumbnailUrlPattern, userId);
-
-                try
-                {
-                    using (var http = new HttpClient())
-                    {
-                        http.DefaultRequestHeaders.Add("Authorization", Request.Headers["Authorization"].ToString());
-                        var response = await http.DeleteAsync(url);
-                        response.EnsureSuccessStatusCode();
-                    }
-                }
-                catch (HttpRequestException e)
-                {
-                    _logger.LogWarning(e,
-                        $"Request to clear thumbnail cache failed for user '{userId}'; " +
-                        $"thumbnail service might return outdated images (request URL was '{url}').");
-                }
             }
         }
     }

@@ -33,10 +33,13 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Core
         /// </summary>
         public bool TryGetInternalId(string userId, out int id)
         {
-            if (_users.TryGetValue(userId, out var info))
+            lock (_lockObject)
             {
-                id = info.InternalId;
-                return true;
+                if (_users.TryGetValue(userId, out var info))
+                {
+                    id = info.InternalId;
+                    return true;
+                }
             }
 
             id = -1;
