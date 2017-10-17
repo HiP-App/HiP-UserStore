@@ -10,6 +10,7 @@ using PaderbornUniversity.SILab.Hip.UserStore.Model.Events;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.Rest;
 using PaderbornUniversity.SILab.Hip.UserStore.Utility;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -35,8 +36,29 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             _endpointConfig = endpointConfig.Value;
         }
 
+        [HttpGet]
+        [ProducesResponseType(typeof(IEnumerable<UserResult>), 200)]
+        [ProducesResponseType(400)]
+        public IActionResult GetAll()
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var users = _db.Database.GetCollection<User>(ResourceType.User.Name)
+                .AsQueryable()
+                .ToList()
+                .Select(user => new UserResult(user)
+                {
+                    ProfilePicture = GenerateFileUrl(user.UserId)
+                });
+
+            return Ok(users);
+        }
+
         [HttpGet("{userId}")]
         [ProducesResponseType(typeof(UserResult), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
         public IActionResult GetById(string userId)
         {
             if (!ModelState.IsValid)
@@ -51,7 +73,6 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
 
             var result = new UserResult(user)
             {
-                Id = userId,
                 ProfilePicture = GenerateFileUrl(userId)
             };
 
@@ -59,6 +80,9 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
         }
 
         [HttpGet("Me")]
+        [ProducesResponseType(typeof(UserResult), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
         public IActionResult GetSelf() => GetById(User.Identity.GetUserIdentity());
 
         /// <summary>
