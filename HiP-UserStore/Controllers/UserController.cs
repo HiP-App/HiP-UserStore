@@ -39,10 +39,14 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<UserResult>), 200)]
         [ProducesResponseType(400)]
+        [ProducesResponseType(403)]
         public IActionResult GetAll()
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
+
+            if (!UserPermissions.IsAllowedToGetAll(User.Identity))
+                return Forbid();
 
             var users = _db.Database.GetCollection<User>(ResourceType.User.Name)
                 .AsQueryable()
@@ -58,11 +62,15 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
         [HttpGet("{userId}")]
         [ProducesResponseType(typeof(UserResult), 200)]
         [ProducesResponseType(400)]
+        [ProducesResponseType(403)]
         [ProducesResponseType(404)]
         public IActionResult GetById(string userId)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
+
+            if (!UserPermissions.IsAllowedToGet(User.Identity, userId))
+                return Forbid();
 
             var user = _db.Database.GetCollection<User>(ResourceType.User.Name)
                 .AsQueryable()

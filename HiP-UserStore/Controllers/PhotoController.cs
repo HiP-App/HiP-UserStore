@@ -46,13 +46,15 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
         [HttpGet("{userId}/Photo")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
+        [ProducesResponseType(403)]
         [ProducesResponseType(404)]
         public IActionResult Get(string userId)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            // TODO: Validate user permissions
+            if (UserPermissions.IsAllowedToGetPhoto(User.Identity, userId))
+                return Forbid();
 
             var user = _db.Database.GetCollection<User>(ResourceType.User.Name)
                  .AsQueryable()
@@ -66,10 +68,11 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
 
             return File(new FileStream(user.ProfilePicturePath, FileMode.Open), mimeType, Path.GetFileName(user.ProfilePicturePath));
         }
-        
+
         [HttpPut("{userId}/Photo")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
+        [ProducesResponseType(403)]
         [ProducesResponseType(404)]
         public async Task<IActionResult> Upload([Required]IFormFile file, string userId)
         {
@@ -79,11 +82,14 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
+            if (!UserPermissions.IsAllowedToChangePhoto(User.Identity, userId))
+                return Forbid();
+
             if (!_userIndex.TryGetInternalId(userId, out var internalId))
                 return NotFound();
 
             // ReSharper disable once PossibleNullReferenceException (we already handled file == null)
-            var extension = Path.GetExtension(file.FileName).Replace(".","");
+            var extension = Path.GetExtension(file.FileName).Replace(".", "");
 
             // Checking supported extensions
             if (!_photoConfig.SupportedFormats.Contains(extension.ToLower()))
@@ -112,11 +118,15 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
         [HttpDelete("{userId}/Photo")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
+        [ProducesResponseType(403)]
         [ProducesResponseType(404)]
         public async Task<IActionResult> Delete(string userId)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
+
+            if (!UserPermissions.IsAllowedToChangePhoto(User.Identity, userId))
+                return Forbid();
 
             if (!_userIndex.TryGetInternalId(userId, out var internalId))
                 return NotFound();
