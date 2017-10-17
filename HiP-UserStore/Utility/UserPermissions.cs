@@ -1,5 +1,4 @@
-﻿using PaderbornUniversity.SILab.Hip.UserStore.Model;
-using System;
+﻿using System;
 using System.Linq;
 using System.Security.Principal;
 
