@@ -18,29 +18,31 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
 {
     [Route("api/[controller]")]
     [Authorize]
-    public class UserController : Controller
+    public class UsersController : Controller
     {
         private readonly EventStoreClient _eventStore;
         private readonly CacheDatabaseManager _db;
         private readonly EntityIndex _entityIndex;
         private readonly UserIndex _userIndex;
         private readonly EndpointConfig _endpointConfig;
+        private readonly AuthConfig _authConfig;
 
-        public UserController(EventStoreClient eventStore, CacheDatabaseManager db, InMemoryCache cache,
-            IOptions<EndpointConfig> endpointConfig)
+        public UsersController(EventStoreClient eventStore, CacheDatabaseManager db, InMemoryCache cache,
+            IOptions<EndpointConfig> endpointConfig, IOptions<AuthConfig> authConfig)
         {
             _eventStore = eventStore;
             _db = db;
             _entityIndex = cache.Index<EntityIndex>();
             _userIndex = cache.Index<UserIndex>();
             _endpointConfig = endpointConfig.Value;
+            _authConfig = authConfig.Value;
         }
 
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<UserResult>), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(403)]
-        public IActionResult GetAll()
+        public async Task<IActionResult> GetAllAsync()
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -51,12 +53,13 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             var users = _db.Database.GetCollection<User>(ResourceType.User.Name)
                 .AsQueryable()
                 .ToList()
-                .Select(user => new UserResult(user)
+                .Select(async user => new UserResult(user)
                 {
+                    Roles = await Auth.GetUserRolesAsStringAsync(user.UserId, _authConfig),
                     ProfilePicture = GenerateFileUrl(user.UserId)
                 });
 
-            return Ok(users);
+            return Ok(await Task.WhenAll(users));
         }
 
         [HttpGet("{userId}")]
@@ -64,7 +67,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
         [ProducesResponseType(400)]
         [ProducesResponseType(403)]
         [ProducesResponseType(404)]
-        public IActionResult GetById(string userId)
+        public async Task<IActionResult> GetByIdAsync(string userId)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -81,6 +84,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
 
             var result = new UserResult(user)
             {
+                Roles = await Auth.GetUserRolesAsStringAsync(user.UserId, _authConfig),
                 ProfilePicture = GenerateFileUrl(userId)
             };
 
@@ -91,7 +95,41 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
         [ProducesResponseType(typeof(UserResult), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
-        public IActionResult GetSelf() => GetById(User.Identity.GetUserIdentity());
+        public async Task<IActionResult> GetSelfAsync() => await GetByIdAsync(User.Identity.GetUserIdentity());
+
+        [HttpPut("{userId}")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(403)]
+        [ProducesResponseType(404)]
+        public async Task<IActionResult> PutAsync(string userId, [FromBody]UserArgs args)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            if (!_userIndex.TryGetInternalId(userId, out var internalId))
+                return NotFound();
+
+            if (!UserPermissions.IsAllowedToModify(User.Identity, userId))
+                return Forbid();
+
+            var ev = new UserUpdated
+            {
+                Id = internalId,
+                UserId = User.Identity.GetUserIdentity(), // Note: refers to the API caller, not the updated user
+                Properties = args,
+                Timestamp = DateTimeOffset.Now
+            };
+
+            await _eventStore.AppendEventAsync(ev);
+            return NoContent();
+        }
+
+        [HttpPost("Invite")]
+        public IActionResult InviteUsers(/*InviteArgs args*/)
+        {
+            throw new NotImplementedException(); // TODO: Migrate from CmsWebApi
+        }
 
         /// <summary>
         /// This method is intended to be called by Auth0.
@@ -115,7 +153,11 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             {
                 Id = _entityIndex.NextId(ResourceType.User),
                 UserId = userId,
-                Timestamp = DateTimeOffset.Now
+                Timestamp = DateTimeOffset.Now,
+                Properties = new UserArgs
+                {
+                    Email = args.Email,
+                }
             };
 
             await _eventStore.AppendEventAsync(ev);

@@ -21,7 +21,7 @@ using System.Threading.Tasks;
 namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
 {
     [Authorize]
-    [Route("api/User")]
+    [Route("api/Users")]
     public class PhotoController : Controller
     {
         private readonly EventStoreClient _eventStore;
@@ -82,7 +82,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            if (!UserPermissions.IsAllowedToChangePhoto(User.Identity, userId))
+            if (!UserPermissions.IsAllowedToModify(User.Identity, userId))
                 return Forbid();
 
             if (!_userIndex.TryGetInternalId(userId, out var internalId))
@@ -125,7 +125,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            if (!UserPermissions.IsAllowedToChangePhoto(User.Identity, userId))
+            if (!UserPermissions.IsAllowedToModify(User.Identity, userId))
                 return Forbid();
 
             if (!_userIndex.TryGetInternalId(userId, out var internalId))

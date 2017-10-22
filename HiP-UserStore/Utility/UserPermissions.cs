@@ -12,9 +12,9 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Utility
             return true;
         }
 
-        public static bool IsAllowedToChangePhoto(IIdentity identity, string ownerId)
+        public static bool IsAllowedToModify(IIdentity identity, string ownerId)
         {
-            // Users can change their own profile picture, admins/supervisors can change picture of any user
+            // Users can change their own details & profile picture, admins/supervisors can modify any user
             return (identity.GetUserIdentity() == ownerId) || CheckRoles(identity);
         }
 
