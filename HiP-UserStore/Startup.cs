@@ -7,9 +7,11 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PaderbornUniversity.SILab.Hip.EventSourcing;
 using PaderbornUniversity.SILab.Hip.UserStore.Core;
+using PaderbornUniversity.SILab.Hip.UserStore.Model;
 using PaderbornUniversity.SILab.Hip.UserStore.Utility;
 using PaderbornUniversity.SILab.Hip.Webservice;
 using Swashbuckle.AspNetCore.Swagger;
+using System.IO;
 
 namespace PaderbornUniversity.SILab.Hip.UserStore
 {
@@ -39,6 +41,8 @@ namespace PaderbornUniversity.SILab.Hip.UserStore
                 c.SwaggerDoc("v1", new Info { Title = Name, Version = Version });
                 c.OperationFilter<SwaggerOperationFilter>();
                 c.OperationFilter<SwaggerFileUploadOperationFilter>();
+                c.IncludeXmlComments(Path.ChangeExtension(typeof(Startup).Assembly.Location, ".xml"));
+                c.IncludeXmlComments(Path.ChangeExtension(typeof(ResourceType).Assembly.Location, ".xml"));
                 c.DescribeAllEnumsAsStrings();
             });
 
