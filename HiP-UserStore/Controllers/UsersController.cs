@@ -91,6 +91,35 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             return Ok(result);
         }
 
+        [HttpGet("ByEmail/{email}")]
+        [ProducesResponseType(typeof(UserResult), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(403)]
+        [ProducesResponseType(404)]
+        public async Task<IActionResult> GetByEmailAsync(string email)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            if (!UserPermissions.IsAllowedToGetAll(User.Identity))
+                return Forbid();
+
+            var user = _db.Database.GetCollection<User>(ResourceType.User.Name)
+                .AsQueryable()
+                .FirstOrDefault(u => u.Email == email);
+
+            if (user == null)
+                return NotFound();
+
+            var result = new UserResult(user)
+            {
+                Roles = await Auth.GetUserRolesAsStringAsync(user.UserId, _authConfig),
+                ProfilePicture = GenerateFileUrl(user.UserId)
+            };
+
+            return Ok(result);
+        }
+
         [HttpGet("Me")]
         [ProducesResponseType(typeof(UserResult), 200)]
         [ProducesResponseType(400)]
