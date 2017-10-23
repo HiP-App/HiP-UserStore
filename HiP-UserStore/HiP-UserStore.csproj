@@ -4,6 +4,16 @@
     <TargetFramework>netcoreapp2.0</TargetFramework>
     <RootNamespace>PaderbornUniversity.SILab.Hip.UserStore</RootNamespace>
     <AssemblyName>HiP-UserStore</AssemblyName>
+    <NoWarn>1701;1702;1705;1591</NoWarn>
+	<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>bin\Release\netcoreapp2.0\HiP-UserStore.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>bin\Debug\netcoreapp2.0\HiP-UserStore.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -19,7 +29,8 @@
     <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.0.0-preview2-final" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="2.0.0" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="1.0.0" />
+    <PackageReference Include="MongoDB.Driver" Version="2.4.4" />
+    <PackageReference Include="NSwag.MSBuild" Version="11.11.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -30,4 +41,8 @@
     <ProjectReference Include="..\HiP-UserStore.Model\HiP-UserStore.Model.csproj" />
   </ItemGroup>
 
+  <Target Name="NSwag" AfterTargets="Build">
+    <Exec Command="$(NSwagExe_Core20) webapi2swagger /assembly:$(OutDir)/HiP-UserStore.dll /output:../HiP-UserStore.Sdk/swagger.json" />
+	<Exec Command="$(NSwagExe_Core20) swagger2csclient /input:../HiP-UserStore.Sdk/swagger.json /output:../HiP-UserStore.Sdk/NSwag.g.cs" />
+  </Target>
 </Project>
