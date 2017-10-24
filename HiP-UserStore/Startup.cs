@@ -7,8 +7,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PaderbornUniversity.SILab.Hip.EventSourcing;
 using PaderbornUniversity.SILab.Hip.UserStore.Core;
-using PaderbornUniversity.SILab.Hip.UserStore.Core.ReadModel;
-using PaderbornUniversity.SILab.Hip.UserStore.Core.WriteModel;
 using PaderbornUniversity.SILab.Hip.UserStore.Utility;
 using PaderbornUniversity.SILab.Hip.Webservice;
 using Swashbuckle.AspNetCore.Swagger;
@@ -54,7 +52,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore
                 .AddSingleton<CacheDatabaseManager>()
                 .AddSingleton<InMemoryCache>()
                 .AddSingleton<IDomainIndex, EntityIndex>()
-                .AddSingleton<IDomainIndex, PhotoIndex>();
+                .AddSingleton<IDomainIndex, UserIndex>();
 
             var serviceProvider = services.BuildServiceProvider(); // allows us to actually get the configured services
             var authConfig = serviceProvider.GetService<IOptions<AuthConfig>>();

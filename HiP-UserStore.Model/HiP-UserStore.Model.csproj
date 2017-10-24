@@ -6,10 +6,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Rest\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="HiP-EventStoreLib" Version="0.13.0" />
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
   </ItemGroup>
