@@ -11,6 +11,6 @@ WORKDIR /dotnetapp/HiP-UserStore
 
 EXPOSE 5000
 
-RUN dotnet restore --no-cache
+RUN dotnet build
 RUN chmod +x /dotnetapp/HiP-UserStore/run.sh
 CMD /dotnetapp/HiP-UserStore/run.sh
