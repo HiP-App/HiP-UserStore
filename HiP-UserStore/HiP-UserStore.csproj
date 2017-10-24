@@ -43,6 +43,6 @@
 
   <Target Name="NSwag" AfterTargets="Build">
     <Exec Command="$(NSwagExe_Core20) webapi2swagger /assembly:$(OutDir)/HiP-UserStore.dll /output:../HiP-UserStore.Sdk/swagger.json" />
-	<Exec Command="$(NSwagExe_Core20) swagger2csclient /input:../HiP-UserStore.Sdk/swagger.json /output:../HiP-UserStore.Sdk/NSwag.g.cs /namespace:PaderbornUniversity.SILab.Hip.UserStore" />
+	<Exec Command="$(NSwagExe_Core20) swagger2csclient /input:../HiP-UserStore.Sdk/swagger.json /output:../HiP-UserStore.Sdk/NSwag.g.cs /namespace:$(RootNamespace)" />
   </Target>
 </Project>
