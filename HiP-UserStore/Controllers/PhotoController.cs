@@ -44,7 +44,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
         }
 
         [HttpGet("{userId}/Photo")]
-        [ProducesResponseType(200)]
+        [ProducesResponseType(typeof(FileResult), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(403)]
         [ProducesResponseType(404)]
