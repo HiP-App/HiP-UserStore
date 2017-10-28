@@ -6,7 +6,7 @@
     <AssemblyName>HiP-UserStore</AssemblyName>
     <NoWarn>1701;1702;1705;1591</NoWarn>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-	  <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
 
   <ItemGroup>
