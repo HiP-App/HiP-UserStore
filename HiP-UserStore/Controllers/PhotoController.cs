@@ -53,7 +53,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            if (UserPermissions.IsAllowedToGetPhoto(User.Identity, userId))
+            if (!UserPermissions.IsAllowedToGetPhoto(User.Identity, userId))
                 return Forbid();
 
             var user = _db.Database.GetCollection<User>(ResourceType.User.Name)
