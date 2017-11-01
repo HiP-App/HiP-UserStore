@@ -57,20 +57,29 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Core
                     _db.GetCollection<User>(ResourceType.User.Name).InsertOne(newUser);
                     break;
 
-                case UserPhotoUploaded e:
+                case UserUpdated e:
                     var update = Builders<User>.Update
-                        .Set(x => x.ProfilePicturePath, e.Path)
-                        .Set(x => x.Timestamp, e.Timestamp);
+                        .Set(x => x.FirstName, e.Properties.FirstName)
+                        .Set(x => x.LastName, e.Properties.LastName)
+                        .Set(x => x.Email, e.Properties.Email);
 
                     _db.GetCollection<User>(ResourceType.User.Name).UpdateOne(x => x.UserId == e.UserId, update);
                     break;
 
-                case UserPhotoDeleted e:
+                case UserPhotoUploaded e:
                     var update2 = Builders<User>.Update
-                        .Set(x => x.ProfilePicturePath, null)
+                        .Set(x => x.ProfilePicturePath, e.Path)
                         .Set(x => x.Timestamp, e.Timestamp);
 
                     _db.GetCollection<User>(ResourceType.User.Name).UpdateOne(x => x.UserId == e.UserId, update2);
+                    break;
+
+                case UserPhotoDeleted e:
+                    var update3 = Builders<User>.Update
+                        .Set(x => x.ProfilePicturePath, null)
+                        .Set(x => x.Timestamp, e.Timestamp);
+
+                    _db.GetCollection<User>(ResourceType.User.Name).UpdateOne(x => x.UserId == e.UserId, update3);
                     break;
             }
 
