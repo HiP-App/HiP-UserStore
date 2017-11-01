@@ -10,7 +10,6 @@ using PaderbornUniversity.SILab.Hip.UserStore.Model.Events;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.Rest;
 using PaderbornUniversity.SILab.Hip.UserStore.Utility;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -39,10 +38,10 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
         }
 
         [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<UserResult>), 200)]
+        [ProducesResponseType(typeof(AllItemsResult<UserResult>), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(403)]
-        public async Task<IActionResult> GetAllAsync()
+        public async Task<IActionResult> GetAllAsync(UserQueryArgs args)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -50,16 +49,47 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             if (!UserPermissions.IsAllowedToGetAll(User.Identity))
                 return Forbid();
 
+            args = args ?? new UserQueryArgs();
+
+            // For filtering by role, we need to asynchronously retrieve the roles of each user
+            // which is horribly inefficient, but the only solution for now
+            // (only filtering by query text can be done beforehand)
             var users = _db.Database.GetCollection<User>(ResourceType.User.Name)
                 .AsQueryable()
-                .ToList()
-                .Select(async user => new UserResult(user)
-                {
-                    Roles = await Auth.GetUserRolesAsStringAsync(user.UserId, _authConfig),
-                    ProfilePicture = GenerateFileUrl(user.UserId)
-                });
+                .FilterIf(!string.IsNullOrEmpty(args.Query), user =>
+                    user.FirstName.ToLower().Contains(args.Query.ToLower()) ||
+                    user.LastName.ToLower().Contains(args.Query.ToLower()) ||
+                    user.Email.ToLower().Contains(args.Query.ToLower()))
+                .ToList();
 
-            return Ok(await Task.WhenAll(users));
+            var usersWithRoles = await Task.WhenAll(users.Select(async user =>
+            {
+                var roles = await Auth.GetUserRolesAsStringAsync(user.UserId, _authConfig);
+                return (user: user, roles: roles);
+            }));
+
+            try
+            {
+                var result = usersWithRoles
+                    .AsQueryable()
+                    .FilterIf(!string.IsNullOrEmpty(args.Role), u => u.roles.Contains(args.Role))
+                    .Sort(args.OrderBy,
+                        ("firstName", x => x.user.FirstName),
+                        ("lastName", x => x.user.LastName),
+                        ("email", x => x.user.Email))
+                    .PaginateAndSelect(args.Page, args.PageSize, u => new UserResult(u.user)
+                    {
+                        Roles = u.roles,
+                        ProfilePicture = GenerateFileUrl(u.user.UserId)
+                    });
+
+                return Ok(result);
+            }
+            catch (InvalidSortKeyException e)
+            {
+                ModelState.AddModelError(nameof(args.OrderBy), e.Message);
+                return BadRequest(ModelState);
+            }
         }
 
         [HttpGet("{userId}")]
