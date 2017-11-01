@@ -51,26 +51,21 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
 
             args = args ?? new UserQueryArgs();
 
-            // For filtering by role, we need to asynchronously retrieve the roles of each user
-            // which is horribly inefficient, but the only solution for now
-            // (only filtering by query text can be done beforehand)
-            var users = _db.Database.GetCollection<User>(ResourceType.User.Name)
-                .AsQueryable()
-                .FilterIf(!string.IsNullOrEmpty(args.Query), user =>
-                    user.FirstName.ToLower().Contains(args.Query.ToLower()) ||
-                    user.LastName.ToLower().Contains(args.Query.ToLower()) ||
-                    user.Email.ToLower().Contains(args.Query.ToLower()))
-                .ToList();
-
-            var usersWithRoles = await Task.WhenAll(users.Select(async user =>
-            {
-                var roles = await Auth.GetUserRolesAsStringAsync(user.UserId, _authConfig);
-                return (user: user, roles: roles);
-            }));
+            var roles = await Auth.GetUsersWithRolesAsync(_authConfig);
 
             try
             {
-                var result = usersWithRoles
+                // For filtering by role, we need to asynchronously retrieve the roles of each user
+                // which is horribly inefficient, but the only solution for now
+                // (only filtering by query text can be done beforehand)
+                var users = _db.Database.GetCollection<User>(ResourceType.User.Name)
+                    .AsQueryable()
+                    .FilterIf(!string.IsNullOrEmpty(args.Query), user =>
+                        user.FirstName.ToLower().Contains(args.Query.ToLower()) ||
+                        user.LastName.ToLower().Contains(args.Query.ToLower()) ||
+                        user.Email.ToLower().Contains(args.Query.ToLower()))
+                    .ToList()
+                    .Select(user => (user: user, roles: roles[user.UserId]))
                     .AsQueryable()
                     .FilterIf(!string.IsNullOrEmpty(args.Role), u => u.roles.Contains(args.Role))
                     .Sort(args.OrderBy,
@@ -83,7 +78,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
                         ProfilePicture = GenerateFileUrl(u.user.UserId)
                     });
 
-                return Ok(result);
+                return Ok(users);
             }
             catch (InvalidSortKeyException e)
             {

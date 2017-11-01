@@ -56,6 +56,22 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Utility
             var roles = (JArray)user.AppMetadata.roles;
             return roles.Select(role => role.ToString()).ToList();
         }
+
+        /// <summary>
+        /// Gets a list of all users, their IDs and their roles.
+        /// </summary>
+        /// <param name="authConfig"></param>
+        /// <returns></returns>
+        public static async Task<IReadOnlyDictionary<string, IReadOnlyList<string>>> GetUsersWithRolesAsync(AuthConfig authConfig)
+        {
+            var accessToken = await GetAccessTokenAsync(authConfig);
+            var management = new ManagementApiClient(accessToken, Domain);
+            var users = await management.Users.GetAllAsync(fields: "user_id,app_metadata.roles");
+
+            return users.ToDictionary(
+                u => u.UserId,
+                u => ((JArray)u.AppMetadata.roles).Select(role => role.ToString()).ToList() as IReadOnlyList<string>);
+        }
         
         /// <summary>
         /// Requests an access token for the microservice that can be used to access the Auth0 Management API.
