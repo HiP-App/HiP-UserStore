@@ -220,6 +220,35 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             return Created($"{Request.Scheme}://{Request.Host}/api/Users/{userId}", userId);
         }
 
+        /// <summary>
+        /// Updates the Auth0 roles of a user.
+        /// </summary>
+        [HttpPut("{userId}/Roles")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(403)]
+        [ProducesResponseType(404)]
+        public async Task<IActionResult> PutRolesAsync(string userId, [FromBody]string[] roles)
+        {
+            var invalidRoles = roles.Distinct().Where(s => !Enum.TryParse<UserRoles>(s, out _));
+
+            foreach (var invalidRole in invalidRoles)
+                ModelState.AddModelError("Roles", $"'{invalidRole}' is not a valid role");
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            if (!_userIndex.TryGetInternalId(userId, out var internalId))
+                return NotFound();
+
+            if (!UserPermissions.IsAllowedToChangeRoles(User.Identity))
+                return Forbid();
+
+            var actualRoles = roles.Distinct();
+            await Auth.SetUserRolesAsync(userId, actualRoles, _authConfig);
+            return NoContent();
+        }
+
         private string GenerateFileUrl(string userId)
         {
             if (!string.IsNullOrWhiteSpace(_endpointConfig.ThumbnailUrlPattern))

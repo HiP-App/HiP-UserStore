@@ -25,6 +25,8 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Utility
         }
 
         public static bool IsAllowedToGetAll(IIdentity identity) => CheckRoles(identity);
+
+        public static bool IsAllowedToChangeRoles(IIdentity identity) => CheckRoles(identity, UserRoles.Administrator);
         
         // Check if the user has the nessesary roles
         static bool CheckRoles(IIdentity identity, UserRoles allowedToProceed = UserRoles.Administrator | UserRoles.Supervisor)

@@ -1,9 +1,13 @@
 ﻿using Auth0.AuthenticationApi;
 using Auth0.AuthenticationApi.Models;
 using Auth0.ManagementApi;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Security.Principal;
 using System.Threading.Tasks;
@@ -71,6 +75,27 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Utility
             return users.ToDictionary(
                 u => u.UserId,
                 u => ((JArray)u.AppMetadata.roles).Select(role => role.ToString()).ToList() as IReadOnlyList<string>);
+        }
+
+        public static async Task SetUserRolesAsync(string userId, IEnumerable<string> roles, AuthConfig authConfig)
+        {
+            var accessToken = await GetAccessTokenAsync(authConfig);
+            var rawUserId = userId.Substring("auth0|".Length);
+            var patch = new { app_metadata = new { roles = roles } };
+            
+            // Apparently, Auth0 Management API client does not support updating app_metadata of a user,
+            // so we use an HttpClient and do that manually -.-
+            var request = new HttpRequestMessage
+            {
+                RequestUri = new Uri($"https://{Domain}/api/v2/users/{userId}"),
+                Method = new HttpMethod("PATCH"),
+                Headers = { Authorization = new AuthenticationHeaderValue("Bearer", accessToken) },
+                Content = new StringContent(JsonConvert.SerializeObject(patch))
+            };
+
+            var http = new HttpClient();
+            var response = await http.SendAsync(request);
+            response.EnsureSuccessStatusCode(); // TODO: 400 Bad Request
         }
         
         /// <summary>
