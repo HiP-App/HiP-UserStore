@@ -7,12 +7,13 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Core
     public class UserIndex : IDomainIndex
     {
         /// <summary>
-        /// Key = Auth0 user ID, Value = UserInfo
+        /// Key = internal user ID, Value = UserInfo
         /// </summary>
-        private readonly Dictionary<string, UserInfo> _users = new Dictionary<string, UserInfo>();
+        private readonly Dictionary<int, UserInfo> _users = new Dictionary<int, UserInfo>();
+        private readonly Dictionary<string, int> _auth0UserIds = new Dictionary<string, int>();
         private readonly object _lockObject = new object();
 
-        public string GetProfilePicturePath(string userId)
+        public string GetProfilePicturePath(int userId)
         {
             lock (_lockObject)
             {
@@ -22,29 +23,21 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Core
             }
         }
 
-        public bool Exists(string userId)
-        {
-            lock (_lockObject)
-                return _users.ContainsKey(userId);
-        }
-
         /// <summary>
         /// Given an Auth0 user ID, returns the internally used integer user ID.
         /// </summary>
-        public bool TryGetInternalId(string userId, out int id)
+        public bool TryGetInternalId(string userId, out int internalId)
         {
             lock (_lockObject)
             {
-                if (_users.TryGetValue(userId, out var info))
-                {
-                    id = info.InternalId;
+                if (_auth0UserIds.TryGetValue(userId, out internalId))
                     return true;
-                }
             }
 
-            id = -1;
+            internalId = -1;
             return false;
         }
+
 
         public void ApplyEvent(IEvent e)
         {
@@ -52,17 +45,20 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Core
             {
                 case UserCreated ev:
                     lock (_lockObject)
-                        _users.Add(ev.UserId, new UserInfo { InternalId = ev.Id });
+                    {
+                        _users.Add(ev.Id, new UserInfo());
+                        _auth0UserIds.Add(ev.UserId, ev.Id);
+                    }
                     break;
 
                 case UserPhotoUploaded ev:
                     lock (_lockObject)
-                        _users[ev.UserId] = new UserInfo { ProfilePicturePath = ev.Path };
+                        _users[ev.Id] = new UserInfo { ProfilePicturePath = ev.Path };
                     break;
 
                 case UserPhotoDeleted ev:
                     lock (_lockObject)
-                        _users[ev.UserId].ProfilePicturePath = null;
+                        _users[ev.Id].ProfilePicturePath = null;
                     break;
             }
         }
@@ -71,11 +67,6 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Core
 
     public class UserInfo
     {
-        /// <summary>
-        /// The user's ID that is internally used in UserStore.
-        /// </summary>
-        public int InternalId { get; set; }
-
         public string ProfilePicturePath { get; set; }
     }
 }

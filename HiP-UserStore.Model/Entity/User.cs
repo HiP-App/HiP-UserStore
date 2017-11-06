@@ -8,9 +8,20 @@
 
         public string LastName { get; set; }
 
+        public StudentDetails StudentDetails { get; set; }
+
         /// <summary>
         /// The path to the actual profile picture file.
         /// </summary>
         public string ProfilePicturePath { get; set; }
+    }
+
+    public class StudentDetails
+    {
+        public string Discipline { get; set; }
+
+        public string CurrentDegree { get; set; }
+
+        public int CurrentSemester { get; set; }
     }
 }

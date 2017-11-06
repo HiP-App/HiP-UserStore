@@ -96,7 +96,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
                 return BadRequest(new { Message = $"Extension '{extension}' is not supported" });
 
             // Remove old file
-            var oldFilePath = _userIndex.GetProfilePicturePath(userId);
+            var oldFilePath = _userIndex.GetProfilePicturePath(internalId);
             if (oldFilePath != null && System.IO.File.Exists(oldFilePath))
                 System.IO.File.Delete(oldFilePath);
 
@@ -105,14 +105,14 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             var ev = new UserPhotoUploaded
             {
                 Id = internalId,
-                UserId = userId,
+                UserId = User.Identity.GetUserIdentity(),
                 Path = filePath,
                 Timestamp = DateTimeOffset.Now
             };
 
             await _eventStore.AppendEventAsync(ev);
             await InvalidateThumbnailCacheAsync(userId);
-            return StatusCode(204);
+            return NoContent();
         }
 
         [HttpDelete("{userId}/Photo")]
@@ -132,20 +132,20 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
                 return NotFound();
 
             // Remove photo
-            var directoryPath = Path.GetDirectoryName(_userIndex.GetProfilePicturePath(userId));
+            var directoryPath = Path.GetDirectoryName(_userIndex.GetProfilePicturePath(internalId));
             if (directoryPath != null && Directory.Exists(directoryPath))
                 Directory.Delete(directoryPath, true);
 
             var ev = new UserPhotoDeleted
             {
                 Id = internalId,
-                UserId = userId,
+                UserId = User.Identity.GetUserIdentity(),
                 Timestamp = DateTimeOffset.Now
             };
 
             await _eventStore.AppendEventAsync(ev);
             await InvalidateThumbnailCacheAsync(userId);
-            return StatusCode(204);
+            return NoContent();
         }
 
         // Return path to file

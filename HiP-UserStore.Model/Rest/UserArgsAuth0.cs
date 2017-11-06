@@ -7,6 +7,11 @@
     /// </summary>
     public class UserArgsAuth0
     {
+        /// <summary>
+        /// The Auth0 user ID, without the "auth0|"-prefix.
+        /// </summary>
+        public string Id { get; set; }
+
         public string Tenant { get; set; }
 
         public string Username { get; set; }

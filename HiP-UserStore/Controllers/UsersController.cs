@@ -198,9 +198,11 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var userId = User.Identity.GetUserIdentity();
+            // Note: args.Id contains the ID of the new user, User.Identity.GetUserIdentity() is something else
+            // (because the HTTP request is not initiated by the user, but by the Auth0 system)
+            var userId = "auth0|" + args.Id;
 
-            if (_userIndex.Exists(userId))
+            if (_userIndex.TryGetInternalId(userId, out var _))
                 return StatusCode(409, new { Message = $"A user with ID '{userId}' already exists" });
 
             var ev = new UserCreated
@@ -215,7 +217,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             };
 
             await _eventStore.AppendEventAsync(ev);
-            return Created($"{Request.Scheme}://{Request.Host}/api/User/{userId}", userId);
+            return Created($"{Request.Scheme}://{Request.Host}/api/Users/{userId}", userId);
         }
 
         private string GenerateFileUrl(string userId)

@@ -63,7 +63,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Core
                         .Set(x => x.LastName, e.Properties.LastName)
                         .Set(x => x.Email, e.Properties.Email);
 
-                    _db.GetCollection<User>(ResourceType.User.Name).UpdateOne(x => x.UserId == e.UserId, update);
+                    _db.GetCollection<User>(ResourceType.User.Name).UpdateOne(x => x.Id == e.Id, update);
                     break;
 
                 case UserPhotoUploaded e:
@@ -71,7 +71,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Core
                         .Set(x => x.ProfilePicturePath, e.Path)
                         .Set(x => x.Timestamp, e.Timestamp);
 
-                    _db.GetCollection<User>(ResourceType.User.Name).UpdateOne(x => x.UserId == e.UserId, update2);
+                    _db.GetCollection<User>(ResourceType.User.Name).UpdateOne(x => x.Id == e.Id, update2);
                     break;
 
                 case UserPhotoDeleted e:
@@ -79,7 +79,19 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Core
                         .Set(x => x.ProfilePicturePath, null)
                         .Set(x => x.Timestamp, e.Timestamp);
 
-                    _db.GetCollection<User>(ResourceType.User.Name).UpdateOne(x => x.UserId == e.UserId, update3);
+                    _db.GetCollection<User>(ResourceType.User.Name).UpdateOne(x => x.Id == e.Id, update3);
+                    break;
+
+                case UserStudentDetailsUpdated e:
+                    var studentDetails = e.Properties == null ? null : new StudentDetails
+                    {
+                        CurrentDegree = e.Properties.CurrentDegree,
+                        CurrentSemester = e.Properties.CurrentSemester,
+                        Discipline = e.Properties.Discipline
+                    };
+
+                    var update4 = Builders<User>.Update.Set(x => x.StudentDetails, studentDetails);
+                    _db.GetCollection<User>(ResourceType.User.Name).UpdateOne(x => x.Id == e.Id, update4);
                     break;
             }
 

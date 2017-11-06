@@ -53,16 +53,13 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Core
         {
             switch (e)
             {
-                case IUpdateEvent ev:
+                case ICreateEvent ev:
                     lock (_lockObject)
                     {
                         var owner = (ev as UserActivityBaseEvent)?.UserId;
                         var info = GetOrCreateEntityTypeInfo(ev.GetEntityType());
-                        if (!info.Entities.Any(x => x.Value.UserId == owner))
-                        {
-                            info.MaximumId = Math.Max(info.MaximumId, ev.Id);
-                            info.Entities.Add(ev.Id, new EntityInfo { UserId = owner });
-                        }
+                        info.MaximumId = Math.Max(info.MaximumId, ev.Id);
+                        info.Entities.Add(ev.Id, new EntityInfo { UserId = owner });
                     }
                     break;
 

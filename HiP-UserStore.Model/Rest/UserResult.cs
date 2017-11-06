@@ -18,6 +18,8 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Model.Rest
 
         public string FullName => (FirstName == null && LastName == null) ? null : FirstName + ' ' + LastName;
 
+        public StudentDetailsResult StudentDetails { get; set; }
+
         public IReadOnlyCollection<string> Roles { get; set; }
 
         /// <summary>
@@ -31,6 +33,34 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Model.Rest
             Email = user.Email;
             FirstName = user.FirstName;
             LastName = user.LastName;
+            
+            if (user.StudentDetails != null)
+            {
+                StudentDetails = new StudentDetailsResult
+                {
+                    Discipline = user.StudentDetails.Discipline,
+                    CurrentDegree = user.StudentDetails.CurrentDegree,
+                    CurrentSemester = user.StudentDetails.CurrentSemester
+                };
+            }
         }
+    }
+
+    public class StudentDetailsResult
+    {
+        public string Discipline { get; set; }
+
+        public string CurrentDegree { get; set; }
+
+        public int CurrentSemester { get; set; }
+    }
+
+    public class StudentDetailsArgs
+    {
+        public string Discipline { get; set; }
+
+        public string CurrentDegree { get; set; }
+
+        public int CurrentSemester { get; set; }
     }
 }
