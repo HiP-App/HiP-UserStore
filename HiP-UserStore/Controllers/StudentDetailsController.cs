@@ -2,11 +2,12 @@
 using Microsoft.AspNetCore.Mvc;
 using PaderbornUniversity.SILab.Hip.EventSourcing;
 using PaderbornUniversity.SILab.Hip.UserStore.Core;
-using PaderbornUniversity.SILab.Hip.UserStore.Model.Entity;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.Events;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.Rest;
 using PaderbornUniversity.SILab.Hip.UserStore.Utility;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
@@ -80,6 +81,23 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
 
             await _eventStore.AppendEventAsync(ev);
             return NoContent();
+        }
+
+        [HttpGet("/api/Students/Disciplines")]
+        [AllowAnonymous]
+        [ProducesResponseType(typeof(IEnumerable<string>), 200)]
+        public IActionResult GetDisciplines()
+        {
+            return Ok(new[]
+            {
+                "History",
+                "Computer Science",
+                "Medieval Studies",
+                "History and Arts",
+                "Arts",
+                "Linguistics"
+            }
+            .OrderBy(s => s));
         }
     }
 }
