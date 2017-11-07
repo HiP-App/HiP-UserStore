@@ -65,6 +65,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
                         user.LastName.ToLower().Contains(args.Query.ToLower()) ||
                         user.Email.ToLower().Contains(args.Query.ToLower()))
                     .ToList()
+                    .Where(user => roles.ContainsKey(user.UserId)) // ignore orphaned users in DB
                     .Select(user => (user: user, roles: roles[user.UserId]))
                     .AsQueryable()
                     .FilterIf(!string.IsNullOrEmpty(args.Role), u => u.roles.Contains(args.Role))

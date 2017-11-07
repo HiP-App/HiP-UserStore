@@ -10,6 +10,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Security.Principal;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace PaderbornUniversity.SILab.Hip.UserStore.Utility
@@ -80,7 +81,6 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Utility
         public static async Task SetUserRolesAsync(string userId, IEnumerable<string> roles, AuthConfig authConfig)
         {
             var accessToken = await GetAccessTokenAsync(authConfig);
-            var rawUserId = userId.Substring("auth0|".Length);
             var patch = new { app_metadata = new { roles = roles } };
             
             // Apparently, Auth0 Management API client does not support updating app_metadata of a user,
@@ -90,7 +90,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Utility
                 RequestUri = new Uri($"https://{Domain}/api/v2/users/{userId}"),
                 Method = new HttpMethod("PATCH"),
                 Headers = { Authorization = new AuthenticationHeaderValue("Bearer", accessToken) },
-                Content = new StringContent(JsonConvert.SerializeObject(patch))
+                Content = new StringContent(JsonConvert.SerializeObject(patch), Encoding.UTF8, "application/json")
             };
 
             var http = new HttpClient();
