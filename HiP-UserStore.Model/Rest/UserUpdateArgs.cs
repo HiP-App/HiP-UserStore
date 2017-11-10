@@ -1,12 +1,10 @@
 ﻿namespace PaderbornUniversity.SILab.Hip.UserStore.Model.Rest
 {
     /// <summary>
-    /// Arguments for creating a user.
+    /// Arguments for updating a user.
     /// </summary>
-    public class UserArgs
+    public class UserUpdateArgs
     {
-        public string Email { get; set; }
-
         public string FirstName { get; set; }
 
         public string LastName { get; set; }

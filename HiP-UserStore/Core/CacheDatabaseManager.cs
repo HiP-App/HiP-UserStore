@@ -60,8 +60,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Core
                 case UserUpdated e:
                     var update = Builders<User>.Update
                         .Set(x => x.FirstName, e.Properties.FirstName)
-                        .Set(x => x.LastName, e.Properties.LastName)
-                        .Set(x => x.Email, e.Properties.Email);
+                        .Set(x => x.LastName, e.Properties.LastName);
 
                     _db.GetCollection<User>(ResourceType.User.Name).UpdateOne(x => x.Id == e.Id, update);
                     break;
