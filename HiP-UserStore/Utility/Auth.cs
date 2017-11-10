@@ -95,7 +95,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Utility
 
             var http = new HttpClient();
             var response = await http.SendAsync(request);
-            response.EnsureSuccessStatusCode(); // TODO: 400 Bad Request
+            response.EnsureSuccessStatusCode();
         }
         
         /// <summary>
