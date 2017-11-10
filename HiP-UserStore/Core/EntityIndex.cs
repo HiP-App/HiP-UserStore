@@ -3,7 +3,6 @@ using PaderbornUniversity.SILab.Hip.UserStore.Model;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.Events;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace PaderbornUniversity.SILab.Hip.UserStore.Core
 {

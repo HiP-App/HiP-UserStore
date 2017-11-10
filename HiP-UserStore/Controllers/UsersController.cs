@@ -239,7 +239,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            if (!_userIndex.TryGetInternalId(userId, out var internalId))
+            if (!_userIndex.TryGetInternalId(userId, out var _))
                 return NotFound();
 
             if (!UserPermissions.IsAllowedToChangeRoles(User.Identity))

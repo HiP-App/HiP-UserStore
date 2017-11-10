@@ -81,7 +81,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Utility
         public static async Task SetUserRolesAsync(string userId, IEnumerable<string> roles, AuthConfig authConfig)
         {
             var accessToken = await GetAccessTokenAsync(authConfig);
-            var patch = new { app_metadata = new { roles = roles } };
+            var patch = new { app_metadata = new { roles } };
             
             // Apparently, Auth0 Management API client does not support updating app_metadata of a user,
             // so we use an HttpClient and do that manually -.-

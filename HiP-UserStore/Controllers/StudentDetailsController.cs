@@ -17,13 +17,11 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
     public class StudentDetailsController : Controller
     {
         private readonly EventStoreClient _eventStore;
-        private readonly CacheDatabaseManager _db;
         private readonly UserIndex _userIndex;
 
-        public StudentDetailsController(EventStoreClient eventStore, CacheDatabaseManager db, InMemoryCache cache)
+        public StudentDetailsController(EventStoreClient eventStore, InMemoryCache cache)
         {
             _eventStore = eventStore;
-            _db = db;
             _userIndex = cache.Index<UserIndex>();
         }
 
