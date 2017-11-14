@@ -9,7 +9,7 @@ using PaderbornUniversity.SILab.Hip.UserStore.Model.Events;
 using PaderbornUniversity.SILab.Hip.UserStore.Utility;
 using System;
 
-namespace PaderbornUniversity.SILab.Hip.UserStore.Core.ReadModel
+namespace PaderbornUniversity.SILab.Hip.UserStore.Core
 {
     /// <summary>
     /// Subscribes to EventStore events to keep the cache database up to date.
@@ -47,23 +47,33 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Core.ReadModel
         {
             switch (ev)
             {
-               case PhotoUploaded e:
-                    var newPhoto = new Photo()
+                case UserCreated e:
+                    var newUser = new User
                     {
                         Id = e.Id,
                         UserId = e.UserId,
-                        Timestamp = e.Timestamp,
-                        LastUpdatedBy = e.UserId,
-                        Path = e.Path
+                        Timestamp = e.Timestamp
                     };
-                    _db.GetCollection<Photo>(ResourceType.Photo.Name).ReplaceOne(x => x.UserId == e.UserId, newPhoto, options: new UpdateOptions { IsUpsert = true });
+                    _db.GetCollection<User>(ResourceType.User.Name).InsertOne(newUser);
                     break;
 
-                case PhotoDeleted e:
-                    _db.GetCollection<Photo>(ResourceType.Photo.Name).DeleteOne(x => x.UserId == e.UserId);
+                case UserPhotoUploaded e:
+                    var update = Builders<User>.Update
+                        .Set(x => x.ProfilePicturePath, e.Path)
+                        .Set(x => x.Timestamp, e.Timestamp);
+
+                    _db.GetCollection<User>(ResourceType.User.Name).UpdateOne(x => x.UserId == e.UserId, update);
+                    break;
+
+                case UserPhotoDeleted e:
+                    var update2 = Builders<User>.Update
+                        .Set(x => x.ProfilePicturePath, null)
+                        .Set(x => x.Timestamp, e.Timestamp);
+
+                    _db.GetCollection<User>(ResourceType.User.Name).UpdateOne(x => x.UserId == e.UserId, update2);
                     break;
             }
 
-        }      
+        }
     }
 }

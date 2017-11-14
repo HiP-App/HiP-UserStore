@@ -1,13 +1,11 @@
 ﻿using PaderbornUniversity.SILab.Hip.EventSourcing;
 using PaderbornUniversity.SILab.Hip.UserStore.Model;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.Events;
-using PaderbornUniversity.SILab.Hip.UserStore.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Principal;
 
-namespace PaderbornUniversity.SILab.Hip.UserStore.Core.WriteModel
+namespace PaderbornUniversity.SILab.Hip.UserStore.Core
 {
     public class EntityIndex : IDomainIndex
     {
@@ -29,9 +27,6 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Core.WriteModel
         /// <summary>
         /// Get UserId of an entity owner
         /// </summary>
-        /// <param name="entityType"></param>
-        /// <param name="id"></param>
-        /// <returns></returns>
         public string Owner(ResourceType entityType, int id)
         {
             var info = GetOrCreateEntityTypeInfo(entityType);
@@ -41,12 +36,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Core.WriteModel
 
             return null;
         }
-        public int Id(ResourceType entityType, IIdentity userId)
-        {
-            var info = GetOrCreateEntityTypeInfo(entityType);
 
-            return info.Entities.FirstOrDefault(x => x.Value.UserId == userId.GetUserIdentity()).Key;
-        }
         /// <summary>
         /// Determines whether an entity with the specified type and ID exists.
         /// </summary>

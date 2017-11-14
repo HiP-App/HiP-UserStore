@@ -5,6 +5,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Model.Entity
     public abstract class ContentBase : IEntity<int>
     {
         public int Id { get; set; }
+
         /// <summary>
         /// Owner of the content
         /// </summary>
