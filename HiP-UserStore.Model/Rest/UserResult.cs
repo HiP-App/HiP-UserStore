@@ -1,5 +1,6 @@
 ﻿using PaderbornUniversity.SILab.Hip.UserStore.Model.Entity;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace PaderbornUniversity.SILab.Hip.UserStore.Model.Rest
 {
@@ -57,10 +58,13 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Model.Rest
 
     public class StudentDetailsArgs
     {
+        [Required]
         public string Discipline { get; set; }
 
+        [Required]
         public string CurrentDegree { get; set; }
 
+        [Range(1, 50)]
         public int CurrentSemester { get; set; }
     }
 }

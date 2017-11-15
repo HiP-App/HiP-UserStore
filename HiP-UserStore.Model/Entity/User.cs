@@ -1,4 +1,6 @@
-﻿namespace PaderbornUniversity.SILab.Hip.UserStore.Model.Entity
+﻿using PaderbornUniversity.SILab.Hip.UserStore.Model.Rest;
+
+namespace PaderbornUniversity.SILab.Hip.UserStore.Model.Entity
 {
     public class User : ContentBase
     {
@@ -23,5 +25,16 @@
         public string CurrentDegree { get; set; }
 
         public int CurrentSemester { get; set; }
+
+        public StudentDetails()
+        {
+        }
+
+        public StudentDetails(StudentDetailsArgs args)
+        {
+            Discipline = args.Discipline;
+            CurrentDegree = args.CurrentDegree;
+            CurrentSemester = args.CurrentSemester;
+        }
     }
 }

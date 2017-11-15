@@ -82,13 +82,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Core
                     break;
 
                 case UserStudentDetailsUpdated e:
-                    var studentDetails = e.Properties == null ? null : new StudentDetails
-                    {
-                        CurrentDegree = e.Properties.CurrentDegree,
-                        CurrentSemester = e.Properties.CurrentSemester,
-                        Discipline = e.Properties.Discipline
-                    };
-
+                    var studentDetails = e.Properties == null ? null : new StudentDetails(e.Properties);
                     var update4 = Builders<User>.Update.Set(x => x.StudentDetails, studentDetails);
                     _db.GetCollection<User>(ResourceType.User.Name).UpdateOne(x => x.Id == e.Id, update4);
                     break;

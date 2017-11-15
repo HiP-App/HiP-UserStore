@@ -30,7 +30,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
         [ProducesResponseType(400)]
         [ProducesResponseType(403)]
         [ProducesResponseType(404)]
-        public async Task<IActionResult> PutAsync(string userId, StudentDetailsArgs args)
+        public async Task<IActionResult> PutAsync(string userId, [FromBody]StudentDetailsArgs args)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
