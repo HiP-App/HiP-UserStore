@@ -24,17 +24,15 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
         private readonly EntityIndex _entityIndex;
         private readonly UserIndex _userIndex;
         private readonly EndpointConfig _endpointConfig;
-        private readonly AuthConfig _authConfig;
 
         public UsersController(EventStoreClient eventStore, CacheDatabaseManager db, InMemoryCache cache,
-            IOptions<EndpointConfig> endpointConfig, IOptions<AuthConfig> authConfig)
+            IOptions<EndpointConfig> endpointConfig)
         {
             _eventStore = eventStore;
             _db = db;
             _entityIndex = cache.Index<EntityIndex>();
             _userIndex = cache.Index<UserIndex>();
             _endpointConfig = endpointConfig.Value;
-            _authConfig = authConfig.Value;
         }
 
         [HttpGet]
@@ -51,7 +49,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
 
             args = args ?? new UserQueryArgs();
 
-            var roles = await Auth.GetUsersWithRolesAsync(_authConfig);
+            var roles = await Auth.GetUsersWithRolesAsync();
 
             try
             {
@@ -110,7 +108,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
 
             var result = new UserResult(user)
             {
-                Roles = await Auth.GetUserRolesAsStringAsync(user.UserId, _authConfig),
+                Roles = await Auth.GetUserRolesAsStringAsync(user.UserId),
                 ProfilePicture = GenerateFileUrl(userId)
             };
 
@@ -139,7 +137,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
 
             var result = new UserResult(user)
             {
-                Roles = await Auth.GetUserRolesAsStringAsync(user.UserId, _authConfig),
+                Roles = await Auth.GetUserRolesAsStringAsync(user.UserId),
                 ProfilePicture = GenerateFileUrl(user.UserId)
             };
 
@@ -246,7 +244,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
                 return Forbid();
 
             var actualRoles = roles.Distinct();
-            await Auth.SetUserRolesAsync(userId, actualRoles, _authConfig);
+            await Auth.SetUserRolesAsync(userId, actualRoles);
             return NoContent();
         }
 

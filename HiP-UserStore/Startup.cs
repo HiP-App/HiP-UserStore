@@ -60,6 +60,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore
 
             var serviceProvider = services.BuildServiceProvider(); // allows us to actually get the configured services
             var authConfig = serviceProvider.GetService<IOptions<AuthConfig>>();
+            Utility.Auth.Initialize(authConfig);
 
             // Configure authentication
             services
