@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PaderbornUniversity.SILab.Hip.EventSourcing;
+using PaderbornUniversity.SILab.Hip.EventSourcing.EventStoreLlp;
 using PaderbornUniversity.SILab.Hip.UserStore.Core;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.Events;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.Rest;
@@ -16,10 +17,10 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
     [Authorize]
     public class StudentDetailsController : Controller
     {
-        private readonly EventStoreClient _eventStore;
+        private readonly EventStoreService _eventStore;
         private readonly UserIndex _userIndex;
 
-        public StudentDetailsController(EventStoreClient eventStore, InMemoryCache cache)
+        public StudentDetailsController(EventStoreService eventStore, InMemoryCache cache)
         {
             _eventStore = eventStore;
             _userIndex = cache.Index<UserIndex>();
