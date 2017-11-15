@@ -72,8 +72,6 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Utility
         /// <summary>
         /// Gets a list of all users, their IDs and their roles.
         /// </summary>
-        /// <param name="authConfig"></param>
-        /// <returns></returns>
         public static async Task<IReadOnlyDictionary<string, IReadOnlyList<string>>> GetUsersWithRolesAsync()
         {
             var accessToken = await GetAccessTokenAsync();
@@ -85,6 +83,9 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Utility
                 u => ((JArray)u.AppMetadata.roles).Select(role => role.ToString()).ToList() as IReadOnlyList<string>);
         }
 
+        /// <summary>
+        /// Assigns the specified roles to the specified user.
+        /// </summary>
         public static async Task SetUserRolesAsync(string userId, IEnumerable<string> roles)
         {
             var accessToken = await GetAccessTokenAsync();
