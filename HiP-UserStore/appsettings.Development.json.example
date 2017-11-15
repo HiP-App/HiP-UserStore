@@ -7,7 +7,7 @@
             "Microsoft": "None"
         }
     },
-
+    
     "Endpoints": {
         "MongoDbHost": "mongodb://localhost:27017",
         "MongoDbName": "userstore-develop"

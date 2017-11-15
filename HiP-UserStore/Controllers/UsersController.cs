@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using PaderbornUniversity.SILab.Hip.EventSourcing;
+using PaderbornUniversity.SILab.Hip.EventSourcing.EventStoreLlp;
 using PaderbornUniversity.SILab.Hip.UserStore.Core;
 using PaderbornUniversity.SILab.Hip.UserStore.Model;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.Entity;
@@ -19,13 +20,13 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
     [Authorize]
     public class UsersController : Controller
     {
-        private readonly EventStoreClient _eventStore;
+        private readonly EventStoreService _eventStore;
         private readonly CacheDatabaseManager _db;
         private readonly EntityIndex _entityIndex;
         private readonly UserIndex _userIndex;
         private readonly EndpointConfig _endpointConfig;
 
-        public UsersController(EventStoreClient eventStore, CacheDatabaseManager db, InMemoryCache cache,
+        public UsersController(EventStoreService eventStore, CacheDatabaseManager db, InMemoryCache cache,
             IOptions<EndpointConfig> endpointConfig)
         {
             _eventStore = eventStore;

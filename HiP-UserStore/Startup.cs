@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PaderbornUniversity.SILab.Hip.EventSourcing;
+using PaderbornUniversity.SILab.Hip.EventSourcing.EventStoreLlp;
 using PaderbornUniversity.SILab.Hip.UserStore.Core;
 using PaderbornUniversity.SILab.Hip.UserStore.Model;
 using PaderbornUniversity.SILab.Hip.UserStore.Utility;
@@ -48,11 +49,12 @@ namespace PaderbornUniversity.SILab.Hip.UserStore
 
             services
                 .Configure<EndpointConfig>(Configuration.GetSection("Endpoints"))
+                .Configure<EventStoreConfig>(Configuration.GetSection("EventStore"))
                 .Configure<AuthConfig>(Configuration.GetSection("Auth"))
                 .Configure<UploadPhotoConfig>(Configuration.GetSection("UploadingPhoto"));
 
             services
-                .AddSingleton<EventStoreClient>()
+                .AddSingleton<EventStoreService>()
                 .AddSingleton<CacheDatabaseManager>()
                 .AddSingleton<InMemoryCache>()
                 .AddSingleton<IDomainIndex, EntityIndex>()
