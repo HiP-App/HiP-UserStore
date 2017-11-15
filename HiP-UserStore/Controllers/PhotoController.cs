@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using PaderbornUniversity.SILab.Hip.EventSourcing;
+using PaderbornUniversity.SILab.Hip.EventSourcing.EventStoreLlp;
 using PaderbornUniversity.SILab.Hip.UserStore.Core;
 using PaderbornUniversity.SILab.Hip.UserStore.Model;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.Entity;
@@ -24,14 +25,14 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
     [Route("api/User")]
     public class PhotoController : Controller
     {
-        private readonly EventStoreClient _eventStore;
+        private readonly EventStoreService _eventStore;
         private readonly CacheDatabaseManager _db;
         private readonly UserIndex _userIndex;
         private readonly UploadPhotoConfig _photoConfig;
         private readonly EndpointConfig _endpointConfig;
         private readonly ILogger<PhotoController> _logger;
 
-        public PhotoController(EventStoreClient eventStore, CacheDatabaseManager db, InMemoryCache cache,
+        public PhotoController(EventStoreService eventStore, CacheDatabaseManager db, InMemoryCache cache,
             IOptions<UploadPhotoConfig> photoConfig, IOptions<EndpointConfig> endpointConfig,
             ILogger<PhotoController> logger)
         {

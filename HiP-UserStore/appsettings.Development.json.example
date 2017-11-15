@@ -7,10 +7,10 @@
       "Microsoft": "None"
     }
   },
-  "Endpoints": {
+  "EventStore": {
     // To connect to an Event Store cluster use this instead:
-    // "EventStoreHost": "discover://username:password@myserver:1113",
-    "EventStoreHost": "tcp://localhost:1113",
-    "EventStoreStream": "userstore-develop"
+    // "Host": "discover://username:password@myserver:1113",
+    "Host": "tcp://localhost:1113",
+    "Stream": "userstore-develop"
   }
 }

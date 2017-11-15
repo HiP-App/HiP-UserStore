@@ -1,12 +1,13 @@
-﻿using System;
-using PaderbornUniversity.SILab.Hip.EventSourcing;
+﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using PaderbornUniversity.SILab.Hip.UserStore.Utility;
-using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
-using PaderbornUniversity.SILab.Hip.UserStore.Model.Events;
-using PaderbornUniversity.SILab.Hip.UserStore.Model.Entity;
+using PaderbornUniversity.SILab.Hip.EventSourcing;
+using PaderbornUniversity.SILab.Hip.EventSourcing.EventStoreLlp;
 using PaderbornUniversity.SILab.Hip.UserStore.Model;
+using PaderbornUniversity.SILab.Hip.UserStore.Model.Entity;
+using PaderbornUniversity.SILab.Hip.UserStore.Model.Events;
+using PaderbornUniversity.SILab.Hip.UserStore.Utility;
+using System;
 
 namespace PaderbornUniversity.SILab.Hip.UserStore.Core
 {
@@ -15,13 +16,13 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Core
     /// </summary>
     public class CacheDatabaseManager
     {
-        private readonly EventStoreClient _eventStore;
+        private readonly EventStoreService _eventStore;
         private readonly IMongoDatabase _db;
 
         public IMongoDatabase Database => _db;
 
         public CacheDatabaseManager(
-            EventStoreClient eventStore,
+            EventStoreService eventStore,
             IOptions<EndpointConfig> config,
             ILogger<CacheDatabaseManager> logger)
         {
@@ -38,9 +39,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Core
 
             // 2) Subscribe to EventStore to receive all past and future events
             _eventStore = eventStore;
-
-            var subscription = _eventStore.EventStream.SubscribeCatchUp();
-            subscription.EventAppeared.Subscribe(ApplyEvent);
+            _eventStore.EventStream.SubscribeCatchUp(ApplyEvent);
         }
 
         private void ApplyEvent(IEvent ev)
