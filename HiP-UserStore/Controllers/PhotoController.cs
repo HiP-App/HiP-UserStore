@@ -22,7 +22,7 @@ using System.Threading.Tasks;
 namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
 {
     [Authorize]
-    [Route("api/User")]
+    [Route("api/Users")]
     public class PhotoController : Controller
     {
         private readonly EventStoreService _eventStore;
@@ -54,7 +54,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            if (UserPermissions.IsAllowedToGetPhoto(User.Identity, userId))
+            if (!UserPermissions.IsAllowedToGetPhoto(User.Identity, userId))
                 return Forbid();
 
             var user = _db.Database.GetCollection<User>(ResourceType.User.Name)
@@ -83,7 +83,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            if (!UserPermissions.IsAllowedToChangePhoto(User.Identity, userId))
+            if (!UserPermissions.IsAllowedToModify(User.Identity, userId))
                 return Forbid();
 
             if (!_userIndex.TryGetInternalId(userId, out var internalId))
@@ -97,7 +97,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
                 return BadRequest(new { Message = $"Extension '{extension}' is not supported" });
 
             // Remove old file
-            var oldFilePath = _userIndex.GetProfilePicturePath(userId);
+            var oldFilePath = _userIndex.GetProfilePicturePath(internalId);
             if (oldFilePath != null && System.IO.File.Exists(oldFilePath))
                 System.IO.File.Delete(oldFilePath);
 
@@ -106,14 +106,14 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             var ev = new UserPhotoUploaded
             {
                 Id = internalId,
-                UserId = userId,
+                UserId = User.Identity.GetUserIdentity(),
                 Path = filePath,
                 Timestamp = DateTimeOffset.Now
             };
 
             await _eventStore.AppendEventAsync(ev);
             await InvalidateThumbnailCacheAsync(userId);
-            return StatusCode(204);
+            return NoContent();
         }
 
         [HttpDelete("{userId}/Photo")]
@@ -126,27 +126,27 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            if (!UserPermissions.IsAllowedToChangePhoto(User.Identity, userId))
+            if (!UserPermissions.IsAllowedToModify(User.Identity, userId))
                 return Forbid();
 
             if (!_userIndex.TryGetInternalId(userId, out var internalId))
                 return NotFound();
 
             // Remove photo
-            var directoryPath = Path.GetDirectoryName(_userIndex.GetProfilePicturePath(userId));
+            var directoryPath = Path.GetDirectoryName(_userIndex.GetProfilePicturePath(internalId));
             if (directoryPath != null && Directory.Exists(directoryPath))
                 Directory.Delete(directoryPath, true);
 
             var ev = new UserPhotoDeleted
             {
                 Id = internalId,
-                UserId = userId,
+                UserId = User.Identity.GetUserIdentity(),
                 Timestamp = DateTimeOffset.Now
             };
 
             await _eventStore.AppendEventAsync(ev);
             await InvalidateThumbnailCacheAsync(userId);
-            return StatusCode(204);
+            return NoContent();
         }
 
         // Return path to file

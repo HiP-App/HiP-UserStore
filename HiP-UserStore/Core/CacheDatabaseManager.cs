@@ -56,20 +56,34 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Core
                     _db.GetCollection<User>(ResourceType.User.Name).InsertOne(newUser);
                     break;
 
-                case UserPhotoUploaded e:
+                case UserUpdated e:
                     var update = Builders<User>.Update
+                        .Set(x => x.FirstName, e.Properties.FirstName)
+                        .Set(x => x.LastName, e.Properties.LastName);
+
+                    _db.GetCollection<User>(ResourceType.User.Name).UpdateOne(x => x.Id == e.Id, update);
+                    break;
+
+                case UserPhotoUploaded e:
+                    var update2 = Builders<User>.Update
                         .Set(x => x.ProfilePicturePath, e.Path)
                         .Set(x => x.Timestamp, e.Timestamp);
 
-                    _db.GetCollection<User>(ResourceType.User.Name).UpdateOne(x => x.UserId == e.UserId, update);
+                    _db.GetCollection<User>(ResourceType.User.Name).UpdateOne(x => x.Id == e.Id, update2);
                     break;
 
                 case UserPhotoDeleted e:
-                    var update2 = Builders<User>.Update
+                    var update3 = Builders<User>.Update
                         .Set(x => x.ProfilePicturePath, null)
                         .Set(x => x.Timestamp, e.Timestamp);
 
-                    _db.GetCollection<User>(ResourceType.User.Name).UpdateOne(x => x.UserId == e.UserId, update2);
+                    _db.GetCollection<User>(ResourceType.User.Name).UpdateOne(x => x.Id == e.Id, update3);
+                    break;
+
+                case UserStudentDetailsUpdated e:
+                    var studentDetails = e.Properties == null ? null : new StudentDetails(e.Properties);
+                    var update4 = Builders<User>.Update.Set(x => x.StudentDetails, studentDetails);
+                    _db.GetCollection<User>(ResourceType.User.Name).UpdateOne(x => x.Id == e.Id, update4);
                     break;
             }
 
