@@ -51,7 +51,8 @@ namespace PaderbornUniversity.SILab.Hip.UserStore
                 .Configure<EndpointConfig>(Configuration.GetSection("Endpoints"))
                 .Configure<EventStoreConfig>(Configuration.GetSection("EventStore"))
                 .Configure<AuthConfig>(Configuration.GetSection("Auth"))
-                .Configure<UploadPhotoConfig>(Configuration.GetSection("UploadingPhoto"));
+                .Configure<UploadPhotoConfig>(Configuration.GetSection("UploadingPhoto"))
+                .Configure<CorsConfig>(Configuration);
 
             services
                 .AddSingleton<EventStoreService>()
