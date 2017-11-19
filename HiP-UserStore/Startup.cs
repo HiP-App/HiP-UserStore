@@ -100,16 +100,16 @@ namespace PaderbornUniversity.SILab.Hip.UserStore
             // something), so we manually request an instance here
             app.ApplicationServices.GetService<CacheDatabaseManager>();
 
-            //// Use CORS (important: must be before app.UseMvc())
-            //app.UseCors(builder =>
-            //{
-            //    var corsEnvConf = corsConfig.Value.Cors[env.EnvironmentName];
-            //    builder
-            //        .WithOrigins(corsEnvConf.Origins)
-            //        .WithMethods(corsEnvConf.Methods)
-            //        .WithHeaders(corsEnvConf.Headers)
-            //        .WithExposedHeaders(corsEnvConf.ExposedHeaders);
-            //});
+            // Use CORS (important: must be before app.UseMvc())
+            app.UseCors(builder =>
+            {
+                var corsEnvConf = corsConfig.Value.Cors[env.EnvironmentName];
+                builder
+                    .WithOrigins(corsEnvConf.Origins)
+                    .WithMethods(corsEnvConf.Methods)
+                    .WithHeaders(corsEnvConf.Headers)
+                    .WithExposedHeaders(corsEnvConf.ExposedHeaders);
+            });
 
             app.UseAuthentication();
             app.UseMvc();
