@@ -12,6 +12,7 @@ using PaderbornUniversity.SILab.Hip.EventSourcing.EventStoreLlp;
 using PaderbornUniversity.SILab.Hip.UserStore.Core;
 using PaderbornUniversity.SILab.Hip.UserStore.Utility;
 using PaderbornUniversity.SILab.Hip.Webservice;
+using System.Reflection;
 
 namespace PaderbornUniversity.SILab.Hip.UserStore
 {
@@ -100,6 +101,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore
 
             app.UseSwaggerUi(typeof(Startup).Assembly, new SwaggerUiSettings
             {
+                Title = Assembly.GetEntryAssembly().GetName().Name,
                 DocExpansion = "list",
                 PostProcess = doc =>
                 {
