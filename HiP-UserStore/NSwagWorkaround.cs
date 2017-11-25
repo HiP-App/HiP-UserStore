@@ -9,6 +9,7 @@ using System;
 using System.Reflection;
 using System.Threading.Tasks;
 
+// ReSharper disable All
 namespace NSwag.AspNetCore
 {
     /// <summary>
