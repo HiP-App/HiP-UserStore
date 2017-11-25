@@ -51,7 +51,10 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Core
                     {
                         Id = e.Id,
                         UserId = e.UserId,
-                        Timestamp = e.Timestamp
+                        Timestamp = e.Timestamp,
+                        Email = e.Properties.Email,
+                        FirstName = e.Properties.FirstName,
+                        LastName = e.Properties.LastName
                     };
                     _db.GetCollection<User>(ResourceType.User.Name).InsertOne(newUser);
                     break;
