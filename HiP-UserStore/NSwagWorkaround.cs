@@ -52,6 +52,20 @@ namespace NSwag.AspNetCore
             return app;
         }
 
+        /// <summary>
+        /// Fixes the current request's scheme if an "X-Forwarded-Proto"-header is set.
+        /// </summary>
+        public static IApplicationBuilder UseRequestSchemeFixer(this IApplicationBuilder app)
+        {
+            return app.Use(async (context, next) =>
+            {
+                if (context.Request.Headers.TryGetValue("X-Forwarded-Proto", out var xproto))
+                    context.Request.Scheme = xproto;
+                await next();
+
+            });
+        }
+
         internal class RedirectMiddleware
         {
             private readonly RequestDelegate _nextDelegate;

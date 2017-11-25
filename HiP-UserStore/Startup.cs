@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -88,11 +87,8 @@ namespace PaderbornUniversity.SILab.Hip.UserStore
             app.ApplicationServices.GetService<CacheDatabaseManager>();
 
             // Ensures that "Request.Scheme" is correctly set to "https" in our nginx-environment
-            app.UseForwardedHeaders(new ForwardedHeadersOptions
-            {
-                ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
-            });
-
+            app.UseRequestSchemeFixer();
+            
             // Use CORS (important: must be before app.UseMvc())
             app.UseCors(builder =>
             {
