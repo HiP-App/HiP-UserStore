@@ -88,10 +88,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore
             app.ApplicationServices.GetService<CacheDatabaseManager>();
 
             // Ensures that "Request.Scheme" is correctly set to "https" in our nginx-environment
-            app.UseForwardedHeaders(new ForwardedHeadersOptions
-            {
-                ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
-            });
+            app.UseRequestSchemeFixer();
 
             // Use CORS (important: must be before app.UseMvc())
             app.UseCors(builder =>
