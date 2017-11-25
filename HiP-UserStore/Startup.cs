@@ -100,7 +100,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore
             app.UseAuthentication();
             app.UseMvc();
 
-            app.UseSwaggerUi(typeof(Startup).Assembly, new SwaggerUiSettings
+            app.UseSwaggerUiHip(typeof(Startup).Assembly, new SwaggerUiSettings
             {
                 Title = Assembly.GetEntryAssembly().GetName().Name,
                 DefaultEnumHandling = EnumHandling.String,
