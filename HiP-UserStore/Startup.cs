@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -88,7 +89,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore
 
             // Ensures that "Request.Scheme" is correctly set to "https" in our nginx-environment
             app.UseRequestSchemeFixer();
-
+            
             // Use CORS (important: must be before app.UseMvc())
             app.UseCors(builder =>
             {
