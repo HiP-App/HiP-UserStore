@@ -32,5 +32,10 @@
         /// to the original image files are then returned.
         /// </remarks>
         public string ThumbnailUrlPattern { get; set; }
+
+        /// <summary>
+        /// URL that points to the API of the Data Store
+        /// </summary>
+        public string DataStoreUrlPattern { get; set; }
     }
 }

@@ -6,6 +6,11 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Model
     public class ResourceType : IEquatable<ResourceType>
     {
         public static readonly ResourceType User = new ResourceType("User");
+        public static readonly ResourceType Exhibits = new ResourceType("Exhibits");
+        public static readonly ResourceType Routes = new ResourceType("Routes");
+        public static readonly ResourceType Media = new ResourceType("Media");
+        public static readonly ResourceType Tags = new ResourceType("Tags");
+        public static readonly ResourceType ExhibitPages = new ResourceType("Exhibits/Pages");
 
         /// <summary>
         /// This name is used in two ways:
