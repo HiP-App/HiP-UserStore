@@ -8,9 +8,6 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Utility
 {
     public class ApiContentClient
     {
-
-        private const int MaxRetryCount = 5;
-
         public async Task<string> GetResponseFromUrlAsString(string urlPath, string token)
         {
             var response = await GetHttpWebResponse(urlPath, token);
@@ -30,7 +27,8 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Utility
             try
             {
                 var request = WebRequest.Create(urlPath) as HttpWebRequest;
-                request.Headers["Authorization"] = token;
+                if (token != null)
+                    request.Headers["Authorization"] = token;
                 request.Accept = "application/json";
                 var response = (HttpWebResponse)await request.GetResponseAsync();
 
@@ -45,9 +43,8 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Utility
             catch (Exception ex)
             {
                 var webEx = ex as WebException;
-                return (HttpWebResponse)webEx.Response;
+                return (HttpWebResponse)webEx.Response ?? new HttpWebResponse();
             }
-            throw new ArgumentException("Unexpected error during fetching data");
         }
     }
 }
