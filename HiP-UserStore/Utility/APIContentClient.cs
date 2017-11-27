@@ -27,9 +27,11 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Utility
             try
             {
                 var request = WebRequest.Create(urlPath) as HttpWebRequest;
-                if (token != null)
+                if (request != null)
+                {
                     request.Headers["Authorization"] = token;
-                request.Accept = "application/json";
+                    request.Accept = "application/json";
+                }
                 var response = (HttpWebResponse)await request.GetResponseAsync();
 
                 switch (response.StatusCode)
@@ -43,7 +45,10 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Utility
             catch (Exception ex)
             {
                 var webEx = ex as WebException;
-                return (HttpWebResponse)webEx.Response ?? new HttpWebResponse();
+                if (webEx.Response != null)
+                    return (HttpWebResponse)webEx.Response;
+                else
+                    return new HttpWebResponse();
             }
         }
     }
