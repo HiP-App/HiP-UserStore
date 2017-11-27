@@ -57,7 +57,10 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Utility
             catch (Exception ex)
             {
                 var webEx = ex as WebException;
-                return (HttpWebResponse)webEx.Response ?? new HttpWebResponse();
+                if (webEx != null && webEx.Response != null)
+                    return (HttpWebResponse)webEx.Response;
+                else
+                    return new HttpWebResponse();
             }
         }
     }
