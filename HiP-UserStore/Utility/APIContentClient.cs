@@ -31,24 +31,33 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Utility
                 {
                     request.Headers["Authorization"] = token;
                     request.Accept = "application/json";
-                }
-                var response = (HttpWebResponse)await request.GetResponseAsync();
 
-                switch (response.StatusCode)
+                    var response = (HttpWebResponse)await request.GetResponseAsync();
+
+                    if (response != null)
+                    {
+                        switch (response.StatusCode)
+                        {
+                            case HttpStatusCode.OK:
+                                return response;
+                            default:
+                                throw new WebException($"Unexpected response status: {response.StatusCode}");
+                        }
+                    }
+                    else
+                    {
+                        return new HttpWebResponse();
+                    }
+                }
+                else
                 {
-                    case HttpStatusCode.OK:
-                        return response;
-                    default:
-                        throw new WebException($"Unexpected response status: {response.StatusCode}");
+                    return new HttpWebResponse();
                 }
             }
             catch (Exception ex)
             {
                 var webEx = ex as WebException;
-                if (webEx.Response != null)
-                    return (HttpWebResponse)webEx.Response;
-                else
-                    return new HttpWebResponse();
+                return (HttpWebResponse)webEx.Response ?? new HttpWebResponse();
             }
         }
     }
