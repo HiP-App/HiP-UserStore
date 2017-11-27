@@ -1,10 +1,4 @@
-﻿using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
-using PaderbornUniversity.SILab.Hip.UserStore.Model.Rest;
-using PaderbornUniversity.SILab.Hip.EventSourcing.Mongo;
-using System.Linq;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace PaderbornUniversity.SILab.Hip.UserStore.Model.Entity
 {

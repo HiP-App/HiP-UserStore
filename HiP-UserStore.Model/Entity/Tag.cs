@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace PaderbornUniversity.SILab.Hip.UserStore.Model.Entity
+﻿namespace PaderbornUniversity.SILab.Hip.UserStore.Model.Entity
 {
     public class Tag : ContentBase
     {

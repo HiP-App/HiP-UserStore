@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
-using PaderbornUniversity.SILab.Hip.UserStore.Core;
 using PaderbornUniversity.SILab.Hip.UserStore.Model;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.Entity;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.Rest;
@@ -18,12 +17,12 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
     public class ActivityController : Controller
     {
         private readonly EndpointConfig _endpointConfig;
-        private readonly APIContentClient _api;
+        private readonly ApiContentClient _api;
 
         public ActivityController(IOptions<EndpointConfig> endpointConfig)
         {
             _endpointConfig = endpointConfig.Value;
-            _api = new APIContentClient();
+            _api = new ApiContentClient();
         }
 
         [HttpGet("Activity")]
@@ -47,16 +46,16 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             };
 
             // remove Ids of content which does not contain changes
-            activityResult.ExhibitIds.Intersect(await RemoveIdsAsync(activityResult.ExhibitIds, ResourceType.Exhibits.Name,
-                userId, token));
-            activityResult.RouteIds.Intersect(await RemoveIdsAsync(activityResult.RouteIds, ResourceType.Routes.Name,
-                userId, token));
-            activityResult.MediaIds.Intersect(await RemoveIdsAsync(activityResult.MediaIds, ResourceType.Media.Name,
-                userId, token));
-            activityResult.TagIds.Intersect(await RemoveIdsAsync(activityResult.TagIds, ResourceType.Tags.Name,
-                userId, token));
-            activityResult.ExhibitPageIds.Intersect(await RemoveIdsAsync(activityResult.ExhibitPageIds, ResourceType.ExhibitPages.Name,
-                userId, token));
+            activityResult.ExhibitIds = await RemoveIdsAsync(activityResult.ExhibitIds, ResourceType.Exhibits.Name,
+                userId, token);
+            activityResult.RouteIds = await RemoveIdsAsync(activityResult.RouteIds, ResourceType.Routes.Name,
+                userId, token);
+            activityResult.MediaIds = await RemoveIdsAsync(activityResult.MediaIds, ResourceType.Media.Name,
+                userId, token);
+            activityResult.TagIds = await RemoveIdsAsync(activityResult.TagIds, ResourceType.Tags.Name,
+                userId, token);
+            activityResult.ExhibitPageIds = await RemoveIdsAsync(activityResult.ExhibitPageIds, ResourceType.ExhibitPages.Name,
+                userId, token);
 
             return Ok(activityResult);
         }
@@ -73,8 +72,8 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             var token = Request.Headers["Authorization"];
 
             var exhibits = await GetContentIdsAsync(status, token, ResourceType.Exhibits.Name);
-            exhibits.Intersect(await RemoveIdsAsync(exhibits, ResourceType.Exhibits.Name,
-                userId, token));
+            exhibits = await RemoveIdsAsync(exhibits, ResourceType.Exhibits.Name,
+                userId, token);
 
             return Ok(exhibits);
         }
@@ -91,8 +90,8 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             var token = Request.Headers["Authorization"];
 
             var routes = await GetContentIdsAsync(status, token, ResourceType.Routes.Name);
-            routes.Intersect(await RemoveIdsAsync(routes, ResourceType.Routes.Name,
-                userId, token));
+            routes = await RemoveIdsAsync(routes, ResourceType.Routes.Name,
+                userId, token);
 
             return Ok(routes);
         }
@@ -109,8 +108,8 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             var token = Request.Headers["Authorization"];
 
             var tags = await GetContentIdsAsync(status, token, ResourceType.Tags.Name);
-            tags.Intersect(await RemoveIdsAsync(tags, ResourceType.Tags.Name,
-                userId, token));
+            tags = await RemoveIdsAsync(tags, ResourceType.Tags.Name,
+                userId, token);
 
             return Ok(tags);
         }
@@ -127,8 +126,8 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             var token = Request.Headers["Authorization"];
 
             var media = await GetContentIdsAsync(status, token, ResourceType.Media.Name);
-            media.Intersect(await RemoveIdsAsync(media, ResourceType.Media.Name,
-                userId, token));
+            media = await RemoveIdsAsync(media, ResourceType.Media.Name,
+                userId, token);
 
             return Ok(media);
         }
@@ -145,8 +144,8 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             var token = Request.Headers["Authorization"];
 
             var exhibitPages = await GetContentIdsAsync(status, token, ResourceType.ExhibitPages.Name);
-            exhibitPages.Intersect(await RemoveIdsAsync(exhibitPages, ResourceType.ExhibitPages.Name,
-                userId, token));
+            exhibitPages = await RemoveIdsAsync(exhibitPages, ResourceType.ExhibitPages.Name,
+                userId, token);
 
             return Ok(exhibitPages);
         }
@@ -191,8 +190,6 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
                             if (UserPermissions.IsAllowedToGetHistory(User.Identity, exhibitPage.UserId))
                                 ids.Add(exhibitPage.Id);
                         break;
-                    default:
-                        break;
                 }
             }
             return ids;
@@ -208,12 +205,10 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             {
                 return new HistorySummary();
             }
-            else if (json != null)
+            else
             {
-                var summary = JsonConvert.DeserializeObject<HistorySummary>(json);
-                return summary;
+                return JsonConvert.DeserializeObject<HistorySummary>(json) ?? new HistorySummary();
             }
-            return new HistorySummary();
         }
 
         private async Task<List<int>> RemoveIdsAsync(List<int> ids, string resourceType, string userId, string token)
