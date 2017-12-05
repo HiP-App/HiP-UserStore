@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Auth0.Core.Exceptions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
@@ -179,31 +180,24 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             return NoContent();
         }
 
-        [HttpPost("Invite")]
-        public IActionResult InviteUsers(/*InviteArgs args*/)
-        {
-            throw new NotImplementedException(); // TODO: Migrate from CmsWebApi
-        }
-
         /// <summary>
-        /// This method is intended to be called by Auth0.
-        /// A hook should be configured in Auth0 that calls this API after a user signed up.
+        /// Creates a user in UserStore without registration in Auth0. Should only be used manually for
+        /// maintenance/debugging purposes in cases where a user already exists in Auth0.
         /// </summary>
-        [HttpPost]
-        [ProducesResponseType(400)]
-        [ProducesResponseType(409)] // User with same ID already exists
+        [HttpPost("{userId}")]
         [ProducesResponseType(201)]
-        public async Task<IActionResult> RegisterAsync([FromBody]UserArgsAuth0 args)
+        [ProducesResponseType(400)]
+        [ProducesResponseType(409)] // User with same ID or email already exists
+        public async Task<IActionResult> PostAsync(string userId, [FromBody]UserArgs args)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            // Note: args.Id contains the ID of the new user, User.Identity.GetUserIdentity() is something else
-            // (because the HTTP request is not initiated by the user, but by the Auth0 system)
-            var userId = "auth0|" + args.Id;
-
             if (_userIndex.TryGetInternalId(userId, out var _))
                 return StatusCode(409, new { Message = $"A user with ID '{userId}' already exists" });
+
+            if (_userIndex.IsEmailInUse(args.Email))
+                return StatusCode(409, new { Message = $"A user with email address '{args.Email}' already exists" });
 
             var ev = new UserCreated
             {
@@ -221,6 +215,42 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
         }
 
         /// <summary>
+        /// Registers a new user in UserStore and Auth0.
+        /// </summary>
+        [HttpPost]
+        [ProducesResponseType(201)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(409)] // User with same email already exists
+        public async Task<IActionResult> RegisterAsync([FromBody]UserArgs args, string password)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            if (_userIndex.IsEmailInUse(args.Email))
+                return StatusCode(409, new { Message = $"A user with email address '{args.Email}' already exists" });
+
+            try
+            {
+                var userId = await Auth.CreateUserAsync(args, password);
+
+                var ev = new UserCreated
+                {
+                    Id = _entityIndex.NextId(ResourceType.User),
+                    UserId = userId,
+                    Timestamp = DateTimeOffset.Now,
+                    Properties = args
+                };
+
+                await _eventStore.AppendEventAsync(ev);
+                return Created($"{Request.Scheme}://{Request.Host}/api/Users/{userId}", userId);
+            }
+            catch (ApiException e)
+            {
+                return StatusCode(e.ApiError.StatusCode, e.ApiError.Message);
+            }
+        }
+
+        /// <summary>
         /// Updates the Auth0 roles of a user.
         /// </summary>
         [HttpPut("{userId}/Roles")]
@@ -230,6 +260,9 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
         [ProducesResponseType(404)]
         public async Task<IActionResult> PutRolesAsync(string userId, [FromBody]string[] roles)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             var invalidRoles = roles.Distinct().Where(s => !Enum.TryParse<UserRoles>(s, out _));
 
             foreach (var invalidRole in invalidRoles)

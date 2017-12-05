@@ -1,9 +1,12 @@
 ﻿using Auth0.AuthenticationApi;
 using Auth0.AuthenticationApi.Models;
+using Auth0.Core.Exceptions;
 using Auth0.ManagementApi;
+using Auth0.ManagementApi.Models;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using PaderbornUniversity.SILab.Hip.UserStore.Model.Rest;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -65,7 +68,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Utility
             var accessToken = await GetAccessTokenAsync();
             var management = new ManagementApiClient(accessToken, _authConfig.Domain);
             var user = await management.Users.GetAsync(userId);
-            var roles = (JArray)user.AppMetadata.roles;
+            var roles = (JArray)user.AppMetadata?.roles ?? new JArray();
             return roles.Select(role => role.ToString()).ToList();
         }
 
@@ -80,17 +83,22 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Utility
 
             return users.ToDictionary(
                 u => u.UserId,
-                u => ((JArray)u.AppMetadata.roles).Select(role => role.ToString()).ToList() as IReadOnlyList<string>);
+                u =>
+                {
+                    var rolesArray = (JArray)u.AppMetadata?.roles ?? new JArray();
+                    return rolesArray.Select(role => role.ToString()).ToList() as IReadOnlyList<string>;
+                });
         }
 
         /// <summary>
         /// Assigns the specified roles to the specified user.
         /// </summary>
+        /// <exception cref="HttpRequestException">Auth0 reported an error during the process</exception>
         public static async Task SetUserRolesAsync(string userId, IEnumerable<string> roles)
         {
             var accessToken = await GetAccessTokenAsync();
             var patch = new { app_metadata = new { roles } };
-            
+
             // Apparently, Auth0 Management API client does not support updating app_metadata of a user,
             // so we use an HttpClient and do that manually -.-
             var request = new HttpRequestMessage
@@ -104,6 +112,37 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Utility
             var http = new HttpClient();
             var response = await http.SendAsync(request);
             response.EnsureSuccessStatusCode();
+        }
+
+        /// <summary>
+        /// Registers a new user in Auth0.
+        /// </summary>
+        /// <exception cref="ArgumentNullException"/>
+        /// <exception cref="ArgumentException">Email or password is missing</exception>
+        /// <exception cref="ApiException">Auth0 reported an error during registration</exception>
+        public static async Task<string> CreateUserAsync(UserArgs args, string password)
+        {
+            if (args == null)
+                throw new ArgumentNullException(nameof(args));
+
+            if (string.IsNullOrEmpty(args.Email))
+                throw new ArgumentException("Email is required", nameof(args));
+
+            if (string.IsNullOrEmpty(password))
+                throw new ArgumentException("Password is required", nameof(password));
+
+            var accessToken = await GetAccessTokenAsync();
+            var management = new ManagementApiClient(accessToken, _authConfig.Domain);
+            var user = await management.Users.CreateAsync(new UserCreateRequest
+            {
+                Email = args.Email,
+                FirstName = args.FirstName,
+                LastName = args.LastName,
+                Password = password,
+                Connection = "Username-Password-Authentication" // TODO: Make configurable
+            });
+
+            return user.UserId;
         }
 
         /// <summary>
