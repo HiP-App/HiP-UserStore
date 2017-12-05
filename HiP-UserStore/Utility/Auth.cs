@@ -115,7 +115,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Utility
         }
 
         /// <summary>
-        /// Registers a new user in Auth0.
+        /// Registers a new user in Auth0 and assigns it the role 'Student'.
         /// </summary>
         /// <exception cref="ArgumentNullException"/>
         /// <exception cref="ArgumentException">Email or password is missing</exception>
@@ -138,7 +138,9 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Utility
                 Email = args.Email,
                 FirstName = args.FirstName,
                 LastName = args.LastName,
+                FullName = string.Join(' ', args.FirstName.Trim() ?? "", args.LastName.Trim() ?? ""),
                 Password = password,
+                AppMetadata = new { roles = new[] { UserRoles.Student.ToString() } },
                 Connection = "Username-Password-Authentication" // TODO: Make configurable
             });
 

@@ -215,7 +215,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
         }
 
         /// <summary>
-        /// Registers a new user in UserStore and Auth0.
+        /// Registers a new user in UserStore and Auth0 and assigns it the role 'Student'.
         /// </summary>
         [HttpPost]
         [ProducesResponseType(201)]
