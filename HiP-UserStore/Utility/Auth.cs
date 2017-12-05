@@ -120,7 +120,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Utility
         /// <exception cref="ArgumentNullException"/>
         /// <exception cref="ArgumentException">Email or password is missing</exception>
         /// <exception cref="ApiException">Auth0 reported an error during registration</exception>
-        public static async Task<string> CreateUserAsync(UserArgs args, string password)
+        public static async Task<string> CreateUserAsync(UserRegistrationArgs args)
         {
             if (args == null)
                 throw new ArgumentNullException(nameof(args));
@@ -128,8 +128,8 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Utility
             if (string.IsNullOrEmpty(args.Email))
                 throw new ArgumentException("Email is required", nameof(args));
 
-            if (string.IsNullOrEmpty(password))
-                throw new ArgumentException("Password is required", nameof(password));
+            if (string.IsNullOrEmpty(args.Password))
+                throw new ArgumentException("Password is required", nameof(args));
 
             var accessToken = await GetAccessTokenAsync();
             var management = new ManagementApiClient(accessToken, _authConfig.Domain);
@@ -139,7 +139,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Utility
                 FirstName = args.FirstName,
                 LastName = args.LastName,
                 FullName = string.Join(' ', args.FirstName.Trim() ?? "", args.LastName.Trim() ?? ""),
-                Password = password,
+                Password = args.Password,
                 AppMetadata = new { roles = new[] { UserRoles.Student.ToString() } },
                 Connection = "Username-Password-Authentication" // TODO: Make configurable
             });

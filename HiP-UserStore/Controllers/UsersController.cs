@@ -221,7 +221,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
         [ProducesResponseType(201)]
         [ProducesResponseType(400)]
         [ProducesResponseType(409)] // User with same email already exists
-        public async Task<IActionResult> RegisterAsync([FromBody]UserArgs args, string password)
+        public async Task<IActionResult> RegisterAsync([FromBody]UserRegistrationArgs args)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -231,14 +231,14 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
 
             try
             {
-                var userId = await Auth.CreateUserAsync(args, password);
+                var userId = await Auth.CreateUserAsync(args);
 
                 var ev = new UserCreated
                 {
                     Id = _entityIndex.NextId(ResourceType.User),
                     UserId = userId,
                     Timestamp = DateTimeOffset.Now,
-                    Properties = args
+                    Properties = new UserArgs(args)
                 };
 
                 await _eventStore.AppendEventAsync(ev);
