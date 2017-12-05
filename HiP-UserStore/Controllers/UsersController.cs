@@ -1,6 +1,7 @@
 ﻿using Auth0.Core.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using PaderbornUniversity.SILab.Hip.EventSourcing;
@@ -26,15 +27,17 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
         private readonly EntityIndex _entityIndex;
         private readonly UserIndex _userIndex;
         private readonly EndpointConfig _endpointConfig;
+        private readonly ILogger<UsersController> _logger;
 
         public UsersController(EventStoreService eventStore, CacheDatabaseManager db, InMemoryCache cache,
-            IOptions<EndpointConfig> endpointConfig)
+            IOptions<EndpointConfig> endpointConfig, ILogger<UsersController> logger)
         {
             _eventStore = eventStore;
             _db = db;
             _entityIndex = cache.Index<EntityIndex>();
             _userIndex = cache.Index<UserIndex>();
             _endpointConfig = endpointConfig.Value;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -231,18 +234,32 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
 
             try
             {
+                // Step 1) Register user in Auth0
                 var userId = await Auth.CreateUserAsync(args);
 
-                var ev = new UserCreated
+                try
                 {
-                    Id = _entityIndex.NextId(ResourceType.User),
-                    UserId = userId,
-                    Timestamp = DateTimeOffset.Now,
-                    Properties = new UserArgs(args)
-                };
+                    // Step 2) Register user in UserStore
+                    var ev = new UserCreated
+                    {
+                        Id = _entityIndex.NextId(ResourceType.User),
+                        UserId = userId,
+                        Timestamp = DateTimeOffset.Now,
+                        Properties = new UserArgs(args)
+                    };
 
-                await _eventStore.AppendEventAsync(ev);
-                return Created($"{Request.Scheme}://{Request.Host}/api/Users/{userId}", userId);
+                    await _eventStore.AppendEventAsync(ev);
+                    return Created($"{Request.Scheme}://{Request.Host}/api/Users/{userId}", userId);
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e,
+                        $"A new user with email address '{args.Email}' was registered in Auth0, but could not " +
+                        $"be registered in UserStore. Users are now inconsistent/out of sync. To solve this, " +
+                        $"delete the user in Auth0.");
+
+                    throw; // In this case "500 Internal Server Error" is appropiate
+                }
             }
             catch (ApiException e)
             {
