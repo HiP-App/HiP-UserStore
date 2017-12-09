@@ -1,10 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
 using PaderbornUniversity.SILab.Hip.DataStore;
 using PaderbornUniversity.SILab.Hip.UserStore.Model;
-using PaderbornUniversity.SILab.Hip.UserStore.Model.Entity;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.Rest;
 using PaderbornUniversity.SILab.Hip.UserStore.Utility;
 using System.Collections.Generic;
@@ -18,12 +16,10 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
     public class ActivityController : Controller
     {
         private readonly EndpointConfig _endpointConfig;
-        private readonly ApiContentClient _api;
 
         public ActivityController(IOptions<EndpointConfig> endpointConfig)
         {
             _endpointConfig = endpointConfig.Value;
-            _api = new ApiContentClient();
         }
 
         [HttpGet("Activity")]
@@ -198,7 +194,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
 
         private async Task<HistorySummary> GetHistorySummary(int id, string resourceType, string token)
         {
-            var client = new HistoryClient(_endpointConfig.DataStoreUrl) { Authorization = token };
+            var client = new HistoryClient(_endpointConfig.DataStoreUrl) { Authorization = token+2 };
             try
             {
                 switch (resourceType)
@@ -221,7 +217,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
                     default:
                         return new HistorySummary();
                 }
-            } catch (SwaggerException ex)
+            } catch (SwaggerException)
             {
                 return new HistorySummary();
             }
@@ -234,10 +230,17 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
                 var summary = await GetHistorySummary(ids.ElementAt(i), resourceType, token);
 
                 if (summary.Changes != null)
+                {
                     if (summary.Changes.Count == 0)
                         ids.RemoveAt(i);
                     else if (summary.Changes.Last().UserId.Equals(userId) || summary.Changes.Last().Description.Equals("Created"))
                         ids.RemoveAt(i);
+                }
+                else
+                {
+                    ids.RemoveAt(i);
+                }
+                    
             }
             return ids;
         }
