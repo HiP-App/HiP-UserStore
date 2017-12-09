@@ -194,7 +194,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
 
         private async Task<HistorySummary> GetHistorySummary(int id, string resourceType, string token)
         {
-            var client = new HistoryClient(_endpointConfig.DataStoreUrl) { Authorization = token+2 };
+            var client = new HistoryClient(_endpointConfig.DataStoreUrl) { Authorization = token };
             try
             {
                 switch (resourceType)
