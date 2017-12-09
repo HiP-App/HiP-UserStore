@@ -6,8 +6,6 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Model.Entity
     {
         public int Id { get; set; }
 
-        public ContentStatus Status { get; set; }
-
         /// <summary>
         /// Owner of the content
         /// </summary>

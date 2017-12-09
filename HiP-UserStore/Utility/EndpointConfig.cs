@@ -34,8 +34,10 @@
         public string ThumbnailUrlPattern { get; set; }
 
         /// <summary>
-        /// URL that points to the API of the Data Store
+        /// URL that points to the API of the Data Store. Should end with .../datastore/
+        /// Example:
+        /// "https://docker-hip.cs.uni-paderborn.de/develop/datastore/"
         /// </summary>
-        public string DataStoreUrlPattern { get; set; }
+        public string DataStoreUrl { get; set; }
     }
 }

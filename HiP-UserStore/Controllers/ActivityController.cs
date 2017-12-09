@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using PaderbornUniversity.SILab.Hip.DataStore;
 using PaderbornUniversity.SILab.Hip.UserStore.Model;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.Entity;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.Rest;
@@ -153,61 +154,76 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
         private async Task<List<int>> GetContentIdsAsync(ContentStatus status, string token, string type)
         {
             var ids = new List<int>();
-            var requestUrl = _endpointConfig.DataStoreUrlPattern + type + "/?Status=" + status.ToString();
 
-            var json = await _api.GetResponseFromUrlAsString(requestUrl, token);
-            if (json != null)
+            switch (type)
             {
-                switch (type)
-                {
-                    case "Exhibits":
-                        var exhibits = JsonConvert.DeserializeObject<ExhibitResult>(json);
-                        foreach (Exhibit exhibit in exhibits.Items)
-                            if (UserPermissions.IsAllowedToGetHistory(User.Identity, exhibit.UserId))
-                                ids.Add(exhibit.Id);
-                        break;
-                    case "Routes":
-                        var routes = JsonConvert.DeserializeObject<RouteResult>(json);
-                        foreach (Route route in routes.Items)
-                            if (UserPermissions.IsAllowedToGetHistory(User.Identity, route.UserId))
-                                ids.Add(route.Id);
-                        break;
-                    case "Tags":
-                        var tags = JsonConvert.DeserializeObject<TagResult>(json);
-                        foreach (Tag tag in tags.Items)
-                            if (UserPermissions.IsAllowedToGetHistory(User.Identity, tag.UserId))
-                                ids.Add(tag.Id);
-                        break;
-                    case "Media":
-                        var media = JsonConvert.DeserializeObject<MediaResult>(json);
-                        foreach (Media medium in media.Items)
-                            if (UserPermissions.IsAllowedToGetHistory(User.Identity, medium.UserId))
-                                ids.Add(medium.Id);
-                        break;
-                    case "Exhibits/Pages":
-                        var exhibitPages = JsonConvert.DeserializeObject<ExhibitPageResult>(json);
-                        foreach (ExhibitPage exhibitPage in exhibitPages.Items)
-                            if (UserPermissions.IsAllowedToGetHistory(User.Identity, exhibitPage.UserId))
-                                ids.Add(exhibitPage.Id);
-                        break;
-                }
+                case "Exhibits":
+                    var exhibitsClient = new ExhibitsClient(_endpointConfig.DataStoreUrl) { Authorization = token };
+                    var exhibits = await exhibitsClient.GetAsync(status: status);
+                    foreach (var exhibit in exhibits.Items)
+                        if (UserPermissions.IsAllowedToGetHistory(User.Identity, exhibit.UserId))
+                            ids.Add(exhibit.Id);
+                    break;
+                case "Routes":
+                    var routesClient = new RoutesClient(_endpointConfig.DataStoreUrl) { Authorization = token };
+                    var routes = await routesClient.GetAsync(status: status);
+                    foreach (var route in routes.Items)
+                        if (UserPermissions.IsAllowedToGetHistory(User.Identity, route.UserId))
+                            ids.Add(route.Id);
+                    break;
+                case "Tags":
+                    var tagsClient = new TagsClient(_endpointConfig.DataStoreUrl) { Authorization = token };
+                    var tags = await tagsClient.GetAllAsync(status: status);
+                    foreach (var tag in tags.Items)
+                        if (UserPermissions.IsAllowedToGetHistory(User.Identity, tag.UserId))
+                            ids.Add(tag.Id);
+                    break;
+                case "Media":
+                    var mediaClient = new MediaClient(_endpointConfig.DataStoreUrl) { Authorization = token };
+                    var media = await mediaClient.GetAsync(status: status);
+                    foreach (var medium in media.Items)
+                        if (UserPermissions.IsAllowedToGetHistory(User.Identity, medium.UserId))
+                            ids.Add(medium.Id);
+                    break;
+                case "ExhibitsPages":
+                    var exhibitPagesClient = new ExhibitPagesClient(_endpointConfig.DataStoreUrl) { Authorization = token };
+                    var exhibitPages = await exhibitPagesClient.GetAllPagesAsync(status: status);
+                    foreach (var exhibitPage in exhibitPages.Items)
+                        if (UserPermissions.IsAllowedToGetHistory(User.Identity, exhibitPage.UserId))
+                            ids.Add(exhibitPage.Id);
+                    break;
             }
             return ids;
         }
 
         private async Task<HistorySummary> GetHistorySummary(int id, string resourceType, string token)
         {
-            var requestUrl = _endpointConfig.DataStoreUrlPattern + resourceType + "/" + id + "/History";
-
-            var json = await _api.GetResponseFromUrlAsString(requestUrl, token);
-
-            if (json.Equals("unsuccessful"))
+            var client = new HistoryClient(_endpointConfig.DataStoreUrl) { Authorization = token };
+            try
+            {
+                switch (resourceType)
+                {
+                    case "Exhibits":
+                        var exhibitHistorySummary = await client.GetExhibitSummaryAsync(id: id);
+                        return exhibitHistorySummary;
+                    case "Routes":
+                        var routeHistorySummary = await client.GetRouteSummaryAsync(id: id);
+                        return routeHistorySummary;
+                    case "Media":
+                        var mediaHistorySummary = await client.GetMediaSummaryAsync(id: id);
+                        return mediaHistorySummary;
+                    case "Tags":
+                        var tagHistorySummary = await client.GetTagSummaryAsync(id: id);
+                        return tagHistorySummary;
+                    case "ExhibitsPages":
+                        var exhibitPageHistorySummary = await client.GetExhibitPageSummaryAsync(id: id);
+                        return exhibitPageHistorySummary;
+                    default:
+                        return new HistorySummary();
+                }
+            } catch (SwaggerException ex)
             {
                 return new HistorySummary();
-            }
-            else
-            {
-                return JsonConvert.DeserializeObject<HistorySummary>(json) ?? new HistorySummary();
             }
         }
 
@@ -217,10 +233,11 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             {
                 var summary = await GetHistorySummary(ids.ElementAt(i), resourceType, token);
 
-                if (summary.Changes.Count == 0)
-                    ids.RemoveAt(i);
-                else if (summary.Changes.Last().UserId.Equals(userId) || summary.Changes.Last().Description.Equals("Created"))
-                    ids.RemoveAt(i);
+                if (summary.Changes != null)
+                    if (summary.Changes.Count == 0)
+                        ids.RemoveAt(i);
+                    else if (summary.Changes.Last().UserId.Equals(userId) || summary.Changes.Last().Description.Equals("Created"))
+                        ids.RemoveAt(i);
             }
             return ids;
         }
