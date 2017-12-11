@@ -6,7 +6,7 @@
         /// Connection string for the Mongo DB cache database.
         /// Default value: "mongodb://localhost:27017"
         /// </summary>
-        public string MongoDbHost { get; set; }
+        public string MongoDbHost { get; set; } = "mongodb://localhost:27017";
 
         /// <summary>
         /// Name of the database to use.
