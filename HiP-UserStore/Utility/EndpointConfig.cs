@@ -34,7 +34,7 @@
         public string ThumbnailUrlPattern { get; set; }
 
         /// <summary>
-        /// URL that points to the API of the Data Store. Should end with .../datastore/
+        /// URL that points to the API of the Data Store. Should end with a trailing slash.
         /// Example:
         /// "https://docker-hip.cs.uni-paderborn.de/develop/datastore/"
         /// </summary>

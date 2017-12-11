@@ -227,13 +227,13 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
         {
             for (var i = ids.Count - 1; i >= 0; i--)
             {
-                var summary = await GetHistorySummary(ids.ElementAt(i), resourceType, token);
+                var summary = await GetHistorySummary(ids[i], resourceType, token);
 
                 if (summary.Changes != null)
                 {
                     if (summary.Changes.Count == 0)
                         ids.RemoveAt(i);
-                    else if (summary.Changes.Last().UserId.Equals(userId) || summary.Changes.Last().Description.Equals("Created"))
+                    else if (summary.Changes.Last().UserId == userId || summary.Changes.Last().Description == "Created")
                         ids.RemoveAt(i);
                 }
                 else
