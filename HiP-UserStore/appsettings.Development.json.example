@@ -7,10 +7,9 @@
             "Microsoft": "None"
         }
     },
-    
+
     "Endpoints": {
-        "MongoDbHost": "mongodb://localhost:27017",
-        "MongoDbName": "userstore-develop"
+        "ThumbnailUrlPattern": "https://docker-hip.cs.upb.de/develop/thumbnailservice/api/Thumbnails?Url=datastore/api/Media/{0}/File"
     },
 
     "EventStore": {
@@ -21,12 +20,6 @@
     },
 
     "Auth": {
-        "Domain": "hip.eu.auth0.com",
-        "Authority": "https://hip.eu.auth0.com/",
-        "Audience": "https://hip.cs.upb.de/API",
-        "SubClaimType": "https://hip.cs.upb.de/sub",
-        "RolesClaimType": "https://hip.cs.upb.de/roles",
-        "Auth0ManagementApiAudience": "https://hip.eu.auth0.com/api/v2/",
         "ClientId": "See Auth0.com > Clients > UserStore",
         "ClientSecret": "See Auth0.com > Clients > UserStore"
     }
