@@ -1,8 +1,8 @@
 ﻿using PaderbornUniversity.SILab.Hip.EventSourcing;
-using PaderbornUniversity.SILab.Hip.UserStore.Model;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.Events;
 using System;
 using System.Collections.Generic;
+using ResourceType = PaderbornUniversity.SILab.Hip.UserStore.Model.ResourceType; // TODO: Remove after architectural changes
 
 namespace PaderbornUniversity.SILab.Hip.UserStore.Core
 {
