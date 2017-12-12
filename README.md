@@ -12,8 +12,11 @@ For testing purposes, install & run Event Store and MongoDB on your local machin
     * Run with `mongod.exe`
     * Default database path: `C:\data\db` (if installed on drive C:)
     * For further information, see documentation: [Install on Windows](https://docs.mongodb.com/manual/tutorial/install-mongodb-on-windows/) and [The Mongo Shell](https://docs.mongodb.com/manual/mongo/)
+* Configure the app
+  * Create a file `appsettings.Development.json` in the same folder as `HiP-UserStore.csproj`
+  * Specify valid values for "ClientId" and "ClientSecret" according to [appsettings.json](https://github.com/HiP-App/HiP-UserStore/blob/develop/HiP-UserStore/appsettings.json)
 * Launch the app
   * via Visual Studio: Open the solution (*.sln) and run the app (F5)
   * via Terminal: Execute `dotnet run` from the project folder containing `HiP-UserStore.csproj`
 
-The app is preconfigured to run on dev machines without any manual configuration (using the event store and Mongo database on `localhost`). See [appsettings.json](https://github.com/HiP-App/HiP-UserStore/blob/develop/HiP-UserStore/appsettings.json) for a list of configuration fields and their default values.
+The app is preconfigured to run on dev machines with minimal manual configuration (using the event store and Mongo database on `localhost`). See [appsettings.json](https://github.com/HiP-App/HiP-UserStore/blob/develop/HiP-UserStore/appsettings.json) for a list of configuration fields and their default values.
