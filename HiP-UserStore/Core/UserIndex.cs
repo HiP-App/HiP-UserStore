@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
-using PaderbornUniversity.SILab.Hip.EventSourcing;
+﻿using PaderbornUniversity.SILab.Hip.EventSourcing;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.Events;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace PaderbornUniversity.SILab.Hip.UserStore.Core
 {
@@ -28,6 +30,9 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Core
         /// </summary>
         public bool TryGetInternalId(string userId, out int internalId)
         {
+            if (userId == null)
+                throw new ArgumentNullException(nameof(userId));
+
             lock (_lockObject)
             {
                 if (_auth0UserIds.TryGetValue(userId, out internalId))
@@ -38,6 +43,16 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Core
             return false;
         }
 
+        /// <summary>
+        /// Checks whether a user with the specified email address exists.
+        /// </summary>
+        public bool IsEmailInUse(string email)
+        {
+            if (email == null)
+                throw new ArgumentNullException(nameof(email));
+
+            return _users.Any(u => u.Value.Email == email);
+        }
 
         public void ApplyEvent(IEvent e)
         {
@@ -46,19 +61,25 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Core
                 case UserCreated ev:
                     lock (_lockObject)
                     {
-                        _users.Add(ev.Id, new UserInfo());
+                        _users.Add(ev.Id, new UserInfo { Email = ev.Properties?.Email });
                         _auth0UserIds.Add(ev.UserId, ev.Id);
                     }
                     break;
 
                 case UserPhotoUploaded ev:
                     lock (_lockObject)
-                        _users[ev.Id] = new UserInfo { ProfilePicturePath = ev.Path };
+                    {
+                        if (_users.TryGetValue(ev.Id, out var info))
+                            info.ProfilePicturePath = ev.Path;
+                    }
                     break;
 
                 case UserPhotoDeleted ev:
                     lock (_lockObject)
-                        _users[ev.Id].ProfilePicturePath = null;
+                    {
+                        if (_users.TryGetValue(ev.Id, out var info))
+                            info.ProfilePicturePath = null;
+                    }
                     break;
             }
         }
@@ -67,6 +88,8 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Core
 
     public class UserInfo
     {
+        public string Email { get; set; }
+
         public string ProfilePicturePath { get; set; }
     }
 }
