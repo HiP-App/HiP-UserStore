@@ -18,6 +18,7 @@
     <PackageReference Include="Auth0.ManagementApi" Version="4.9.0" />
     <PackageReference Include="EventStore.ClientAPI.NetCore" Version="4.0.3-rc" />
     <PackageReference Include="HiP-WebserviceLib" Version="3.0.2-develop" />
+    <PackageReference Include="HiP-DataStore.Sdk" Version="2.0.0" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.1.1" />
     <PackageReference Include="Microsoft.AspNetCore" Version="2.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="2.0.1" />
