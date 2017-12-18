@@ -7,7 +7,6 @@ using MongoDB.Driver;
 using PaderbornUniversity.SILab.Hip.EventSourcing;
 using PaderbornUniversity.SILab.Hip.EventSourcing.EventStoreLlp;
 using PaderbornUniversity.SILab.Hip.UserStore.Core;
-using PaderbornUniversity.SILab.Hip.UserStore.Model;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.Entity;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.Events;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.Rest;
@@ -15,6 +14,7 @@ using PaderbornUniversity.SILab.Hip.UserStore.Utility;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using ResourceType = PaderbornUniversity.SILab.Hip.UserStore.Model.ResourceType; // TODO: Remove after architectural changes
 
 namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
 {
