@@ -9,6 +9,7 @@ using NSwag.AspNetCore;
 using PaderbornUniversity.SILab.Hip.EventSourcing;
 using PaderbornUniversity.SILab.Hip.EventSourcing.EventStoreLlp;
 using PaderbornUniversity.SILab.Hip.UserStore.Core;
+using PaderbornUniversity.SILab.Hip.UserStore.Model;
 using PaderbornUniversity.SILab.Hip.UserStore.Utility;
 using PaderbornUniversity.SILab.Hip.Webservice;
 
@@ -24,6 +25,9 @@ namespace PaderbornUniversity.SILab.Hip.UserStore
                 .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
                 .AddEnvironmentVariables();
             Configuration = builder.Build();
+
+            //Initialize ResourceTypes
+            ResourceTypes.Initialize();
         }
 
         public IConfigurationRoot Configuration { get; }

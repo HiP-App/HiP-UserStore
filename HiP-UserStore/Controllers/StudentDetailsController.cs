@@ -3,10 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 using PaderbornUniversity.SILab.Hip.EventSourcing;
 using PaderbornUniversity.SILab.Hip.EventSourcing.EventStoreLlp;
 using PaderbornUniversity.SILab.Hip.UserStore.Core;
-using PaderbornUniversity.SILab.Hip.UserStore.Model.Events;
+using PaderbornUniversity.SILab.Hip.UserStore.Model;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.Rest;
 using PaderbornUniversity.SILab.Hip.UserStore.Utility;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -42,15 +41,15 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             if (!_userIndex.TryGetInternalId(userId, out var internalId))
                 return NotFound();
 
-            var ev = new UserStudentDetailsUpdated
-            {
-                Id = internalId,
-                UserId = User.Identity.GetUserIdentity(),
-                Timestamp = DateTimeOffset.Now,
-                Properties = args
-            };
+            var oldStudentDetailsArgs = await EventStreamExtensions.GetCurrentEntityAsync<StudentDetailsArgs>(_eventStore.EventStream,
+                ResourceTypes.StudentDetails, internalId);
 
-            await _eventStore.AppendEventAsync(ev);
+            if (oldStudentDetailsArgs == null)
+                await EntityManager.CreateEntityAsync(_eventStore, args, ResourceTypes.StudentDetails, internalId, User.Identity.GetUserIdentity());
+            else
+                await EntityManager.UpdateEntityAsync(_eventStore, oldStudentDetailsArgs, args, ResourceTypes.StudentDetails,
+                internalId, User.Identity.GetUserIdentity());
+            
             return NoContent();
         }
 
@@ -70,15 +69,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             if (!_userIndex.TryGetInternalId(userId, out var internalId))
                 return NotFound();
 
-            // Deletion is represented by an update-event with empty properties
-            var ev = new UserStudentDetailsUpdated
-            {
-                Id = internalId,
-                UserId = User.Identity.GetUserIdentity(),
-                Timestamp = DateTimeOffset.Now,
-            };
-
-            await _eventStore.AppendEventAsync(ev);
+            await EntityManager.DeleteEntityAsync(_eventStore, ResourceTypes.StudentDetails, internalId, User.Identity.GetUserIdentity());
             return NoContent();
         }
 
