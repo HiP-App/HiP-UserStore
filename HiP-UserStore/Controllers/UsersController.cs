@@ -210,6 +210,8 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
                 Properties = new UserArgs
                 {
                     Email = args.Email,
+                    FirstName = args.FirstName,
+                    LastName = args.LastName
                 }
             };
 
