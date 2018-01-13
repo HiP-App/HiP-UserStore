@@ -6,7 +6,7 @@ using PaderbornUniversity.SILab.Hip.UserStore.Core;
 using System;
 using System.Threading.Tasks;
 using PaderbornUniversity.SILab.Hip.UserStore.Utility;
-using PaderbornUniversity.SILab.Hip.Achievements.Model.Events;
+using PaderbornUniversity.SILab.Hip.UserStore.Model.Events;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.Rest;
 using ResourceType = PaderbornUniversity.SILab.Hip.UserStore.Model.ResourceType;
 

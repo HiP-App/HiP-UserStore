@@ -1,4 +1,4 @@
-﻿using PaderbornUniversity.SILab.Hip.Achievements.Model.Events;
+﻿using PaderbornUniversity.SILab.Hip.UserStore.Model.Events;
 using PaderbornUniversity.SILab.Hip.EventSourcing;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.Rest.Actions;
 using System.Collections.Generic;

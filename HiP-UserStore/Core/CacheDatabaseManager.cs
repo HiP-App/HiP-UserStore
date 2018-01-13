@@ -1,11 +1,10 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
-using PaderbornUniversity.SILab.Hip.Achievements.Model.Events;
+using PaderbornUniversity.SILab.Hip.UserStore.Model.Events;
 using PaderbornUniversity.SILab.Hip.EventSourcing;
 using PaderbornUniversity.SILab.Hip.EventSourcing.EventStoreLlp;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.Entity;
-using PaderbornUniversity.SILab.Hip.UserStore.Model.Events;
 using PaderbornUniversity.SILab.Hip.UserStore.Utility;
 using System;
 using Action = PaderbornUniversity.SILab.Hip.UserStore.Model.Entity.Action;

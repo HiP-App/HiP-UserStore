@@ -3,7 +3,7 @@ using PaderbornUniversity.SILab.Hip.UserStore.Model;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.Events;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.Rest;
 
-namespace PaderbornUniversity.SILab.Hip.Achievements.Model.Events
+namespace PaderbornUniversity.SILab.Hip.UserStore.Model.Events
 {
     public class ActionCreated : UserActivityBaseEvent, ICreateEvent
     {
