@@ -11,6 +11,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Model
         public static readonly ResourceType Media = new ResourceType("Media");
         public static readonly ResourceType Tags = new ResourceType("Tags");
         public static readonly ResourceType ExhibitPages = new ResourceType("ExhibitsPages");
+        public static readonly ResourceType Action = new ResourceType("Action");
 
         /// <summary>
         /// This name is used in two ways:

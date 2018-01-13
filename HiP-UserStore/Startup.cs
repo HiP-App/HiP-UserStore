@@ -42,7 +42,8 @@ namespace PaderbornUniversity.SILab.Hip.UserStore
                 .AddSingleton<CacheDatabaseManager>()
                 .AddSingleton<InMemoryCache>()
                 .AddSingleton<IDomainIndex, EntityIndex>()
-                .AddSingleton<IDomainIndex, UserIndex>();
+                .AddSingleton<IDomainIndex, UserIndex>()
+                .AddSingleton<IDomainIndex, ExhibitsVisitedIndex>();
 
             var serviceProvider = services.BuildServiceProvider(); // allows us to actually get the configured services
             var authConfig = serviceProvider.GetService<IOptions<UserStoreAuthConfig>>();
