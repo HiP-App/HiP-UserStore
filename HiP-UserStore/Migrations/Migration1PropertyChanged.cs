@@ -25,7 +25,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Migrations
                 var currentEvent = events.Current;
                 IEnumerable<PropertyChangedEvent> propEvents = new List<PropertyChangedEvent>();
 
-                if (currentEvent is UserActivityBaseEvent userEvent)
+                if (currentEvent is UserActivityBaseEvent)
                 {
                     switch (currentEvent)
                     {
