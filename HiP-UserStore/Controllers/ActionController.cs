@@ -9,6 +9,8 @@ using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Action = PaderbornUniversity.SILab.Hip.UserStore.Model.Entity.Action;
 using ActionResult = PaderbornUniversity.SILab.Hip.UserStore.Model.Rest.ActionResult;
+using System.Reflection;
+using System;
 
 namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
 {
@@ -26,15 +28,33 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
 
             [HttpGet("all")]
             [ProducesResponseType(typeof(AllItemsResult<ActionResult>), 200)]
-            public IActionResult GetAllActions()
+            [ProducesResponseType(400)]
+            [ProducesResponseType(404)]
+        public IActionResult GetAllActions(string actionType = null)
             {
+                  if (!ModelState.IsValid)
+                   return BadRequest(ModelState);
+
+                  if (actionType != null)
+                  {
+                      var listOfTypes =  typeof(ActionType).GetFields(BindingFlags.Public | BindingFlags.Static)
+                                                       .Where(f => f.FieldType == typeof(ActionType))
+                                                       .ToDictionary(f => f.Name,
+                                                                     f => (ActionType)f.GetValue(null));
+               
+                      if (!listOfTypes.Any(x => x.Value.Name == actionType))
+                          return NotFound(new { Message = $"Action type '{actionType}' is not supported" });
+                  }
+
                 var query = _db.Database.GetCollection<Action>(ResourceType.Action.Name).AsQueryable();
                 var userId = User.Identity.GetUserIdentity();
-                var result = query.Where(x => x.UserId == userId).ToList()
-                    .Select(x => x.CreateActionResult())
-                    .ToList();
+                var result = query.Where(x => x.UserId == userId)
+                                  .ToList()
+                                  .AsQueryable()
+                                  .FilterIf(actionType != null, x => x.TypeName == actionType)
+                                  .Select(x => x.CreateActionResult())
+                                  .ToList();
                 return Ok(new AllItemsResult<ActionResult>() { Total = result.Count, Items = result });
-            }
-        }
-    
+            }         
+    }    
 }

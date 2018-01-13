@@ -1,12 +1,14 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
+using PaderbornUniversity.SILab.Hip.Achievements.Model.Events;
 using PaderbornUniversity.SILab.Hip.EventSourcing;
 using PaderbornUniversity.SILab.Hip.EventSourcing.EventStoreLlp;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.Entity;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.Events;
 using PaderbornUniversity.SILab.Hip.UserStore.Utility;
 using System;
+using Action = PaderbornUniversity.SILab.Hip.UserStore.Model.Entity.Action;
 using ResourceType = PaderbornUniversity.SILab.Hip.UserStore.Model.ResourceType; // TODO: Remove after architectural changes
 
 namespace PaderbornUniversity.SILab.Hip.UserStore.Core
@@ -87,6 +89,14 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Core
                     var studentDetails = e.Properties == null ? null : new StudentDetails(e.Properties);
                     var update4 = Builders<User>.Update.Set(x => x.StudentDetails, studentDetails);
                     _db.GetCollection<User>(ResourceType.User.Name).UpdateOne(x => x.Id == e.Id, update4);
+                    break;
+
+                case ActionCreated e:
+                    var newAction = e.Properties.CreateAction();
+                    newAction.Id = e.Id;
+                    newAction.UserId = e.UserId;
+                    newAction.Timestamp = e.Timestamp;
+                    _db.GetCollection<Action>(ResourceType.Action.Name).InsertOne(newAction);
                     break;
             }
 

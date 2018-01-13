@@ -9,7 +9,7 @@ namespace PaderbornUniversity.SILab.Hip.Achievements.Model.Events
     {
         [JsonProperty(TypeNameHandling = TypeNameHandling.Auto)]
         public ActionArgs Properties { get; set; }
-
+        
         public override ResourceType GetEntityType() => ResourceType.Action;
     }
 }
