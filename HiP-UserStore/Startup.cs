@@ -37,7 +37,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore
             services
                 .Configure<EndpointConfig>(Configuration.GetSection("Endpoints"))
                 .Configure<EventStoreConfig>(Configuration.GetSection("EventStore"))
-                .Configure<AuthConfig>(Configuration.GetSection("Auth"))
+                .Configure<UserStoreAuthConfig>(Configuration.GetSection("Auth"))
                 .Configure<UploadPhotoConfig>(Configuration.GetSection("UploadingPhoto"))
                 .Configure<CorsConfig>(Configuration);
 
@@ -49,7 +49,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore
                 .AddSingleton<IDomainIndex, UserIndex>();
 
             var serviceProvider = services.BuildServiceProvider(); // allows us to actually get the configured services
-            var authConfig = serviceProvider.GetService<IOptions<AuthConfig>>();
+            var authConfig = serviceProvider.GetService<IOptions<UserStoreAuthConfig>>();
             Utility.Auth.Initialize(authConfig);
 
             // Configure authentication
