@@ -72,7 +72,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Migrations
                                 currentPhotoArgs = new UserArgs2();
                             newUserArgs = new UserArgs2
                             {
-                                ProfilePicturePath = ev?.Path,
+                                ProfilePicturePath = ev.Path,
                                 FirstName = currentPhotoArgs.FirstName,
                                 LastName = currentPhotoArgs.LastName,
                                 Email = currentPhotoArgs.Email,
