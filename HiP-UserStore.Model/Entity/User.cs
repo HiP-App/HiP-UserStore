@@ -60,7 +60,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Model.Entity
         {
             Discipline = args.Discipline;
             CurrentDegree = args.CurrentDegree;
-            CurrentSemester = args.CurrentSemester;
+            CurrentSemester = args.CurrentSemester ?? new int();
         }
 
         public StudentDetailsArgs CreateStudentDetailsArgs()
