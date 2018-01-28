@@ -9,7 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="HiP-DataStore.Sdk" Version="2.0.0" />
-    <PackageReference Include="HiP-EventStoreLib" Version="1.1.3-develop" />
+    <PackageReference Include="HiP-EventStoreLib" Version="4.1.0-develop" />
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="4.4.1" />
   </ItemGroup>

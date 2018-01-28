@@ -1,4 +1,5 @@
-﻿using PaderbornUniversity.SILab.Hip.UserStore.Model.Entity;
+﻿using PaderbornUniversity.SILab.Hip.EventSourcing;
+using PaderbornUniversity.SILab.Hip.UserStore.Model.Entity;
 
 namespace PaderbornUniversity.SILab.Hip.UserStore.Model.Rest
 {
@@ -14,6 +15,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Model.Rest
 
         public string Password { get; set; }
 
+        [NestedObject]
         public StudentDetails StudentDetails { get; set; }
 
         public string ProfilePicturePath { get; set; }

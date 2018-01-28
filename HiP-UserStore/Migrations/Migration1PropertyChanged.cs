@@ -37,9 +37,9 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Migrations
                             });
                             var newUserArgs = new UserArgs2 
                             {
-                                FirstName = ev.Properties.FirstName,
-                                LastName = ev.Properties.LastName,
-                                Email = ev.Properties.Email
+                                FirstName = ev.Properties?.FirstName,
+                                LastName = ev.Properties?.LastName,
+                                Email = ev.Properties?.Email
                             };
                             propEvents = EntityManager.CompareEntities(emptyUserArgs, newUserArgs, ev.GetEntityType(), ev.Id, ev.UserId);
                             argumentDictionary[(ev.GetEntityType(), ev.Id)] = newUserArgs;
@@ -53,13 +53,13 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Migrations
                                 currentArgs = new UserArgs2();
                             newUserArgs = new UserArgs2
                             {
-                                FirstName = ev.Properties.FirstName,
-                                LastName = ev.Properties.LastName,
-                                Email = currentArgs.Email,
-                                Password = currentArgs.Password,
-                                ProfilePicturePath = currentArgs.ProfilePicturePath,
-                                StudentDetails = currentArgs.StudentDetails,
-                                UserId = currentArgs.UserId
+                                FirstName = ev.Properties?.FirstName,
+                                LastName = ev.Properties?.LastName,
+                                Email = currentArgs?.Email,
+                                Password = currentArgs?.Password,
+                                ProfilePicturePath = currentArgs?.ProfilePicturePath,
+                                StudentDetails = currentArgs?.StudentDetails,
+                                UserId = currentArgs?.UserId
                             };
                             propEvents = EntityManager.CompareEntities(currentArgs, newUserArgs, ev.GetEntityType(), ev.Id, ev.UserId);
                             argumentDictionary[(ev.GetEntityType(), ev.Id)] = newUserArgs;
@@ -72,13 +72,13 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Migrations
                                 currentPhotoArgs = new UserArgs2();
                             newUserArgs = new UserArgs2
                             {
-                                ProfilePicturePath = ev.Path,
-                                FirstName = currentPhotoArgs.FirstName,
-                                LastName = currentPhotoArgs.LastName,
-                                Email = currentPhotoArgs.Email,
-                                Password = currentPhotoArgs.Password,
-                                StudentDetails = currentPhotoArgs.StudentDetails,
-                                UserId = currentPhotoArgs.UserId
+                                ProfilePicturePath = ev?.Path,
+                                FirstName = currentPhotoArgs?.FirstName,
+                                LastName = currentPhotoArgs?.LastName,
+                                Email = currentPhotoArgs?.Email,
+                                Password = currentPhotoArgs?.Password,
+                                StudentDetails = currentPhotoArgs?.StudentDetails,
+                                UserId = currentPhotoArgs?.UserId
                             };
                             propEvents = EntityManager.CompareEntities(currentPhotoArgs, newUserArgs, ev.GetEntityType(), ev.Id, ev.UserId);
                             argumentDictionary[(ev.GetEntityType(), ev.Id)] = newUserArgs;
@@ -93,16 +93,16 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Migrations
                             {
                                 StudentDetails = new StudentDetails(new StudentDetailsArgs
                                 {
-                                    CurrentDegree = ev.Properties.CurrentDegree,
+                                    CurrentDegree = ev.Properties?.CurrentDegree,
                                     CurrentSemester = ev.Properties.CurrentSemester,
-                                    Discipline = ev.Properties.Discipline
+                                    Discipline = ev.Properties?.Discipline
                                 }),
-                                FirstName = currentUserArgs.FirstName,
-                                LastName = currentUserArgs.LastName,
-                                Email = currentUserArgs.Email,
-                                Password = currentUserArgs.Password,
-                                ProfilePicturePath = currentUserArgs.ProfilePicturePath,
-                                UserId = currentUserArgs.UserId
+                                FirstName = currentUserArgs?.FirstName,
+                                LastName = currentUserArgs?.LastName,
+                                Email = currentUserArgs?.Email,
+                                Password = currentUserArgs?.Password,
+                                ProfilePicturePath = currentUserArgs?.ProfilePicturePath,
+                                UserId = currentUserArgs?.UserId
                             };
                             propEvents = EntityManager.CompareEntities(currentUserArgs, newUserArgs, 
                                 ev.GetEntityType(), ev.Id, ev.UserId);

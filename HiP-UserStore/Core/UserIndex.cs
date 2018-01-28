@@ -1,6 +1,7 @@
 ﻿using PaderbornUniversity.SILab.Hip.EventSourcing;
 using PaderbornUniversity.SILab.Hip.EventSourcing.Events;
 using PaderbornUniversity.SILab.Hip.UserStore.Model;
+using PaderbornUniversity.SILab.Hip.UserStore.Model.Entity;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.Events;
 using System;
 using System.Collections.Generic;
@@ -85,7 +86,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Core
                     {
                         switch (ev.PropertyName)
                         {
-                            case "Email":
+                            case nameof(User.Email):
                                 lock (_lockObject)
                                 {
                                     if (_users.TryGetValue(ev.Id, out var info))
@@ -93,14 +94,14 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Core
                                 }
                                 break;
 
-                            case "UserId":
+                            case nameof(User.UserId):
                                 lock (_lockObject)
                                 {
                                     _auth0UserIds.TryAdd((string)ev.Value, ev.Id);
                                 }
                                 break;
 
-                            case "ProfilePicturePath":
+                            case nameof(User.ProfilePicturePath):
                                 lock (_lockObject)
                                 {
                                     if (_users.TryGetValue(ev.Id, out var info))

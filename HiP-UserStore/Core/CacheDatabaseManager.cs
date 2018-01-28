@@ -76,7 +76,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Core
                             var updatedUser = new User(userArgs)
                             {
                                 Id = e.Id,
-                                UserId = e.UserId,
+                                UserId = user.UserId,
                                 Timestamp = e.Timestamp,
                                 StudentDetails = new StudentDetails()
                             };
@@ -96,7 +96,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Core
                             var updatedUser = new User(userArgs)
                             {
                                 Id = e.Id,
-                                UserId = e.UserId,
+                                UserId = originalUser.UserId,
                                 Timestamp = e.Timestamp
                             };
                             _db.GetCollection<User>(ResourceTypes.User.Name).ReplaceOne(x => x.Id == e.Id, updatedUser);
@@ -110,7 +110,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Core
                             updatedUser = new User(userArgs)
                             {
                                 Id = e.Id,
-                                UserId = e.UserId,
+                                UserId = originalUser.UserId,
                                 Timestamp = e.Timestamp,
                                 StudentDetails = new StudentDetails(studentDetailsArgs)
                             };
@@ -128,7 +128,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Core
                         var updatedUser = new User(userArgs)
                         {
                             Id = e.Id,
-                            UserId = e.UserId,
+                            UserId = originalUser.UserId,
                             Timestamp = e.Timestamp,
                             StudentDetails = null
                         };

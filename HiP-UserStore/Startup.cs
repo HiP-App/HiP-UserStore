@@ -42,6 +42,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore
                 .Configure<CorsConfig>(Configuration);
 
             services
+                .AddSingleton<IEventStore, EventSourcing.EventStoreLlp.EventStore>()
                 .AddSingleton<EventStoreService>()
                 .AddSingleton<CacheDatabaseManager>()
                 .AddSingleton<InMemoryCache>()
