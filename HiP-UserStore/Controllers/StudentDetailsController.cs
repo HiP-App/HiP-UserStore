@@ -4,6 +4,7 @@ using PaderbornUniversity.SILab.Hip.EventSourcing;
 using PaderbornUniversity.SILab.Hip.EventSourcing.EventStoreLlp;
 using PaderbornUniversity.SILab.Hip.UserStore.Core;
 using PaderbornUniversity.SILab.Hip.UserStore.Model;
+using PaderbornUniversity.SILab.Hip.UserStore.Model.Entity;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.Rest;
 using PaderbornUniversity.SILab.Hip.UserStore.Utility;
 using System.Collections.Generic;
@@ -41,15 +42,23 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             if (!_userIndex.TryGetInternalId(userId, out var internalId))
                 return NotFound();
 
-            var oldStudentDetailsArgs = await EventStreamExtensions.GetCurrentEntityAsync<StudentDetailsArgs>(_eventStore.EventStream,
-                ResourceTypes.StudentDetails, internalId);
+            var oldUserArgs = await EventStreamExtensions.GetCurrentEntityAsync<UserArgs2>(_eventStore.EventStream,
+                ResourceTypes.User, internalId);
 
-            if (oldStudentDetailsArgs == null)
-                await EntityManager.CreateEntityAsync(_eventStore, args, ResourceTypes.StudentDetails, internalId, User.Identity.GetUserIdentity());
-            else
-                await EntityManager.UpdateEntityAsync(_eventStore, oldStudentDetailsArgs, args, ResourceTypes.StudentDetails,
+            var newUserArgs = new UserArgs2
+            {
+                Email = oldUserArgs.Email,
+                FirstName = oldUserArgs.FirstName,
+                LastName = oldUserArgs.LastName,
+                ProfilePicturePath = oldUserArgs.ProfilePicturePath,
+                UserId = oldUserArgs.UserId,
+                Password = oldUserArgs.Password,
+                StudentDetails = new StudentDetails(args)
+            };
+
+            await EntityManager.UpdateEntityAsync(_eventStore, oldUserArgs, newUserArgs, ResourceTypes.User,
                 internalId, User.Identity.GetUserIdentity());
-            
+
             return NoContent();
         }
 
@@ -69,7 +78,21 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             if (!_userIndex.TryGetInternalId(userId, out var internalId))
                 return NotFound();
 
-            await EntityManager.DeleteEntityAsync(_eventStore, ResourceTypes.StudentDetails, internalId, User.Identity.GetUserIdentity());
+            var oldUserArgs = await EventStreamExtensions.GetCurrentEntityAsync<UserArgs2>(_eventStore.EventStream,
+                ResourceTypes.User, internalId);
+
+            var newUserArgs = new UserArgs2
+            {
+                Email = oldUserArgs.Email,
+                FirstName = oldUserArgs.FirstName,
+                LastName = oldUserArgs.LastName,
+                ProfilePicturePath = oldUserArgs.ProfilePicturePath,
+                UserId = oldUserArgs.UserId,
+                Password = oldUserArgs.Password
+            };
+
+            await EntityManager.UpdateEntityAsync(_eventStore, oldUserArgs, newUserArgs, ResourceTypes.User,
+                internalId, User.Identity.GetUserIdentity());
             return NoContent();
         }
 

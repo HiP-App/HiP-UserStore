@@ -69,19 +69,6 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Core
                             };
                             _db.GetCollection<User>(ResourceTypes.User.Name).InsertOne(newUser);
                             break;
-
-                        case ResourceType _ when resourceType == ResourceTypes.StudentDetails:
-                            var user = _db.GetCollection<User>(ResourceTypes.User.Name).AsQueryable().First(x => x.Id == e.Id);
-                            var userArgs = user.CreateUserArgs2();
-                            var updatedUser = new User(userArgs)
-                            {
-                                Id = e.Id,
-                                UserId = user.UserId,
-                                Timestamp = e.Timestamp,
-                                StudentDetails = new StudentDetails()
-                            };
-                            _db.GetCollection<User>(ResourceTypes.User.Name).ReplaceOne(x => x.Id == e.Id, updatedUser);
-                            break;
                     }
                     break;
 
@@ -101,38 +88,6 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Core
                             };
                             _db.GetCollection<User>(ResourceTypes.User.Name).ReplaceOne(x => x.Id == e.Id, updatedUser);
                             break;
-
-                        case ResourceType _ when resourceType == ResourceTypes.StudentDetails:
-                            originalUser = _db.GetCollection<User>(ResourceTypes.User.Name).AsQueryable().First(x => x.Id == e.Id);
-                            userArgs = originalUser.CreateUserArgs2();
-                            var studentDetailsArgs = originalUser.StudentDetails.CreateStudentDetailsArgs();
-                            e.ApplyTo(studentDetailsArgs);
-                            updatedUser = new User(userArgs)
-                            {
-                                Id = e.Id,
-                                UserId = originalUser.UserId,
-                                Timestamp = e.Timestamp,
-                                StudentDetails = new StudentDetails(studentDetailsArgs)
-                            };
-                            _db.GetCollection<User>(ResourceTypes.User.Name).ReplaceOne(x => x.Id == e.Id, updatedUser);
-                            break;
-                    }
-                    break;
-
-                case DeletedEvent e:
-                    resourceType = e.GetEntityType();
-                    if (resourceType == ResourceTypes.StudentDetails)
-                    {
-                        var originalUser = _db.GetCollection<User>(ResourceTypes.User.Name).AsQueryable().First(x => x.Id == e.Id);
-                        var userArgs = originalUser.CreateUserArgs2();
-                        var updatedUser = new User(userArgs)
-                        {
-                            Id = e.Id,
-                            UserId = originalUser.UserId,
-                            Timestamp = e.Timestamp,
-                            StudentDetails = null
-                        };
-                        _db.GetCollection<User>(ResourceTypes.User.Name).ReplaceOne(x => x.Id == e.Id, updatedUser);
                     }
                     break;
             }
