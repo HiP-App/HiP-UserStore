@@ -35,23 +35,23 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
 
             var activityResult = new ActivityResult
             {
-                ExhibitIds = await GetContentIdsAsync(status, token, ResourceType.Exhibits.Name),
-                RouteIds = await GetContentIdsAsync(status, token, ResourceType.Routes.Name),
-                MediaIds = await GetContentIdsAsync(status, token, ResourceType.Media.Name),
-                TagIds = await GetContentIdsAsync(status, token, ResourceType.Tags.Name),
-                ExhibitPageIds = await GetContentIdsAsync(status, token, ResourceType.ExhibitPages.Name)
+                ExhibitIds = await GetContentIdsAsync(status, token, ResourceTypes.Exhibits.Name),
+                RouteIds = await GetContentIdsAsync(status, token, ResourceTypes.Routes.Name),
+                MediaIds = await GetContentIdsAsync(status, token, ResourceTypes.Media.Name),
+                TagIds = await GetContentIdsAsync(status, token, ResourceTypes.Tags.Name),
+                ExhibitPageIds = await GetContentIdsAsync(status, token, ResourceTypes.ExhibitPages.Name)
             };
 
             // remove Ids of content which does not contain changes
-            activityResult.ExhibitIds = await RemoveIdsAsync(activityResult.ExhibitIds, ResourceType.Exhibits.Name,
+            activityResult.ExhibitIds = await RemoveIdsAsync(activityResult.ExhibitIds, ResourceTypes.Exhibits.Name,
                 userId, token);
-            activityResult.RouteIds = await RemoveIdsAsync(activityResult.RouteIds, ResourceType.Routes.Name,
+            activityResult.RouteIds = await RemoveIdsAsync(activityResult.RouteIds, ResourceTypes.Routes.Name,
                 userId, token);
-            activityResult.MediaIds = await RemoveIdsAsync(activityResult.MediaIds, ResourceType.Media.Name,
+            activityResult.MediaIds = await RemoveIdsAsync(activityResult.MediaIds, ResourceTypes.Media.Name,
                 userId, token);
-            activityResult.TagIds = await RemoveIdsAsync(activityResult.TagIds, ResourceType.Tags.Name,
+            activityResult.TagIds = await RemoveIdsAsync(activityResult.TagIds, ResourceTypes.Tags.Name,
                 userId, token);
-            activityResult.ExhibitPageIds = await RemoveIdsAsync(activityResult.ExhibitPageIds, ResourceType.ExhibitPages.Name,
+            activityResult.ExhibitPageIds = await RemoveIdsAsync(activityResult.ExhibitPageIds, ResourceTypes.ExhibitPages.Name,
                 userId, token);
 
             return Ok(activityResult);
@@ -68,8 +68,8 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             var userId = User.Identity.GetUserIdentity();
             var token = Request.Headers["Authorization"];
 
-            var exhibits = await GetContentIdsAsync(status, token, ResourceType.Exhibits.Name);
-            exhibits = await RemoveIdsAsync(exhibits, ResourceType.Exhibits.Name,
+            var exhibits = await GetContentIdsAsync(status, token, ResourceTypes.Exhibits.Name);
+            exhibits = await RemoveIdsAsync(exhibits, ResourceTypes.Exhibits.Name,
                 userId, token);
 
             return Ok(exhibits);
@@ -86,8 +86,8 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             var userId = User.Identity.GetUserIdentity();
             var token = Request.Headers["Authorization"];
 
-            var routes = await GetContentIdsAsync(status, token, ResourceType.Routes.Name);
-            routes = await RemoveIdsAsync(routes, ResourceType.Routes.Name,
+            var routes = await GetContentIdsAsync(status, token, ResourceTypes.Routes.Name);
+            routes = await RemoveIdsAsync(routes, ResourceTypes.Routes.Name,
                 userId, token);
 
             return Ok(routes);
@@ -104,8 +104,8 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             var userId = User.Identity.GetUserIdentity();
             var token = Request.Headers["Authorization"];
 
-            var tags = await GetContentIdsAsync(status, token, ResourceType.Tags.Name);
-            tags = await RemoveIdsAsync(tags, ResourceType.Tags.Name,
+            var tags = await GetContentIdsAsync(status, token, ResourceTypes.Tags.Name);
+            tags = await RemoveIdsAsync(tags, ResourceTypes.Tags.Name,
                 userId, token);
 
             return Ok(tags);
@@ -122,8 +122,8 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             var userId = User.Identity.GetUserIdentity();
             var token = Request.Headers["Authorization"];
 
-            var media = await GetContentIdsAsync(status, token, ResourceType.Media.Name);
-            media = await RemoveIdsAsync(media, ResourceType.Media.Name,
+            var media = await GetContentIdsAsync(status, token, ResourceTypes.Media.Name);
+            media = await RemoveIdsAsync(media, ResourceTypes.Media.Name,
                 userId, token);
 
             return Ok(media);
@@ -140,8 +140,8 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             var userId = User.Identity.GetUserIdentity();
             var token = Request.Headers["Authorization"];
 
-            var exhibitPages = await GetContentIdsAsync(status, token, ResourceType.ExhibitPages.Name);
-            exhibitPages = await RemoveIdsAsync(exhibitPages, ResourceType.ExhibitPages.Name,
+            var exhibitPages = await GetContentIdsAsync(status, token, ResourceTypes.ExhibitPages.Name);
+            exhibitPages = await RemoveIdsAsync(exhibitPages, ResourceTypes.ExhibitPages.Name,
                 userId, token);
 
             return Ok(exhibitPages);

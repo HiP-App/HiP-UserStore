@@ -8,7 +8,7 @@ using PaderbornUniversity.SILab.Hip.UserStore.Model.Entity;
 using PaderbornUniversity.SILab.Hip.UserStore.Utility;
 using System;
 using Action = PaderbornUniversity.SILab.Hip.UserStore.Model.Entity.Action;
-using ResourceType = PaderbornUniversity.SILab.Hip.UserStore.Model.ResourceType; // TODO: Remove after architectural changes
+using PaderbornUniversity.SILab.Hip.UserStore.Model;
 
 namespace PaderbornUniversity.SILab.Hip.UserStore.Core
 {
@@ -57,7 +57,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Core
                         FirstName = e.Properties?.FirstName,
                         LastName = e.Properties?.LastName
                     };
-                    _db.GetCollection<User>(ResourceType.User.Name).InsertOne(newUser);
+                    _db.GetCollection<User>(ResourceTypes.User.Name).InsertOne(newUser);
                     break;
 
                 case UserUpdated e:
@@ -65,7 +65,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Core
                         .Set(x => x.FirstName, e.Properties.FirstName)
                         .Set(x => x.LastName, e.Properties.LastName);
 
-                    _db.GetCollection<User>(ResourceType.User.Name).UpdateOne(x => x.Id == e.Id, update);
+                    _db.GetCollection<User>(ResourceTypes.User.Name).UpdateOne(x => x.Id == e.Id, update);
                     break;
 
                 case UserPhotoUploaded e:
@@ -73,7 +73,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Core
                         .Set(x => x.ProfilePicturePath, e.Path)
                         .Set(x => x.Timestamp, e.Timestamp);
 
-                    _db.GetCollection<User>(ResourceType.User.Name).UpdateOne(x => x.Id == e.Id, update2);
+                    _db.GetCollection<User>(ResourceTypes.User.Name).UpdateOne(x => x.Id == e.Id, update2);
                     break;
 
                 case UserPhotoDeleted e:
@@ -81,13 +81,13 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Core
                         .Set(x => x.ProfilePicturePath, null)
                         .Set(x => x.Timestamp, e.Timestamp);
 
-                    _db.GetCollection<User>(ResourceType.User.Name).UpdateOne(x => x.Id == e.Id, update3);
+                    _db.GetCollection<User>(ResourceTypes.User.Name).UpdateOne(x => x.Id == e.Id, update3);
                     break;
 
                 case UserStudentDetailsUpdated e:
                     var studentDetails = e.Properties == null ? null : new StudentDetails(e.Properties);
                     var update4 = Builders<User>.Update.Set(x => x.StudentDetails, studentDetails);
-                    _db.GetCollection<User>(ResourceType.User.Name).UpdateOne(x => x.Id == e.Id, update4);
+                    _db.GetCollection<User>(ResourceTypes.User.Name).UpdateOne(x => x.Id == e.Id, update4);
                     break;
 
                 case ActionCreated e:
@@ -95,7 +95,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Core
                     newAction.Id = e.Id;
                     newAction.UserId = e.UserId;
                     newAction.Timestamp = e.Timestamp;
-                    _db.GetCollection<Action>(ResourceType.Action.Name).InsertOne(newAction);
+                    _db.GetCollection<Action>(ResourceTypes.Action.Name).InsertOne(newAction);
                     break;
             }
 

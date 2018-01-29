@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.Events;
 using PaderbornUniversity.SILab.Hip.DataStore;
 using PaderbornUniversity.SILab.Hip.EventSourcing;
@@ -11,27 +10,31 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using ResourceType = PaderbornUniversity.SILab.Hip.UserStore.Model.ResourceType;
+using PaderbornUniversity.SILab.Hip.UserStore.Model;
 
 namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers.ActionControllers
 {
     public class ExhibitVisitedController : ActionBaseController<ExhibitVisitedActionArgs>
     {
-        private readonly EndpointConfig _endpointConfig;
         private readonly ExhibitsVisitedIndex _index;
+        private readonly DataStoreService _dataStoreService;
 
-        public ExhibitVisitedController(EventStoreService eventStore, InMemoryCache cache, IOptions<EndpointConfig> endpointConfig) : base(eventStore, cache)
+        public ExhibitVisitedController(EventStoreService eventStore, InMemoryCache cache, DataStoreService dataStoreService) : base(eventStore, cache)
         {
-            _endpointConfig = endpointConfig.Value;
             _index = cache.Index<ExhibitsVisitedIndex>();
+            _dataStoreService = dataStoreService;
         }
 
+        protected override ResourceType ResourceType => ActionTypes.ExhibitVisited;
 
+        /// <summary>
+        /// Posts multiple ExhibitVisistedActions
+        /// </summary>
         [HttpPost("Many")]
         [ProducesResponseType(typeof(int), 201)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
-        public async Task<IActionResult> Post([FromBody] ExhibitVisitedActionsArgs args)
+        public async Task<IActionResult> PostMany([FromBody] ExhibitVisitedActionsArgs args)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -49,7 +52,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers.ActionControllers
 
                 var ev = new ActionCreated
                 {
-                    Id = _entityIndex.NextId(ResourceType.Action),
+                    Id = _entityIndex.NextId(ResourceTypes.Action),
                     UserId = User.Identity.GetUserIdentity(),
                     Properties = arg,
                     Timestamp = DateTimeOffset.Now
@@ -78,15 +81,10 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers.ActionControllers
             }
 
             //check if exhibits exists
-            var client = new ExhibitsClient(_endpointConfig.DataStoreUrl)
-            {
-                Authorization = Request.Headers["Authorization"]
-            };
-
             try
             {
                 //this method throws a SwaggerException if the request fails 
-                await client.GetByIdAsync(args.EntityId, null);
+                await _dataStoreService.Exhibits.GetByIdAsync(args.EntityId, null);
                 return new ArgsValidationResult { Success = true };
             }
             catch (SwaggerException)

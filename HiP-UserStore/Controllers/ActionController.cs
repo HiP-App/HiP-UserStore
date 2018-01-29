@@ -11,6 +11,7 @@ using Action = PaderbornUniversity.SILab.Hip.UserStore.Model.Entity.Action;
 using ActionResult = PaderbornUniversity.SILab.Hip.UserStore.Model.Rest.ActionResult;
 using System.Reflection;
 using System;
+using PaderbornUniversity.SILab.Hip.EventSourcing;
 
 namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
 {
@@ -37,16 +38,16 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
 
                   if (actionType != null)
                   {
-                      var listOfTypes =  typeof(ActionType).GetFields(BindingFlags.Public | BindingFlags.Static)
-                                                       .Where(f => f.FieldType == typeof(ActionType))
+                      var listOfTypes =  typeof(ActionTypes).GetFields(BindingFlags.Public | BindingFlags.Static)
+                                                       .Where(f => f.FieldType == typeof(ResourceType))
                                                        .ToDictionary(f => f.Name,
-                                                                     f => (ActionType)f.GetValue(null));
-               
+                                                                     f => (ResourceType)f.GetValue(null));
+                
                       if (!listOfTypes.Any(x => x.Value.Name == actionType))
                           return NotFound(new { Message = $"Action type '{actionType}' is not supported" });
                   }
 
-                var query = _db.Database.GetCollection<Action>(ResourceType.Action.Name).AsQueryable();
+                var query = _db.Database.GetCollection<Action>(ResourceTypes.Action.Name).AsQueryable();
                 var userId = User.Identity.GetUserIdentity();
                 var result = query.Where(x => x.UserId == userId)
                                   .ToList()

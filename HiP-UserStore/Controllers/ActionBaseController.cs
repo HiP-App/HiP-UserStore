@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using PaderbornUniversity.SILab.Hip.UserStore.Utility;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.Events;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.Rest;
-using ResourceType = PaderbornUniversity.SILab.Hip.UserStore.Model.ResourceType;
+using PaderbornUniversity.SILab.Hip.UserStore.Model;
 
 namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
 {
@@ -18,7 +18,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
     /// <typeparam name="TArgs">Type of arguments</typeparam>
     [Authorize]
     [Route("api/Actions/[controller]")]
-    public abstract class ActionBaseController<TArgs> : BaseController<TArgs> where TArgs : ActionArgs
+    public abstract class ActionBaseController<TArgs> : BaseController<TArgs> where TArgs : ActionArgs, new()
     {
         // ReSharper disable All
         protected readonly EntityIndex _entityIndex;
@@ -47,7 +47,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
 
             var ev = new ActionCreated
             {
-                Id = _entityIndex.NextId(ResourceType.Action),
+                Id = _entityIndex.NextId(ResourceTypes.Action),
                 UserId = User.Identity.GetUserIdentity(),
                 Properties = args,
                 Timestamp = DateTimeOffset.Now

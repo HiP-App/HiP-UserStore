@@ -7,6 +7,7 @@ using MongoDB.Driver;
 using PaderbornUniversity.SILab.Hip.EventSourcing;
 using PaderbornUniversity.SILab.Hip.EventSourcing.EventStoreLlp;
 using PaderbornUniversity.SILab.Hip.UserStore.Core;
+using PaderbornUniversity.SILab.Hip.UserStore.Model;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.Entity;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.Events;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.Rest;
@@ -14,7 +15,6 @@ using PaderbornUniversity.SILab.Hip.UserStore.Utility;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using ResourceType = PaderbornUniversity.SILab.Hip.UserStore.Model.ResourceType; // TODO: Remove after architectural changes
 
 namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
 {
@@ -61,7 +61,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
                 // For filtering by role, we need to asynchronously retrieve the roles of each user
                 // which is horribly inefficient, but the only solution for now
                 // (only filtering by query text can be done beforehand)
-                var users = _db.Database.GetCollection<User>(ResourceType.User.Name)
+                var users = _db.Database.GetCollection<User>(ResourceTypes.User.Name)
                     .AsQueryable()
                     .FilterIf(!string.IsNullOrEmpty(args.Query), user =>
                         user.FirstName.ToLower().Contains(args.Query.ToLower()) ||
@@ -104,7 +104,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             if (!UserPermissions.IsAllowedToGet(User.Identity, userId))
                 return Forbid();
 
-            var user = _db.Database.GetCollection<User>(ResourceType.User.Name)
+            var user = _db.Database.GetCollection<User>(ResourceTypes.User.Name)
                 .AsQueryable()
                 .FirstOrDefault(u => u.UserId == userId);
 
@@ -133,7 +133,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             if (!UserPermissions.IsAllowedToGetAll(User.Identity))
                 return Forbid();
 
-            var user = _db.Database.GetCollection<User>(ResourceType.User.Name)
+            var user = _db.Database.GetCollection<User>(ResourceTypes.User.Name)
                 .AsQueryable()
                 .FirstOrDefault(u => u.Email == email);
 
@@ -204,7 +204,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
 
             var ev = new UserCreated
             {
-                Id = _entityIndex.NextId(ResourceType.User),
+                Id = _entityIndex.NextId(ResourceTypes.User),
                 UserId = userId,
                 Timestamp = DateTimeOffset.Now,
                 Properties = new UserArgs
@@ -244,7 +244,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
                     // Step 2) Register user in UserStore
                     var ev = new UserCreated
                     {
-                        Id = _entityIndex.NextId(ResourceType.User),
+                        Id = _entityIndex.NextId(ResourceTypes.User),
                         UserId = userId,
                         Timestamp = DateTimeOffset.Now,
                         Properties = new UserArgs(args)

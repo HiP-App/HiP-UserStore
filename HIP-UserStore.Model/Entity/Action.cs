@@ -17,5 +17,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Model.Entity
         }
         
         public abstract ActionResult CreateActionResult();
+
+        public abstract ActionArgs CreateActionArgs();
     }
 }

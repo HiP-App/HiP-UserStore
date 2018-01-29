@@ -1,4 +1,5 @@
 ﻿using PaderbornUniversity.SILab.Hip.UserStore.Model.Rest;
+using PaderbornUniversity.SILab.Hip.EventSourcing;
 
 namespace PaderbornUniversity.SILab.Hip.UserStore.Model.Events
 {
@@ -6,6 +7,6 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Model.Events
     {
         public UserUpdateArgs Properties { get; set; }
 
-        public override ResourceType GetEntityType() => ResourceType.User;
+        public override ResourceType GetEntityType() => ResourceTypes.User;
     }
 }

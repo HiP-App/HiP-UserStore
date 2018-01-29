@@ -10,7 +10,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Model.Entity.Actions
         {
         }
 
-        public override string TypeName => ActionType.ExhibitVisited.Name;
+        public override string TypeName => ActionTypes.ExhibitVisited.Name;
         public override ActionResult CreateActionResult()
         {
             return new ExhibitVisitedActionResult(this);
@@ -24,6 +24,10 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Model.Entity.Actions
                 result.Add(new ExhibitVisitedAction((ExhibitVisitedActionArgs)actionArg));
             }
             return result;
+        }
+        public override ActionArgs CreateActionArgs()
+        {
+            return new ExhibitVisitedActionArgs();
         }
     }
 }
