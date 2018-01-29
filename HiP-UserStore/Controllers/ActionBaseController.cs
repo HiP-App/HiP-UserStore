@@ -41,20 +41,16 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
+            if (User.Identity.GetUserIdentity() == null)
+                return Forbid();
+
             var validationResult = await ValidateActionArgs(args);
             if (!validationResult.Success)
                 return validationResult.ActionResult;
 
-            var ev = new ActionCreated
-            {
-                Id = _entityIndex.NextId(ResourceTypes.Action),
-                UserId = User.Identity.GetUserIdentity(),
-                Properties = args,
-                Timestamp = DateTimeOffset.Now
-            };
-
-            await _eventStore.AppendEventAsync(ev);
-            return Created($"{Request.Scheme}://{Request.Host}/api/Action/{ev.Id}", ev.Id);
+            var id = _entityIndex.NextId(ResourceTypes.Action);
+            await EntityManager.CreateEntityAsync(_eventStore, args, ResourceType, id, User.Identity.GetUserIdentity());
+            return Created($"{Request.Scheme}://{Request.Host}/api/Action/{id}", id);
         }
     }
 }

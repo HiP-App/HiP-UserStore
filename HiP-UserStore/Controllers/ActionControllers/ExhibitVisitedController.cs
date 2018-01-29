@@ -25,7 +25,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers.ActionControllers
             _dataStoreService = dataStoreService;
         }
 
-        protected override ResourceType ResourceType => ActionTypes.ExhibitVisited;
+        protected override ResourceType ResourceType => ResourceTypes.ExhibitVisitedAction;
 
         /// <summary>
         /// Posts multiple ExhibitVisistedActions

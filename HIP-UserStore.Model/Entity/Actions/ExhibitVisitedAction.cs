@@ -10,7 +10,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Model.Entity.Actions
         {
         }
 
-        public override string TypeName => ActionTypes.ExhibitVisited.Name;
+        public override string TypeName => ActionTypes.ExhibitVisitedAction.Name;
         public override ActionResult CreateActionResult()
         {
             return new ExhibitVisitedActionResult(this);

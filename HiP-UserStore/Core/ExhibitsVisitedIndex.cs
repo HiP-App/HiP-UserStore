@@ -1,7 +1,8 @@
-﻿using PaderbornUniversity.SILab.Hip.UserStore.Model.Events;
-using PaderbornUniversity.SILab.Hip.EventSourcing;
+﻿using PaderbornUniversity.SILab.Hip.EventSourcing;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.Rest.Actions;
 using System.Collections.Generic;
+using PaderbornUniversity.SILab.Hip.EventSourcing.Events;
+using PaderbornUniversity.SILab.Hip.UserStore.Model;
 
 namespace PaderbornUniversity.SILab.Hip.UserStore.Core
 {
@@ -13,19 +14,29 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Core
         {
             switch (e)
             {
-                case ActionCreated ev:
-                    switch (ev.Properties)
+                case CreatedEvent ev:
+                    var resourceType = ev.GetEntityType();
+                    switch (resourceType)
                     {
-                        case ExhibitVisitedActionArgs args:
-                            if (_visitedExhibits.TryGetValue(ev.UserId, out var list))
+                        case ResourceType _ when resourceType == ActionTypes.ExhibitVisitedAction:
+                            if (!_visitedExhibits.ContainsKey(ev.UserId))
                             {
-                                list.Add(args.EntityId);
-                            }
-                            else
-                            {
-                                _visitedExhibits.Add(ev.UserId, new List<int> { args.EntityId });
+                                _visitedExhibits.Add(ev.UserId, new List<int>());
                             }
 
+                            break;
+                    }
+                    break;
+
+                case PropertyChangedEvent ev:
+                    resourceType = ev.GetEntityType();
+                    switch (resourceType)
+                    {
+                        case ResourceType _ when resourceType == ActionTypes.ExhibitVisitedAction:
+                            if (ev.PropertyName == nameof(ExhibitVisitedActionArgs.EntityId) && _visitedExhibits.TryGetValue(ev.UserId, out var list))
+                            {
+                                list.Add((int)ev.Value);
+                            }
                             break;
                     }
                     break;

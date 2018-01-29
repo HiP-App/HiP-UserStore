@@ -13,6 +13,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Model
         public static ResourceType Tags;
         public static ResourceType ExhibitPages;
         public static ResourceType Action;
+
         /// <summary>
         /// Initializes the fieldd
         /// </summary>

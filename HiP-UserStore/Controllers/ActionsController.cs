@@ -18,16 +18,16 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
 
     [Authorize]
         [Route("api/[controller]")]
-        public class ActionController : Controller
+        public class ActionsController : Controller
         {
             private readonly CacheDatabaseManager _db;
 
-            public ActionController(CacheDatabaseManager db)
+            public ActionsController(CacheDatabaseManager db)
             {
                 _db = db;
             }
 
-            [HttpGet("all")]
+            [HttpGet]
             [ProducesResponseType(typeof(AllItemsResult<ActionResult>), 200)]
             [ProducesResponseType(400)]
             [ProducesResponseType(404)]
