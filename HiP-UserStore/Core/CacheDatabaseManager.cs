@@ -6,7 +6,6 @@ using PaderbornUniversity.SILab.Hip.EventSourcing.Events;
 using PaderbornUniversity.SILab.Hip.EventSourcing.EventStoreLlp;
 using PaderbornUniversity.SILab.Hip.UserStore.Model;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.Entity;
-using PaderbornUniversity.SILab.Hip.UserStore.Model.Events;
 using PaderbornUniversity.SILab.Hip.UserStore.Utility;
 using System;
 using System.Linq;
@@ -48,14 +47,6 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Core
         {
             switch (ev)
             {
-                case UserPhotoDeleted e:
-                    var update3 = Builders<User>.Update
-                        .Set(x => x.ProfilePicturePath, null)
-                        .Set(x => x.Timestamp, e.Timestamp);
-
-                    _db.GetCollection<User>(ResourceTypes.User.Name).UpdateOne(x => x.Id == e.Id, update3);
-                    break;
-
                 case CreatedEvent e:
                     var resourceType = e.GetEntityType();
                     switch (resourceType)
@@ -78,6 +69,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Core
                     {
                         case ResourceType _ when resourceType == ResourceTypes.User:
                             var originalUser = _db.GetCollection<User>(ResourceTypes.User.Name).AsQueryable().First(x => x.Id == e.Id);
+                            originalUser.Timestamp = e.Timestamp;
                             e.ApplyTo(originalUser);
                             _db.GetCollection<User>(ResourceTypes.User.Name).ReplaceOne(x => x.Id == e.Id, originalUser);
                             break;
