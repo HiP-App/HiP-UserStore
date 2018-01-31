@@ -78,15 +78,8 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Core
                     {
                         case ResourceType _ when resourceType == ResourceTypes.User:
                             var originalUser = _db.GetCollection<User>(ResourceTypes.User.Name).AsQueryable().First(x => x.Id == e.Id);
-                            var userArgs = originalUser.CreateUserArgs2();
-                            e.ApplyTo(userArgs);
-                            var updatedUser = new User(userArgs)
-                            {
-                                Id = e.Id,
-                                UserId = originalUser.UserId,
-                                Timestamp = e.Timestamp
-                            };
-                            _db.GetCollection<User>(ResourceTypes.User.Name).ReplaceOne(x => x.Id == e.Id, updatedUser);
+                            e.ApplyTo(originalUser);
+                            _db.GetCollection<User>(ResourceTypes.User.Name).ReplaceOne(x => x.Id == e.Id, originalUser);
                             break;
                     }
                     break;

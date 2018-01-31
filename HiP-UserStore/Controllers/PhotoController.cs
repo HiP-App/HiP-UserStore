@@ -104,13 +104,13 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
 
             var filePath = SaveNewFile(file, userId);
 
-            var oldUserArgs = await EventStreamExtensions.GetCurrentEntityAsync<UserArgs2>(_eventStore.EventStream, ResourceTypes.User, internalId);
-            var newUserArgs = new UserArgs2(oldUserArgs)
+            var oldUser = await _eventStore.EventStream.GetCurrentEntityAsync<User>(ResourceTypes.User, internalId);
+            var newUser = new User(oldUser)
             {
                 ProfilePicturePath = filePath
             };
 
-            await EntityManager.UpdateEntityAsync(_eventStore, oldUserArgs, newUserArgs, ResourceTypes.User, internalId, User.Identity.GetUserIdentity());
+            await EntityManager.UpdateEntityAsync(_eventStore, oldUser, newUser, ResourceTypes.User, internalId, User.Identity.GetUserIdentity());
             await InvalidateThumbnailCacheAsync(userId);
             return NoContent();
         }

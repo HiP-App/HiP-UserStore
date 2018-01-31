@@ -170,15 +170,13 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             if (!UserPermissions.IsAllowedToModify(User.Identity, userId))
                 return Forbid();
 
-            var oldUserArgs = await EventStreamExtensions.GetCurrentEntityAsync<UserArgs2>(_eventStore.EventStream, ResourceTypes.User, internalId);
-            var changedUserArgs = new UserArgs2
+            var oldUser = await EventStreamExtensions.GetCurrentEntityAsync<User>(_eventStore.EventStream, ResourceTypes.User, internalId);
+            var changedUserArgs = new User(oldUser)
             {
-                Email = oldUserArgs.Email,
-                UserId = oldUserArgs.UserId,
                 FirstName = args.FirstName,
-                LastName = args.LastName
+                LastName = args.LastName,
             };
-            await EntityManager.UpdateEntityAsync(_eventStore, oldUserArgs, changedUserArgs, ResourceTypes.User, internalId,
+            await EntityManager.UpdateEntityAsync(_eventStore, oldUser, changedUserArgs, ResourceTypes.User, internalId,
                 User.Identity.GetUserIdentity());
             return NoContent();
         }
@@ -202,7 +200,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             if (_userIndex.IsEmailInUse(args.Email))
                 return StatusCode(409, new { Message = $"A user with email address '{args.Email}' already exists" });
 
-            var userArgs = new UserArgs2
+            var user = new User
             {
                 UserId = userId,
                 Email = args.Email,
@@ -211,7 +209,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             };
             var id = _entityIndex.NextId(ResourceTypes.User);
 
-            await EntityManager.CreateEntityAsync(_eventStore, userArgs, ResourceTypes.User, id, User.Identity.GetUserIdentity());
+            await EntityManager.CreateEntityAsync(_eventStore, user, ResourceTypes.User, id, User.Identity.GetUserIdentity());
             return Created($"{Request.Scheme}://{Request.Host}/api/Users/{userId}", userId);
         }
 
@@ -238,13 +236,12 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
                 try
                 {
                     // Step 2) Register user in UserStore
-                    var userArgs = new UserArgs2
+                    var userArgs = new User
                     {
                         UserId = userId,
                         Email = args.Email,
                         FirstName = args.FirstName,
-                        LastName = args.LastName,
-                        Password = args.Password
+                        LastName = args.LastName
                     };
 
                     var id = _entityIndex.NextId(ResourceTypes.User);

@@ -61,14 +61,6 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Core
         {
             switch (e)
             {
-                case UserPhotoDeleted ev:
-                    lock (_lockObject)
-                    {
-                        if (_users.TryGetValue(ev.Id, out var info))
-                            info.ProfilePicturePath = null;
-                    }
-                    break;
-
                 case CreatedEvent ev:
                     var resourceType = ev.GetEntityType();
                     if (resourceType == ResourceTypes.User)
@@ -82,6 +74,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Core
 
                 case PropertyChangedEvent ev:
                     resourceType = ev.GetEntityType();
+
                     if (resourceType == ResourceTypes.User)
                     {
                         switch (ev.PropertyName)

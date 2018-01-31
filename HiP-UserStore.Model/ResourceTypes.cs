@@ -1,6 +1,7 @@
 ﻿using PaderbornUniversity.SILab.Hip.EventSourcing;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.Rest;
 using PaderbornUniversity.SILab.Hip.DataStore;
+using PaderbornUniversity.SILab.Hip.UserStore.Model.Entity;
 
 namespace PaderbornUniversity.SILab.Hip.UserStore.Model
 {
@@ -18,7 +19,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Model
         /// </summary>
         public static void Initialize()
         {
-            User = ResourceType.Register(nameof(User), typeof(UserArgs2));
+            User = ResourceType.Register(nameof(User), typeof(User));
             Exhibit = ResourceType.Register(nameof(Exhibit), typeof(ExhibitArgs));
             ExhibitPage = ResourceType.Register(nameof(ExhibitPage), typeof(ExhibitPageArgs2));
             Route = ResourceType.Register(nameof(Route), typeof(RouteArgs));

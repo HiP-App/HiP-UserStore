@@ -30,83 +30,79 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Migrations
                     switch (currentEvent)
                     {
                         case UserCreated ev:
-                            var emptyUserArgs = new UserArgs2();
+                            var emptyUser = new User();
                             e.AppendEvent(new CreatedEvent(ev.GetEntityType().Name, ev.Id, ev.UserId)
                             {
                                 Timestamp = ev.Timestamp
                             });
-                            var newUserArgs = new UserArgs2 
+                            var newUser = new User
                             {
                                 FirstName = ev.Properties?.FirstName,
                                 LastName = ev.Properties?.LastName,
-                                Email = ev.Properties?.Email
+                                Email = ev.Properties?.Email,
+                                UserId = ev.UserId
                             };
-                            propEvents = EntityManager.CompareEntities(emptyUserArgs, newUserArgs, ev.GetEntityType(), ev.Id, ev.UserId);
-                            argumentDictionary[(ev.GetEntityType(), ev.Id)] = newUserArgs;
+                            propEvents = EntityManager.CompareEntities(emptyUser, newUser, ev.GetEntityType(), ev.Id, ev.UserId);
+                            argumentDictionary[(ev.GetEntityType(), ev.Id)] = newUser;
                             timestamp = ev.Timestamp;
                             break;
 
                         case UserUpdated ev:
                             timestamp = ev.Timestamp;
-                            var currentArgs = argumentDictionary[(ev.GetEntityType(), ev.Id)] as UserArgs2;
-                            if (currentArgs == null)
-                                currentArgs = new UserArgs2();
-                            newUserArgs = new UserArgs2
+                            var currentUser = argumentDictionary[(ev.GetEntityType(), ev.Id)] as User;
+                            if (currentUser == null)
+                                currentUser = new User();
+                            newUser = new User(currentUser)
                             {
                                 FirstName = ev.Properties?.FirstName,
-                                LastName = ev.Properties?.LastName,
-                                Email = currentArgs.Email,
-                                Password = currentArgs.Password,
-                                ProfilePicturePath = currentArgs.ProfilePicturePath,
-                                StudentDetails = currentArgs.StudentDetails,
-                                UserId = currentArgs.UserId
+                                LastName = ev.Properties?.LastName
                             };
-                            propEvents = EntityManager.CompareEntities(currentArgs, newUserArgs, ev.GetEntityType(), ev.Id, ev.UserId);
-                            argumentDictionary[(ev.GetEntityType(), ev.Id)] = newUserArgs;
+                            propEvents = EntityManager.CompareEntities(currentUser, newUser, ev.GetEntityType(), ev.Id, ev.UserId);
+                            argumentDictionary[(ev.GetEntityType(), ev.Id)] = newUser;
                             break;
 
                         case UserPhotoUploaded ev:
                             timestamp = ev.Timestamp;
-                            var currentPhotoArgs = argumentDictionary[(ev.GetEntityType(), ev.Id)] as UserArgs2;
-                            if (currentPhotoArgs == null)
-                                currentPhotoArgs = new UserArgs2();
-                            newUserArgs = new UserArgs2
+                            currentUser = argumentDictionary[(ev.GetEntityType(), ev.Id)] as User;
+                            if (currentUser == null)
+                                currentUser = new User();
+                            newUser = new User(currentUser)
                             {
-                                ProfilePicturePath = ev.Path,
-                                FirstName = currentPhotoArgs.FirstName,
-                                LastName = currentPhotoArgs.LastName,
-                                Email = currentPhotoArgs.Email,
-                                Password = currentPhotoArgs.Password,
-                                StudentDetails = currentPhotoArgs.StudentDetails,
-                                UserId = currentPhotoArgs.UserId
+                                ProfilePicturePath = ev.Path
                             };
-                            propEvents = EntityManager.CompareEntities(currentPhotoArgs, newUserArgs, ev.GetEntityType(), ev.Id, ev.UserId);
-                            argumentDictionary[(ev.GetEntityType(), ev.Id)] = newUserArgs;
+                            propEvents = EntityManager.CompareEntities(currentUser, newUser, ev.GetEntityType(), ev.Id, ev.UserId);
+                            argumentDictionary[(ev.GetEntityType(), ev.Id)] = newUser;
+                            break;
+
+                        case UserPhotoDeleted ev:
+                            timestamp = ev.Timestamp;
+                            currentUser = argumentDictionary[(ev.GetEntityType(), ev.Id)] as User;
+                            if (currentUser == null)
+                                currentUser = new User();
+                            newUser = new User(currentUser)
+                            {
+                                ProfilePicturePath = null
+                            };
+                            propEvents = EntityManager.CompareEntities(currentUser, newUser, ev.GetEntityType(), ev.Id, ev.UserId);
+                            argumentDictionary[(ev.GetEntityType(), ev.Id)] = newUser;
                             break;
 
                         case UserStudentDetailsUpdated ev:
                             timestamp = ev.Timestamp;
-                            var currentUserArgs = argumentDictionary[(ev.GetEntityType(), ev.Id)] as UserArgs2;
-                            if (currentUserArgs == null)
-                                currentUserArgs = new UserArgs2();
-                            newUserArgs = new UserArgs2
+                            currentUser = argumentDictionary[(ev.GetEntityType(), ev.Id)] as User;
+                            if (currentUser == null)
+                                currentUser = new User();
+                            newUser = new User(currentUser)
                             {
                                 StudentDetails = new StudentDetails(new StudentDetailsArgs
                                 {
                                     CurrentDegree = ev.Properties?.CurrentDegree,
                                     CurrentSemester = ev.Properties?.CurrentSemester,
                                     Discipline = ev.Properties?.Discipline
-                                }),
-                                FirstName = currentUserArgs.FirstName,
-                                LastName = currentUserArgs.LastName,
-                                Email = currentUserArgs.Email,
-                                Password = currentUserArgs.Password,
-                                ProfilePicturePath = currentUserArgs.ProfilePicturePath,
-                                UserId = currentUserArgs.UserId
+                                })
                             };
-                            propEvents = EntityManager.CompareEntities(currentUserArgs, newUserArgs, 
-                                ev.GetEntityType(), ev.Id, ev.UserId);
-                            argumentDictionary[(ev.GetEntityType(), ev.Id)] = newUserArgs;
+                            propEvents = EntityManager.CompareEntities(currentUser, newUser, ev.GetEntityType(), ev.Id, ev.UserId);
+                            argumentDictionary[(ev.GetEntityType(), ev.Id)] = newUser;
                             break;
 
                         default:

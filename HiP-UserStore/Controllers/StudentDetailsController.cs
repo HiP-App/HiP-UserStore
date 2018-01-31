@@ -42,21 +42,14 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             if (!_userIndex.TryGetInternalId(userId, out var internalId))
                 return NotFound();
 
-            var oldUserArgs = await EventStreamExtensions.GetCurrentEntityAsync<UserArgs2>(_eventStore.EventStream,
-                ResourceTypes.User, internalId);
+            var oldUser = await _eventStore.EventStream.GetCurrentEntityAsync<User>(ResourceTypes.User, internalId);
 
-            var newUserArgs = new UserArgs2
+            var newUser = new User(oldUser)
             {
-                Email = oldUserArgs.Email,
-                FirstName = oldUserArgs.FirstName,
-                LastName = oldUserArgs.LastName,
-                ProfilePicturePath = oldUserArgs.ProfilePicturePath,
-                UserId = oldUserArgs.UserId,
-                Password = oldUserArgs.Password,
                 StudentDetails = new StudentDetails(args)
             };
 
-            await EntityManager.UpdateEntityAsync(_eventStore, oldUserArgs, newUserArgs, ResourceTypes.User,
+            await EntityManager.UpdateEntityAsync(_eventStore, oldUser, newUser, ResourceTypes.User,
                 internalId, User.Identity.GetUserIdentity());
 
             return NoContent();
@@ -78,20 +71,15 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             if (!_userIndex.TryGetInternalId(userId, out var internalId))
                 return NotFound();
 
-            var oldUserArgs = await EventStreamExtensions.GetCurrentEntityAsync<UserArgs2>(_eventStore.EventStream,
-                ResourceTypes.User, internalId);
+            var oldUser = await _eventStore.EventStream.GetCurrentEntityAsync<User>(ResourceTypes.User, internalId);
 
-            var newUserArgs = new UserArgs2
+            //we need to set the StudentDetails to null to delete it
+            var newUserArgs = new User(oldUser)
             {
-                Email = oldUserArgs.Email,
-                FirstName = oldUserArgs.FirstName,
-                LastName = oldUserArgs.LastName,
-                ProfilePicturePath = oldUserArgs.ProfilePicturePath,
-                UserId = oldUserArgs.UserId,
-                Password = oldUserArgs.Password
+                StudentDetails = null
             };
 
-            await EntityManager.UpdateEntityAsync(_eventStore, oldUserArgs, newUserArgs, ResourceTypes.User,
+            await EntityManager.UpdateEntityAsync(_eventStore, oldUser, newUserArgs, ResourceTypes.User,
                 internalId, User.Identity.GetUserIdentity());
             return NoContent();
         }
