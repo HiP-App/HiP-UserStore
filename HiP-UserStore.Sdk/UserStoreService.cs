@@ -12,12 +12,12 @@ namespace PaderbornUniversity.SILab.Hip.UserStore
     /// services.AddSingleton&lt;UserStoreService&gt;();
     /// </code>
     /// </summary>
-    public class DataStoreService
+    public class UserStoreService
     {
         private readonly UserStoreConfig _config;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public DataStoreService(IOptions<UserStoreConfig> config, ILogger<DataStoreService> logger,
+        public UserStoreService(IOptions<UserStoreConfig> config, ILogger<UserStoreService> logger,
             IHttpContextAccessor httpContextAccessor)
         {
             _config = config.Value;
@@ -45,6 +45,6 @@ namespace PaderbornUniversity.SILab.Hip.UserStore
         public UsersClient Media => new UsersClient(_config.UserStoreHost)
         {
             Authorization = _httpContextAccessor.HttpContext?.Request.Headers["Authorization"]
-        };       
+        };
     }
 }

@@ -6,7 +6,7 @@
     public sealed class UserStoreConfig
     {
         /// <summary>
-        /// URL pointing to a running instance of the DataStore service.
+        /// URL pointing to a running instance of the UserStore service.
         /// Example: "https://docker-hip.cs.upb.de/develop/userstore"
         /// </summary>
         public string UserStoreHost { get; set; }
