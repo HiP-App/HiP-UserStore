@@ -1,6 +1,6 @@
 {
   "name": "hip-userstore",
-  "version": "0.3.0",
+  "version": "1.0.0",
   "description": "Typescript client for HiP-UserStore",
   "repository": {
     "type": "git",
