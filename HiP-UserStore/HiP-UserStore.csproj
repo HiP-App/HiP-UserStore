@@ -37,7 +37,8 @@
   </ItemGroup>
 
   <Target Name="NSwag" AfterTargets="Build" Condition="'$(OS)'=='Windows_NT'">
-    <Exec Command="$(NSwagExe_Core20) webapi2swagger /assembly:$(TargetPath) /output:../$(ProjectName).Sdk/swagger.json" />
-	<Exec Command="$(NSwagExe_Core20) swagger2csclient /input:../$(ProjectName).Sdk/swagger.json /output:../$(ProjectName).Sdk/NSwag.g.cs /namespace:$(RootNamespace) /clientBaseClass:NSwagClientBase /useHttpClientCreationMethod:true /generateOptionalParameters:true /arrayType:System.Collections.Generic.IReadOnlyList" />
+    <Exec Command="$(NSwagExe_Core20) webapi2swagger /assembly:$(TargetPath) /output:../swagger.json /defaultPropertyNameHandling:camelCase" />
+    <Exec Command="$(NSwagExe_Core20) swagger2csclient /input:../swagger.json /output:../$(ProjectName).Sdk/NSwag.g.cs /namespace:$(RootNamespace) /clientBaseClass:NSwagClientBase /useHttpClientCreationMethod:true /generateOptionalParameters:true" />
+    <Exec Command="$(NSwagExe_Core20) swagger2tsclient /input:../swagger.json /output:../$(ProjectName).TypeScript/package/lib/$(ProjectName).ts /baseUrlTokenName:$(ProjectName.Replace('-','_'))_URL /template:angular /clientBaseClass:NSwagClientBase /extensionCode:../$(ProjectName).TypeScript/NSwagClientBase.ts /injectionTokenType:InjectionToken  /generateOptionalParameters:true /useTransformOptionsMethod:true" />
   </Target>
 </Project>
