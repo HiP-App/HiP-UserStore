@@ -8,6 +8,7 @@ using MongoDB.Driver;
 using PaderbornUniversity.SILab.Hip.EventSourcing;
 using PaderbornUniversity.SILab.Hip.EventSourcing.EventStoreLlp;
 using PaderbornUniversity.SILab.Hip.UserStore.Core;
+using PaderbornUniversity.SILab.Hip.UserStore.Model;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.Entity;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.Events;
 using PaderbornUniversity.SILab.Hip.UserStore.Utility;
@@ -17,7 +18,6 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using ResourceType = PaderbornUniversity.SILab.Hip.UserStore.Model.ResourceType; // TODO: Remove after architectural changes
 
 namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
 {
@@ -57,7 +57,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             if (!UserPermissions.IsAllowedToGetPhoto(User.Identity, userId))
                 return Forbid();
 
-            var user = _db.Database.GetCollection<User>(ResourceType.User.Name)
+            var user = _db.Database.GetCollection<User>(ResourceTypes.User.Name)
                  .AsQueryable()
                  .FirstOrDefault(x => x.UserId == userId);
 
@@ -103,15 +103,13 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
 
             var filePath = SaveNewFile(file, userId);
 
-            var ev = new UserPhotoUploaded
+            var oldUser = await _eventStore.EventStream.GetCurrentEntityAsync<User>(ResourceTypes.User, internalId);
+            var newUser = new User(oldUser)
             {
-                Id = internalId,
-                UserId = User.Identity.GetUserIdentity(),
-                Path = filePath,
-                Timestamp = DateTimeOffset.Now
+                ProfilePicturePath = filePath
             };
 
-            await _eventStore.AppendEventAsync(ev);
+            await EntityManager.UpdateEntityAsync(_eventStore, oldUser, newUser, ResourceTypes.User, internalId, User.Identity.GetUserIdentity());
             await InvalidateThumbnailCacheAsync(userId);
             return NoContent();
         }

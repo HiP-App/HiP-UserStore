@@ -1,8 +1,8 @@
 ﻿using PaderbornUniversity.SILab.Hip.EventSourcing;
+using PaderbornUniversity.SILab.Hip.EventSourcing.Events;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.Events;
 using System;
 using System.Collections.Generic;
-using ResourceType = PaderbornUniversity.SILab.Hip.UserStore.Model.ResourceType; // TODO: Remove after architectural changes
 
 namespace PaderbornUniversity.SILab.Hip.UserStore.Core
 {
@@ -52,21 +52,21 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Core
         {
             switch (e)
             {
-                case ICreateEvent ev:
-                    lock (_lockObject)
-                    {
-                        var owner = (ev as UserActivityBaseEvent)?.UserId;
-                        var info = GetOrCreateEntityTypeInfo(ev.GetEntityType());
-                        info.MaximumId = Math.Max(info.MaximumId, ev.Id);
-                        info.Entities.Add(ev.Id, new EntityInfo { UserId = owner });
-                    }
-                    break;
-
                 case IDeleteEvent ev:
                     lock (_lockObject)
                     {
                         var info3 = GetOrCreateEntityTypeInfo(ev.GetEntityType());
                         info3.Entities.Remove(ev.Id);
+                    }
+                    break;
+
+                case CreatedEvent ev:
+                    lock (_lockObject)
+                    {
+                        var owner = ev.UserId;
+                        var info = GetOrCreateEntityTypeInfo(ev.GetEntityType());
+                        info.MaximumId = Math.Max(info.MaximumId, ev.Id);
+                        info.Entities.Add(ev.Id, new EntityInfo { UserId = owner });
                     }
                     break;
             }

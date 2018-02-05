@@ -1,5 +1,7 @@
 ﻿using PaderbornUniversity.SILab.Hip.EventSourcing;
-using PaderbornUniversity.SILab.Hip.UserStore.Model.Events;
+using PaderbornUniversity.SILab.Hip.EventSourcing.Events;
+using PaderbornUniversity.SILab.Hip.UserStore.Model;
+using PaderbornUniversity.SILab.Hip.UserStore.Model.Entity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -58,27 +60,47 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Core
         {
             switch (e)
             {
-                case UserCreated ev:
-                    lock (_lockObject)
+                case CreatedEvent ev:
+                    var resourceType = ev.GetEntityType();
+                    if (resourceType == ResourceTypes.User)
                     {
-                        _users.Add(ev.Id, new UserInfo { Email = ev.Properties?.Email });
-                        _auth0UserIds.Add(ev.UserId, ev.Id);
+                        lock (_lockObject)
+                        {
+                            _users.Add(ev.Id, new UserInfo());
+                        }
                     }
                     break;
 
-                case UserPhotoUploaded ev:
-                    lock (_lockObject)
-                    {
-                        if (_users.TryGetValue(ev.Id, out var info))
-                            info.ProfilePicturePath = ev.Path;
-                    }
-                    break;
+                case PropertyChangedEvent ev:
+                    resourceType = ev.GetEntityType();
 
-                case UserPhotoDeleted ev:
-                    lock (_lockObject)
+                    if (resourceType == ResourceTypes.User)
                     {
-                        if (_users.TryGetValue(ev.Id, out var info))
-                            info.ProfilePicturePath = null;
+                        switch (ev.PropertyName)
+                        {
+                            case nameof(User.Email):
+                                lock (_lockObject)
+                                {
+                                    if (_users.TryGetValue(ev.Id, out var info))
+                                        info.Email = (string)ev.Value;
+                                }
+                                break;
+
+                            case nameof(User.UserId):
+                                lock (_lockObject)
+                                {
+                                    _auth0UserIds.TryAdd((string)ev.Value, ev.Id);
+                                }
+                                break;
+
+                            case nameof(User.ProfilePicturePath):
+                                lock (_lockObject)
+                                {
+                                    if (_users.TryGetValue(ev.Id, out var info))
+                                        info.ProfilePicturePath = (string)ev.Value;
+                                }
+                                break;
+                        }
                     }
                     break;
             }

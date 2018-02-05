@@ -2,12 +2,13 @@
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using PaderbornUniversity.SILab.Hip.EventSourcing;
+using PaderbornUniversity.SILab.Hip.EventSourcing.Events;
 using PaderbornUniversity.SILab.Hip.EventSourcing.EventStoreLlp;
+using PaderbornUniversity.SILab.Hip.UserStore.Model;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.Entity;
-using PaderbornUniversity.SILab.Hip.UserStore.Model.Events;
 using PaderbornUniversity.SILab.Hip.UserStore.Utility;
 using System;
-using ResourceType = PaderbornUniversity.SILab.Hip.UserStore.Model.ResourceType; // TODO: Remove after architectural changes
+using System.Linq;
 
 namespace PaderbornUniversity.SILab.Hip.UserStore.Core
 {
@@ -46,50 +47,35 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Core
         {
             switch (ev)
             {
-                case UserCreated e:
-                    var newUser = new User
+                case CreatedEvent e:
+                    var resourceType = e.GetEntityType();
+                    switch (resourceType)
                     {
-                        Id = e.Id,
-                        UserId = e.UserId,
-                        Timestamp = e.Timestamp,
-                        Email = e.Properties?.Email,
-                        FirstName = e.Properties?.FirstName,
-                        LastName = e.Properties?.LastName
-                    };
-                    _db.GetCollection<User>(ResourceType.User.Name).InsertOne(newUser);
+                        case ResourceType _ when resourceType == ResourceTypes.User:
+                            var newUser = new User()
+                            {
+                                Id = e.Id,
+                                UserId = e.UserId,
+                                Timestamp = e.Timestamp
+                            };
+                            _db.GetCollection<User>(ResourceTypes.User.Name).InsertOne(newUser);
+                            break;
+                    }
                     break;
 
-                case UserUpdated e:
-                    var update = Builders<User>.Update
-                        .Set(x => x.FirstName, e.Properties.FirstName)
-                        .Set(x => x.LastName, e.Properties.LastName);
-
-                    _db.GetCollection<User>(ResourceType.User.Name).UpdateOne(x => x.Id == e.Id, update);
-                    break;
-
-                case UserPhotoUploaded e:
-                    var update2 = Builders<User>.Update
-                        .Set(x => x.ProfilePicturePath, e.Path)
-                        .Set(x => x.Timestamp, e.Timestamp);
-
-                    _db.GetCollection<User>(ResourceType.User.Name).UpdateOne(x => x.Id == e.Id, update2);
-                    break;
-
-                case UserPhotoDeleted e:
-                    var update3 = Builders<User>.Update
-                        .Set(x => x.ProfilePicturePath, null)
-                        .Set(x => x.Timestamp, e.Timestamp);
-
-                    _db.GetCollection<User>(ResourceType.User.Name).UpdateOne(x => x.Id == e.Id, update3);
-                    break;
-
-                case UserStudentDetailsUpdated e:
-                    var studentDetails = e.Properties == null ? null : new StudentDetails(e.Properties);
-                    var update4 = Builders<User>.Update.Set(x => x.StudentDetails, studentDetails);
-                    _db.GetCollection<User>(ResourceType.User.Name).UpdateOne(x => x.Id == e.Id, update4);
+                case PropertyChangedEvent e:
+                    resourceType = e.GetEntityType();
+                    switch (resourceType)
+                    {
+                        case ResourceType _ when resourceType == ResourceTypes.User:
+                            var originalUser = _db.GetCollection<User>(ResourceTypes.User.Name).AsQueryable().First(x => x.Id == e.Id);
+                            originalUser.Timestamp = e.Timestamp;
+                            e.ApplyTo(originalUser);
+                            _db.GetCollection<User>(ResourceTypes.User.Name).ReplaceOne(x => x.Id == e.Id, originalUser);
+                            break;
+                    }
                     break;
             }
-
         }
     }
 }

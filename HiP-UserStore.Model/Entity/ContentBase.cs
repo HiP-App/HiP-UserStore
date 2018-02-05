@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PaderbornUniversity.SILab.Hip.EventSourcing;
+using System;
 
 namespace PaderbornUniversity.SILab.Hip.UserStore.Model.Entity
 {
@@ -15,5 +16,5 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Model.Entity
         /// The date and time of the last modification.
         /// </summary>
         public DateTimeOffset Timestamp { get; set; }
-     }
+    }
 }
