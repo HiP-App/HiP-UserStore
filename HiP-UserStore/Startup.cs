@@ -88,37 +88,37 @@ namespace PaderbornUniversity.SILab.Hip.UserStore
                          .AddDebug()
                          .AddHipLogger(loggingConfig.Value);
 
-            ILogger logger = loggerFactory.CreateLogger ("ApplicationStartup");
-        try
+            ILogger logger = loggerFactory.CreateLogger("ApplicationStartup");
+            try
             {
-            // CacheDatabaseManager should start up immediately (not only when injected into a controller or
-            // something), so we manually request an instance here
-            app.ApplicationServices.GetService<CacheDatabaseManager>();
+                // CacheDatabaseManager should start up immediately (not only when injected into a controller or
+                // something), so we manually request an instance here
+                app.ApplicationServices.GetService<CacheDatabaseManager>();
 
-            // Ensures that "Request.Scheme" is correctly set to "https" in our nginx-environment
-            app.UseRequestSchemeFixer();
+                // Ensures that "Request.Scheme" is correctly set to "https" in our nginx-environment
+                app.UseRequestSchemeFixer();
 
-            // Use CORS (important: must be before app.UseMvc())
-            app.UseCors(builder =>
-                {
-                var corsEnvConf = corsConfig.Value.Cors[env.EnvironmentName];
-                builder
-                    .WithOrigins(corsEnvConf.Origins)
-                    .WithMethods(corsEnvConf.Methods)
-                    .WithHeaders(corsEnvConf.Headers)
-                    .WithExposedHeaders(corsEnvConf.ExposedHeaders);
-                });
+                // Use CORS (important: must be before app.UseMvc())
+                app.UseCors(builder =>
+                    {
+                        var corsEnvConf = corsConfig.Value.Cors[env.EnvironmentName];
+                        builder
+                            .WithOrigins(corsEnvConf.Origins)
+                            .WithMethods(corsEnvConf.Methods)
+                            .WithHeaders(corsEnvConf.Headers)
+                            .WithExposedHeaders(corsEnvConf.ExposedHeaders);
+                    });
 
-            app.UseAuthentication();
-            app.UseMvc();
-            app.UseSwaggerUiHip();
+                app.UseAuthentication();
+                app.UseMvc();
+                app.UseSwaggerUiHip();
 
-            logger.LogInformation("UserStore started successfully");
+                logger.LogInformation("UserStore started successfully");
             }
-        catch (Exception e)
+            catch (Exception e)
             {
-            logger.LogCritical ($"UserStore Startup Failed:{e.Message}");
-            throw;
+                logger.LogCritical($"UserStore Startup Failed:{e.Message}");
+                throw;
             }
 
         }
