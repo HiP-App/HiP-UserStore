@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using System;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -12,6 +13,7 @@ using PaderbornUniversity.SILab.Hip.UserStore.Core;
 using PaderbornUniversity.SILab.Hip.UserStore.Model;
 using PaderbornUniversity.SILab.Hip.UserStore.Utility;
 using PaderbornUniversity.SILab.Hip.Webservice;
+using PaderbornUniversity.SILab.Hip.Webservice.Logging;
 
 namespace PaderbornUniversity.SILab.Hip.UserStore
 {
@@ -39,7 +41,8 @@ namespace PaderbornUniversity.SILab.Hip.UserStore
                 .Configure<EventStoreConfig>(Configuration.GetSection("EventStore"))
                 .Configure<UserStoreAuthConfig>(Configuration.GetSection("Auth"))
                 .Configure<UploadPhotoConfig>(Configuration.GetSection("UploadingPhoto"))
-                .Configure<CorsConfig>(Configuration);
+                .Configure<CorsConfig>(Configuration)
+                .Configure<LoggingConfig>(Configuration.GetSection("HiPLoggerConfig"));
 
             services
                 .AddSingleton<IEventStore, EventSourcing.EventStoreLlp.EventStore>()
@@ -79,32 +82,45 @@ namespace PaderbornUniversity.SILab.Hip.UserStore
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory,
-            IOptions<CorsConfig> corsConfig, IOptions<EndpointConfig> endpointConfig)
+            IOptions<CorsConfig> corsConfig, IOptions<EndpointConfig> endpointConfig, IOptions<LoggingConfig> loggingConfig)
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"))
-                         .AddDebug();
+                         .AddDebug()
+                         .AddHipLogger(loggingConfig.Value);
 
+            ILogger logger = loggerFactory.CreateLogger ("ApplicationStartup");
+        try
+            {
             // CacheDatabaseManager should start up immediately (not only when injected into a controller or
             // something), so we manually request an instance here
             app.ApplicationServices.GetService<CacheDatabaseManager>();
 
             // Ensures that "Request.Scheme" is correctly set to "https" in our nginx-environment
             app.UseRequestSchemeFixer();
-            
+
             // Use CORS (important: must be before app.UseMvc())
             app.UseCors(builder =>
-            {
+                {
                 var corsEnvConf = corsConfig.Value.Cors[env.EnvironmentName];
                 builder
                     .WithOrigins(corsEnvConf.Origins)
                     .WithMethods(corsEnvConf.Methods)
                     .WithHeaders(corsEnvConf.Headers)
                     .WithExposedHeaders(corsEnvConf.ExposedHeaders);
-            });
+                });
 
             app.UseAuthentication();
             app.UseMvc();
             app.UseSwaggerUiHip();
+
+            logger.LogInformation("UserStore started successfully");
+            }
+        catch (Exception e)
+            {
+            logger.LogCritical ($"UserStore Startup Failed:{e.Message}");
+            throw;
+            }
+
         }
     }
 }
