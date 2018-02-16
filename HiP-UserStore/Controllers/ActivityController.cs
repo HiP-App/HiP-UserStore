@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using PaderbornUniversity.SILab.Hip.DataStore;
+using PaderbornUniversity.SILab.Hip.EventSourcing;
 using PaderbornUniversity.SILab.Hip.UserStore.Model;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.Rest;
 using PaderbornUniversity.SILab.Hip.UserStore.Utility;
@@ -35,23 +36,23 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
 
             var activityResult = new ActivityResult
             {
-                ExhibitIds = await GetContentIdsAsync(status, token, ResourceTypes.Exhibits.Name),
-                RouteIds = await GetContentIdsAsync(status, token, ResourceTypes.Routes.Name),
-                MediaIds = await GetContentIdsAsync(status, token, ResourceTypes.Media.Name),
-                TagIds = await GetContentIdsAsync(status, token, ResourceTypes.Tags.Name),
-                ExhibitPageIds = await GetContentIdsAsync(status, token, ResourceTypes.ExhibitPages.Name)
+                ExhibitIds = await GetContentIdsAsync(status, token, ResourceTypes.Exhibit),
+                RouteIds = await GetContentIdsAsync(status, token, ResourceTypes.Route),
+                MediaIds = await GetContentIdsAsync(status, token, ResourceTypes.Media),
+                TagIds = await GetContentIdsAsync(status, token, ResourceTypes.Tag),
+                ExhibitPageIds = await GetContentIdsAsync(status, token, ResourceTypes.ExhibitPage)
             };
 
             // remove Ids of content which does not contain changes
-            activityResult.ExhibitIds = await RemoveIdsAsync(activityResult.ExhibitIds, ResourceTypes.Exhibits.Name,
+            activityResult.ExhibitIds = await RemoveIdsAsync(activityResult.ExhibitIds, ResourceTypes.Exhibit,
                 userId, token);
-            activityResult.RouteIds = await RemoveIdsAsync(activityResult.RouteIds, ResourceTypes.Routes.Name,
+            activityResult.RouteIds = await RemoveIdsAsync(activityResult.RouteIds, ResourceTypes.Route,
                 userId, token);
-            activityResult.MediaIds = await RemoveIdsAsync(activityResult.MediaIds, ResourceTypes.Media.Name,
+            activityResult.MediaIds = await RemoveIdsAsync(activityResult.MediaIds, ResourceTypes.Media,
                 userId, token);
-            activityResult.TagIds = await RemoveIdsAsync(activityResult.TagIds, ResourceTypes.Tags.Name,
+            activityResult.TagIds = await RemoveIdsAsync(activityResult.TagIds, ResourceTypes.Tag,
                 userId, token);
-            activityResult.ExhibitPageIds = await RemoveIdsAsync(activityResult.ExhibitPageIds, ResourceTypes.ExhibitPages.Name,
+            activityResult.ExhibitPageIds = await RemoveIdsAsync(activityResult.ExhibitPageIds, ResourceTypes.ExhibitPage,
                 userId, token);
 
             return Ok(activityResult);
@@ -68,8 +69,8 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             var userId = User.Identity.GetUserIdentity();
             var token = Request.Headers["Authorization"];
 
-            var exhibits = await GetContentIdsAsync(status, token, ResourceTypes.Exhibits.Name);
-            exhibits = await RemoveIdsAsync(exhibits, ResourceTypes.Exhibits.Name,
+            var exhibits = await GetContentIdsAsync(status, token, ResourceTypes.Exhibit);
+            exhibits = await RemoveIdsAsync(exhibits, ResourceTypes.Exhibit,
                 userId, token);
 
             return Ok(exhibits);
@@ -86,8 +87,8 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             var userId = User.Identity.GetUserIdentity();
             var token = Request.Headers["Authorization"];
 
-            var routes = await GetContentIdsAsync(status, token, ResourceTypes.Routes.Name);
-            routes = await RemoveIdsAsync(routes, ResourceTypes.Routes.Name,
+            var routes = await GetContentIdsAsync(status, token, ResourceTypes.Route);
+            routes = await RemoveIdsAsync(routes, ResourceTypes.Route,
                 userId, token);
 
             return Ok(routes);
@@ -104,8 +105,8 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             var userId = User.Identity.GetUserIdentity();
             var token = Request.Headers["Authorization"];
 
-            var tags = await GetContentIdsAsync(status, token, ResourceTypes.Tags.Name);
-            tags = await RemoveIdsAsync(tags, ResourceTypes.Tags.Name,
+            var tags = await GetContentIdsAsync(status, token, ResourceTypes.Tag);
+            tags = await RemoveIdsAsync(tags, ResourceTypes.Tag,
                 userId, token);
 
             return Ok(tags);
@@ -122,8 +123,8 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             var userId = User.Identity.GetUserIdentity();
             var token = Request.Headers["Authorization"];
 
-            var media = await GetContentIdsAsync(status, token, ResourceTypes.Media.Name);
-            media = await RemoveIdsAsync(media, ResourceTypes.Media.Name,
+            var media = await GetContentIdsAsync(status, token, ResourceTypes.Media);
+            media = await RemoveIdsAsync(media, ResourceTypes.Media,
                 userId, token);
 
             return Ok(media);
@@ -140,48 +141,48 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             var userId = User.Identity.GetUserIdentity();
             var token = Request.Headers["Authorization"];
 
-            var exhibitPages = await GetContentIdsAsync(status, token, ResourceTypes.ExhibitPages.Name);
-            exhibitPages = await RemoveIdsAsync(exhibitPages, ResourceTypes.ExhibitPages.Name,
+            var exhibitPages = await GetContentIdsAsync(status, token, ResourceTypes.ExhibitPage);
+            exhibitPages = await RemoveIdsAsync(exhibitPages, ResourceTypes.ExhibitPage,
                 userId, token);
 
             return Ok(exhibitPages);
         }
 
-        private async Task<List<int>> GetContentIdsAsync(ContentStatus status, string token, string type)
+        private async Task<List<int>> GetContentIdsAsync(ContentStatus status, string token, ResourceType type)
         {
             var ids = new List<int>();
 
             switch (type)
             {
-                case "Exhibits":
+                case ResourceType _ when type == ResourceTypes.Exhibit:
                     var exhibitsClient = new ExhibitsClient(_endpointConfig.DataStoreUrl) { Authorization = token };
                     var exhibits = await exhibitsClient.GetAsync(status: status);
                     foreach (var exhibit in exhibits.Items)
                         if (UserPermissions.IsAllowedToGetHistory(User.Identity, exhibit.UserId))
                             ids.Add(exhibit.Id);
                     break;
-                case "Routes":
+                case ResourceType _ when type == ResourceTypes.Route:
                     var routesClient = new RoutesClient(_endpointConfig.DataStoreUrl) { Authorization = token };
                     var routes = await routesClient.GetAsync(status: status);
                     foreach (var route in routes.Items)
                         if (UserPermissions.IsAllowedToGetHistory(User.Identity, route.UserId))
                             ids.Add(route.Id);
                     break;
-                case "Tags":
+                case ResourceType _ when type == ResourceTypes.Tag:
                     var tagsClient = new TagsClient(_endpointConfig.DataStoreUrl) { Authorization = token };
                     var tags = await tagsClient.GetAllAsync(status: status);
                     foreach (var tag in tags.Items)
                         if (UserPermissions.IsAllowedToGetHistory(User.Identity, tag.UserId))
                             ids.Add(tag.Id);
                     break;
-                case "Media":
+                case ResourceType _ when type == ResourceTypes.Media:
                     var mediaClient = new MediaClient(_endpointConfig.DataStoreUrl) { Authorization = token };
                     var media = await mediaClient.GetAsync(status: status);
                     foreach (var medium in media.Items)
                         if (UserPermissions.IsAllowedToGetHistory(User.Identity, medium.UserId))
                             ids.Add(medium.Id);
                     break;
-                case "ExhibitsPages":
+                case ResourceType _ when type == ResourceTypes.ExhibitPage:
                     var exhibitPagesClient = new ExhibitPagesClient(_endpointConfig.DataStoreUrl) { Authorization = token };
                     var exhibitPages = await exhibitPagesClient.GetAllPagesAsync(status: status);
                     foreach (var exhibitPage in exhibitPages.Items)
@@ -192,26 +193,26 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             return ids;
         }
 
-        private async Task<HistorySummary> GetHistorySummary(int id, string resourceType, string token)
+        private async Task<HistorySummary> GetHistorySummary(int id, ResourceType resourceType, string token)
         {
             var client = new HistoryClient(_endpointConfig.DataStoreUrl) { Authorization = token };
             try
             {
                 switch (resourceType)
                 {
-                    case "Exhibits":
+                    case ResourceType _ when resourceType == ResourceTypes.Exhibit:
                         var exhibitHistorySummary = await client.GetExhibitSummaryAsync(id: id);
                         return exhibitHistorySummary;
-                    case "Routes":
+                    case ResourceType _ when resourceType == ResourceTypes.Route:
                         var routeHistorySummary = await client.GetRouteSummaryAsync(id: id);
                         return routeHistorySummary;
-                    case "Media":
+                    case ResourceType _ when resourceType == ResourceTypes.Media:
                         var mediaHistorySummary = await client.GetMediaSummaryAsync(id: id);
                         return mediaHistorySummary;
-                    case "Tags":
+                    case ResourceType _ when resourceType == ResourceTypes.Tag:
                         var tagHistorySummary = await client.GetTagSummaryAsync(id: id);
                         return tagHistorySummary;
-                    case "ExhibitsPages":
+                    case ResourceType _ when resourceType == ResourceTypes.ExhibitPage:
                         var exhibitPageHistorySummary = await client.GetExhibitPageSummaryAsync(id: id);
                         return exhibitPageHistorySummary;
                     default:
@@ -223,7 +224,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             }
         }
 
-        private async Task<List<int>> RemoveIdsAsync(List<int> ids, string resourceType, string userId, string token)
+        private async Task<List<int>> RemoveIdsAsync(List<int> ids, ResourceType resourceType, string userId, string token)
         {
             for (var i = ids.Count - 1; i >= 0; i--)
             {

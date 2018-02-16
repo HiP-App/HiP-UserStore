@@ -1,4 +1,5 @@
-﻿using PaderbornUniversity.SILab.Hip.UserStore.Model.Entity;
+﻿using PaderbornUniversity.SILab.Hip.EventSourcing;
+using PaderbornUniversity.SILab.Hip.UserStore.Model.Entity;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.Rest;
 using System;
 using System.Collections.Generic;

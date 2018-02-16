@@ -25,6 +25,8 @@ namespace PaderbornUniversity.SILab.Hip.UserStore
                 .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
                 .AddEnvironmentVariables();
             Configuration = builder.Build();
+
+            //Initialize ResourceTypes
             ResourceTypes.Initialize();
         }
 
@@ -40,12 +42,12 @@ namespace PaderbornUniversity.SILab.Hip.UserStore
                 .Configure<CorsConfig>(Configuration);
 
             services
+                .AddSingleton<IEventStore, EventSourcing.EventStoreLlp.EventStore>()
                 .AddSingleton<EventStoreService>()
                 .AddSingleton<CacheDatabaseManager>()
                 .AddSingleton<InMemoryCache>()
                 .AddSingleton<IDomainIndex, EntityIndex>()
-                .AddSingleton<IDomainIndex, UserIndex>()
-                .AddSingleton<IDomainIndex, ExhibitsVisitedIndex>();
+                .AddSingleton<IDomainIndex, UserIndex>();
 
             var serviceProvider = services.BuildServiceProvider(); // allows us to actually get the configured services
             var authConfig = serviceProvider.GetService<IOptions<UserStoreAuthConfig>>();

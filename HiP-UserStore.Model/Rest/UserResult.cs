@@ -65,6 +65,6 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Model.Rest
         public string CurrentDegree { get; set; }
 
         [Range(1, 50)]
-        public int CurrentSemester { get; set; }
+        public int? CurrentSemester { get; set; }
     }
 }

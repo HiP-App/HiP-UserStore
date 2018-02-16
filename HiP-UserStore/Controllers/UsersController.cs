@@ -9,7 +9,6 @@ using PaderbornUniversity.SILab.Hip.EventSourcing.EventStoreLlp;
 using PaderbornUniversity.SILab.Hip.UserStore.Core;
 using PaderbornUniversity.SILab.Hip.UserStore.Model;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.Entity;
-using PaderbornUniversity.SILab.Hip.UserStore.Model.Events;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.Rest;
 using PaderbornUniversity.SILab.Hip.UserStore.Utility;
 using System;
@@ -171,15 +170,14 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             if (!UserPermissions.IsAllowedToModify(User.Identity, userId))
                 return Forbid();
 
-            var ev = new UserUpdated
+            var oldUser = await EventStreamExtensions.GetCurrentEntityAsync<User>(_eventStore.EventStream, ResourceTypes.User, internalId);
+            var changedUserArgs = new User(oldUser)
             {
-                Id = internalId,
-                UserId = User.Identity.GetUserIdentity(), // Note: refers to the API caller, not the updated user
-                Properties = args,
-                Timestamp = DateTimeOffset.Now
+                FirstName = args.FirstName,
+                LastName = args.LastName,
             };
-
-            await _eventStore.AppendEventAsync(ev);
+            await EntityManager.UpdateEntityAsync(_eventStore, oldUser, changedUserArgs, ResourceTypes.User, internalId,
+                User.Identity.GetUserIdentity());
             return NoContent();
         }
 
@@ -202,20 +200,16 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             if (_userIndex.IsEmailInUse(args.Email))
                 return StatusCode(409, new { Message = $"A user with email address '{args.Email}' already exists" });
 
-            var ev = new UserCreated
+            var user = new User
             {
-                Id = _entityIndex.NextId(ResourceTypes.User),
                 UserId = userId,
-                Timestamp = DateTimeOffset.Now,
-                Properties = new UserArgs
-                {
-                    Email = args.Email,
-                    FirstName = args.FirstName,
-                    LastName = args.LastName
-                }
+                Email = args.Email,
+                FirstName = args.FirstName,
+                LastName = args.LastName,
             };
+            var id = _entityIndex.NextId(ResourceTypes.User);
 
-            await _eventStore.AppendEventAsync(ev);
+            await EntityManager.CreateEntityAsync(_eventStore, user, ResourceTypes.User, id, User.Identity.GetUserIdentity());
             return Created($"{Request.Scheme}://{Request.Host}/api/Users/{userId}", userId);
         }
 
@@ -242,15 +236,16 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
                 try
                 {
                     // Step 2) Register user in UserStore
-                    var ev = new UserCreated
+                    var userArgs = new User
                     {
-                        Id = _entityIndex.NextId(ResourceTypes.User),
                         UserId = userId,
-                        Timestamp = DateTimeOffset.Now,
-                        Properties = new UserArgs(args)
+                        Email = args.Email,
+                        FirstName = args.FirstName,
+                        LastName = args.LastName
                     };
 
-                    await _eventStore.AppendEventAsync(ev);
+                    var id = _entityIndex.NextId(ResourceTypes.User);
+                    await EntityManager.CreateEntityAsync(_eventStore, userArgs, ResourceTypes.User, id, User.Identity.GetUserIdentity());
                     return Created($"{Request.Scheme}://{Request.Host}/api/Users/{userId}", userId);
                 }
                 catch (Exception e)
