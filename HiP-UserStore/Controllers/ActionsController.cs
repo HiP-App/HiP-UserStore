@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Mvc;
 using Action = PaderbornUniversity.SILab.Hip.UserStore.Model.Entity.Action;
 using ActionResult = PaderbornUniversity.SILab.Hip.UserStore.Model.Rest.ActionResult;
 using System.Reflection;
-using System;
 using PaderbornUniversity.SILab.Hip.EventSourcing;
 
 namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
@@ -38,8 +37,8 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
 
                   if (actionType != null)
                   {
-                      var listOfTypes =  typeof(ActionTypes).GetFields(BindingFlags.Public | BindingFlags.Static)
-                                                       .Where(f => f.FieldType == typeof(ResourceType))
+                      var listOfTypes =  typeof(ActionTypes).GetProperties(BindingFlags.Public | BindingFlags.Static)
+                                                       .Where(f => f.PropertyType == typeof(ResourceType))
                                                        .ToDictionary(f => f.Name,
                                                                      f => (ResourceType)f.GetValue(null));
                 

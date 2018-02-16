@@ -18,7 +18,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Core
                     var resourceType = ev.GetEntityType();
                     switch (resourceType)
                     {
-                        case ResourceType _ when resourceType == ActionTypes.ExhibitVisitedAction:
+                        case ResourceType _ when resourceType == ActionTypes.ExhibitVisited:
                             if (!_visitedExhibits.ContainsKey(ev.UserId))
                             {
                                 _visitedExhibits.Add(ev.UserId, new List<int>());
@@ -32,7 +32,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Core
                     resourceType = ev.GetEntityType();
                     switch (resourceType)
                     {
-                        case ResourceType _ when resourceType == ActionTypes.ExhibitVisitedAction:
+                        case ResourceType _ when resourceType == ActionTypes.ExhibitVisited:
                             if (ev.PropertyName == nameof(ExhibitVisitedActionArgs.EntityId) && _visitedExhibits.TryGetValue(ev.UserId, out var list))
                             {
                                 list.Add((int)ev.Value);

@@ -1,6 +1,7 @@
 ﻿using PaderbornUniversity.SILab.Hip.EventSourcing;
 using PaderbornUniversity.SILab.Hip.DataStore;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.Entity;
+using PaderbornUniversity.SILab.Hip.UserStore.Model.Rest;
 
 namespace PaderbornUniversity.SILab.Hip.UserStore.Model
 {
@@ -12,6 +13,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Model
         public static ResourceType Route { get; private set; }
         public static ResourceType Tag { get; private set; }
         public static ResourceType Media { get; private set; }
+        public static ResourceType Action { get; private set; }
 
         /// <summary>
         /// Initializes the fields
@@ -24,6 +26,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Model
             Route = ResourceType.Register(nameof(Route), typeof(RouteArgs));
             Tag = ResourceType.Register(nameof(Tag), typeof(TagArgs));
             Media = ResourceType.Register(nameof(Media), typeof(MediaArgs));
+            Action = ResourceType.Register(nameof(Action), typeof(ActionArgs));
         }
     }
 }

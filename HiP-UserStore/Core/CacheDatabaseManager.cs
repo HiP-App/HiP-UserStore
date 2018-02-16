@@ -6,9 +6,11 @@ using PaderbornUniversity.SILab.Hip.EventSourcing.Events;
 using PaderbornUniversity.SILab.Hip.EventSourcing.EventStoreLlp;
 using PaderbornUniversity.SILab.Hip.UserStore.Model;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.Entity;
+using PaderbornUniversity.SILab.Hip.UserStore.Model.Rest;
 using PaderbornUniversity.SILab.Hip.UserStore.Utility;
 using System;
 using System.Linq;
+using Action = PaderbornUniversity.SILab.Hip.UserStore.Model.Entity.Action;
 
 namespace PaderbornUniversity.SILab.Hip.UserStore.Core
 {
@@ -60,6 +62,15 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Core
                             };
                             _db.GetCollection<User>(ResourceTypes.User.Name).InsertOne(newUser);
                             break;
+
+                        case ResourceType _ when resourceType.BaseResourceType == ResourceTypes.Action:
+                            var actionArgs = (ActionArgs)Activator.CreateInstance(resourceType.Type, true);
+                            var newAction = actionArgs.CreateAction();
+                            newAction.Id = e.Id;
+                            newAction.UserId = e.UserId;
+                            newAction.Timestamp = e.Timestamp;
+                            _db.GetCollection<Action>(ResourceTypes.Action.Name).InsertOne(newAction);
+                            break;
                     }
                     break;
 
@@ -72,6 +83,16 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Core
                             originalUser.Timestamp = e.Timestamp;
                             e.ApplyTo(originalUser);
                             _db.GetCollection<User>(ResourceTypes.User.Name).ReplaceOne(x => x.Id == e.Id, originalUser);
+                            break;
+                        case ResourceType _ when resourceType.BaseResourceType == ResourceTypes.Action:
+                            var originalAction = _db.GetCollection<Action>(ResourceTypes.Action.Name).AsQueryable().First(a => a.Id == e.Id);
+                            var actionArgs = originalAction.CreateActionArgs();
+                            e.ApplyTo(actionArgs);
+                            var updatedAction = (Action)Activator.CreateInstance(originalAction.GetType(), actionArgs);
+                            updatedAction.Timestamp = e.Timestamp;
+                            updatedAction.UserId = originalAction.UserId;
+                            updatedAction.Id = originalAction.Id;
+                            _db.GetCollection<Action>(ResourceTypes.Action.Name).ReplaceOne(a => a.Id == e.Id, updatedAction);
                             break;
                     }
                     break;

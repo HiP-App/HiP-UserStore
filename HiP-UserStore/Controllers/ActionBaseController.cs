@@ -3,10 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using PaderbornUniversity.SILab.Hip.EventSourcing;
 using PaderbornUniversity.SILab.Hip.EventSourcing.EventStoreLlp;
 using PaderbornUniversity.SILab.Hip.UserStore.Core;
-using System;
 using System.Threading.Tasks;
 using PaderbornUniversity.SILab.Hip.UserStore.Utility;
-using PaderbornUniversity.SILab.Hip.UserStore.Model.Events;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.Rest;
 using PaderbornUniversity.SILab.Hip.UserStore.Model;
 
