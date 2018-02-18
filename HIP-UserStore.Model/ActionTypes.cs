@@ -7,7 +7,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Model
     {
         public static ResourceType ExhibitVisited { get; private set; }
         /// <summary>
-        /// Initializes the fieldd
+        /// Initializes the fields
         /// </summary>
         public static void Initialize()
         {
