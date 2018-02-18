@@ -77,12 +77,12 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers.ActionControllers
         [HttpGet("All/{exhibitId}")]
         [ProducesResponseType(typeof(AllItemsResult<ActionResult>), 200)]
         [ProducesResponseType(400)]
-        public IActionResult GetAll(int exhibitId, DateTimeOffset? timestamp = null)
+        public async Task<IActionResult> GetAll(int exhibitId, DateTimeOffset? timestamp = null)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var exhibitExist = IsExhibitExist(exhibitId).Result;
+            var exhibitExist = await ExhibitExists(exhibitId);
             if (!exhibitExist.Success)
                 return StatusCode(400, exhibitExist.ActionResult);
 
@@ -107,7 +107,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers.ActionControllers
                 return new ArgsValidationResult { ActionResult = BadRequest(new { Message = "The user has already visited this exhibit" }) };
             }
 
-            return await IsExhibitExist(args.EntityId);
+            return await ExhibitExists(args.EntityId);
         }
 
         /// <summary>
@@ -115,7 +115,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers.ActionControllers
         /// </summary>
         /// <param name="id">Id of exhibit</param>
         /// <returns></returns>
-        private async Task<ArgsValidationResult> IsExhibitExist(int id)
+        private async Task<ArgsValidationResult> ExhibitExists(int id)
         {
             try
             {
