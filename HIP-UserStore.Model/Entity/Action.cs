@@ -9,7 +9,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Model.Entity
         /// <summary>
         /// Id of entity, which was completed
         /// </summary>
-        public int EntityId { get; set; } = -1;
+        public int EntityId { get; set; }
 
         public Action(ActionArgs args)
         {
