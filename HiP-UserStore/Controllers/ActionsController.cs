@@ -15,7 +15,7 @@ using PaderbornUniversity.SILab.Hip.EventSourcing;
 namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
 {
 
-    [Authorize]
+        [Authorize]
         [Route("api/[controller]")]
         public class ActionsController : Controller
         {
