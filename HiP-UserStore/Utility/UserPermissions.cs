@@ -32,6 +32,14 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Utility
 
         public static bool IsAllowedToGetAll(IIdentity identity) => CheckRoles(identity);
 
+        /// <summary>
+        /// Only Supervisor and Administrator can get all information about Users Actions
+        /// </summary>
+        /// <param name="identity"></param>
+        /// <returns></returns>
+        public static bool IsAllowedToGetAllActions(IIdentity identity) => CheckRoles(identity);
+        
+
         public static bool IsAllowedToChangeRoles(IIdentity identity) => CheckRoles(identity, UserRoles.Administrator);
         
         // Check if the user has the nessesary roles
