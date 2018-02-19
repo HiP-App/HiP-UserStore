@@ -27,22 +27,32 @@ namespace PaderbornUniversity.SILab.Hip.UserStore
                 logger.LogWarning($"{nameof(UserStoreConfig.UserStoreHost)} is not configured correctly!");
         }
 
-        public ActivityClient ExhibitPages => new ActivityClient(_config.UserStoreHost)
+        public ActivityClient Activity => new ActivityClient(_config.UserStoreHost)
         {
             Authorization = _httpContextAccessor.HttpContext?.Request.Headers["Authorization"]
         };
 
-        public PhotoClient Exhibits => new PhotoClient(_config.UserStoreHost)
+        public PhotoClient Photo => new PhotoClient(_config.UserStoreHost)
         {
             Authorization = _httpContextAccessor.HttpContext?.Request.Headers["Authorization"]
         };
 
-        public StudentDetailsClient History => new StudentDetailsClient(_config.UserStoreHost)
+        public StudentDetailsClient StudentDetails => new StudentDetailsClient(_config.UserStoreHost)
         {
             Authorization = _httpContextAccessor.HttpContext?.Request.Headers["Authorization"]
         };
 
-        public UsersClient Media => new UsersClient(_config.UserStoreHost)
+        public UsersClient Users => new UsersClient(_config.UserStoreHost)
+        {
+            Authorization = _httpContextAccessor.HttpContext?.Request.Headers["Authorization"]
+        };
+
+        public ActionsClient Actions => new ActionsClient(_config.UserStoreHost)
+        {
+            Authorization = _httpContextAccessor.HttpContext?.Request.Headers["Authorization"]
+        };
+
+        public ExhibitVisitedClient ExhibitVisitedAction => new ExhibitVisitedClient(_config.UserStoreHost)
         {
             Authorization = _httpContextAccessor.HttpContext?.Request.Headers["Authorization"]
         };
