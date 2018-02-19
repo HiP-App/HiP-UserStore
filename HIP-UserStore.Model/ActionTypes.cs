@@ -6,6 +6,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Model
     public static class ActionTypes
     {
         public static ResourceType ExhibitVisited { get; private set; }
+        
         /// <summary>
         /// Initializes the fields
         /// </summary>
