@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NSwag.AspNetCore;
+using PaderbornUniversity.SILab.Hip.DataStore;
 using PaderbornUniversity.SILab.Hip.EventSourcing;
 using PaderbornUniversity.SILab.Hip.EventSourcing.EventStoreLlp;
 using PaderbornUniversity.SILab.Hip.UserStore.Core;
@@ -30,6 +31,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore
 
             //Initialize ResourceTypes
             ResourceTypes.Initialize();
+            ActionTypes.Initialize();
         }
 
         public IConfigurationRoot Configuration { get; }
@@ -38,6 +40,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore
         {
             services
                 .Configure<EndpointConfig>(Configuration.GetSection("Endpoints"))
+                .Configure<DataStoreConfig>(Configuration.GetSection("Endpoints"))
                 .Configure<EventStoreConfig>(Configuration.GetSection("EventStore"))
                 .Configure<UserStoreAuthConfig>(Configuration.GetSection("Auth"))
                 .Configure<UploadPhotoConfig>(Configuration.GetSection("UploadingPhoto"))
@@ -49,7 +52,9 @@ namespace PaderbornUniversity.SILab.Hip.UserStore
                 .AddSingleton<EventStoreService>()
                 .AddSingleton<CacheDatabaseManager>()
                 .AddSingleton<InMemoryCache>()
+                .AddSingleton<DataStoreService>()
                 .AddSingleton<IDomainIndex, EntityIndex>()
+                .AddSingleton<IDomainIndex, ExhibitsVisitedIndex>()
                 .AddSingleton<IDomainIndex, UserIndex>();
 
             var serviceProvider = services.BuildServiceProvider(); // allows us to actually get the configured services
