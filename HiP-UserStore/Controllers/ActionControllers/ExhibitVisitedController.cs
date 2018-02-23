@@ -12,7 +12,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using PaderbornUniversity.SILab.Hip.UserStore.Model;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.Rest;
-using ActionResult = PaderbornUniversity.SILab.Hip.UserStore.Model.Rest.ActionResult;
 using Action = PaderbornUniversity.SILab.Hip.UserStore.Model.Entity.Action;
 
 namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers.ActionControllers
