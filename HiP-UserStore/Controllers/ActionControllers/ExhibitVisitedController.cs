@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using PaderbornUniversity.SILab.Hip.UserStore.Model;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.Rest;
 using Action = PaderbornUniversity.SILab.Hip.UserStore.Model.Entity.Action;
+using ActionResult = PaderbornUniversity.SILab.Hip.UserStore.Model.Rest.ActionResult;
 
 namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers.ActionControllers
 {
@@ -69,31 +70,12 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers.ActionControllers
             }
         }
 
-        [HttpGet("All")]
-        [ProducesResponseType(typeof(AllItemsResult<ExhibitVisitedActionResult>), 200)]
-        [ProducesResponseType(400)]
-        public IActionResult GetAllExhibitVisitedActions()
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            var query = _db.Database.GetCollection<Action>(ResourceTypes.Action.Name).AsQueryable();
-            var userId = User.Identity.GetUserIdentity();
-            var result = query.Where(x => x.UserId == userId)
-                              .ToList()
-                              .AsQueryable()
-                              .Where(x => x.TypeName == "ExhibitVisited")
-                              .Select(x => (ExhibitVisitedActionResult)x.CreateActionResult())
-                              .ToList();
-            return Ok(new AllItemsResult<ExhibitVisitedActionResult>() { Total = result.Count, Items = result });
-        }
-
         /// <summary>
         /// Get all Actions of Exhibit Visited type of all users by exhibit ID
         /// </summary>
         /// <returns></returns>
         [HttpGet("All/{exhibitId}")]
-        [ProducesResponseType(typeof(AllItemsResult<ExhibitVisitedActionResult>), 200)]
+        [ProducesResponseType(typeof(AllItemsResult<ActionResult>), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(403)]
         public async Task<IActionResult> GetAll(int exhibitId, DateTimeOffset? timestamp = null)
@@ -115,7 +97,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers.ActionControllers
                               .Where(x => (x.TypeName == ActionTypes.ExhibitVisited.Name))
                               .Select(x => (ExhibitVisitedActionResult)x.CreateActionResult())
                               .ToList();
-            return Ok(new AllItemsResult<ExhibitVisitedActionResult>() { Total = result.Count, Items = result });
+            return Ok(new AllItemsResult<ActionResult>() { Total = result.Count, Items = result });
         }
 
         protected override async Task<ArgsValidationResult> ValidateActionArgs(ExhibitVisitedActionArgs args)

@@ -1,8 +1,14 @@
 ﻿using Action = PaderbornUniversity.SILab.Hip.UserStore.Model.Entity.Action;
 using System;
+using Newtonsoft.Json;
+using NJsonSchema.Converters;
+using System.Runtime.Serialization;
+using PaderbornUniversity.SILab.Hip.UserStore.Model.Rest.Actions;
 
 namespace PaderbornUniversity.SILab.Hip.UserStore.Model.Rest
 {
+    [JsonConverter(typeof(JsonInheritanceConverter), "discriminator")]
+    [KnownType(typeof(ExhibitVisitedActionResult))]
     public abstract class ActionResult
     {
         public int Id { get; set; }
