@@ -10,6 +10,7 @@ using PaderbornUniversity.SILab.Hip.UserStore.Core;
 using PaderbornUniversity.SILab.Hip.UserStore.Model;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.Entity;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.Rest;
+using PaderbornUniversity.SILab.Hip.UserStore.Model.EventArgs;
 using PaderbornUniversity.SILab.Hip.UserStore.Utility;
 using System;
 using System.Linq;
@@ -170,8 +171,8 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             if (!UserPermissions.IsAllowedToModify(User.Identity, userId))
                 return Forbid();
 
-            var oldUser = await EventStreamExtensions.GetCurrentEntityAsync<User>(_eventStore.EventStream, ResourceTypes.User, internalId);
-            var changedUserArgs = new User(oldUser)
+            var oldUser = await EventStreamExtensions.GetCurrentEntityAsync<UserEventArgs>(_eventStore.EventStream, ResourceTypes.User, internalId);
+            var changedUserArgs = new UserEventArgs(oldUser)
             {
                 FirstName = args.FirstName,
                 LastName = args.LastName,
@@ -200,7 +201,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             if (_userIndex.IsEmailInUse(args.Email))
                 return StatusCode(409, new { Message = $"A user with email address '{args.Email}' already exists" });
 
-            var user = new User
+            var user = new UserEventArgs
             {
                 UserId = userId,
                 Email = args.Email,
@@ -236,7 +237,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
                 try
                 {
                     // Step 2) Register user in UserStore
-                    var userArgs = new User
+                    var userArgs = new UserEventArgs
                     {
                         UserId = userId,
                         Email = args.Email,

@@ -80,9 +80,15 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Core
                     {
                         case ResourceType _ when resourceType == ResourceTypes.User:
                             var originalUser = _db.GetCollection<User>(ResourceTypes.User.Name).AsQueryable().First(x => x.Id == e.Id);
-                            originalUser.Timestamp = e.Timestamp;
-                            e.ApplyTo(originalUser);
-                            _db.GetCollection<User>(ResourceTypes.User.Name).ReplaceOne(x => x.Id == e.Id, originalUser);
+                            var transferObject = originalUser.CreateUserTransferObject();
+                            e.ApplyTo(transferObject);
+                            var newUser = new User(transferObject)
+                            {
+                                Id = originalUser.Id,
+                                Timestamp = e.Timestamp,
+                            };
+
+                            _db.GetCollection<User>(ResourceTypes.User.Name).ReplaceOne(x => x.Id == e.Id, newUser);
                             break;
                         case ResourceType _ when resourceType.BaseResourceType == ResourceTypes.Action:
                             var originalAction = _db.GetCollection<Action>(ResourceTypes.Action.Name).AsQueryable().First(a => a.Id == e.Id);
