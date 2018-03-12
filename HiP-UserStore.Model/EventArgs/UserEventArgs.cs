@@ -1,8 +1,5 @@
 ﻿using PaderbornUniversity.SILab.Hip.EventSourcing;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.Entity;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace PaderbornUniversity.SILab.Hip.UserStore.Model.EventArgs
 {
