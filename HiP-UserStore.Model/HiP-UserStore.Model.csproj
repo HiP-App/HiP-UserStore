@@ -8,10 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="HiP-DataStore.Sdk" Version="2.0.0" />
-    <PackageReference Include="HiP-EventStoreLib" Version="4.1.1-develop" />
-    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
-    <PackageReference Include="NJsonSchema" Version="9.10.27" />
+    <PackageReference Include="HiP-DataStore.Sdk" Version="3.5.0-develop" />
+    <PackageReference Include="HiP-EventStoreLib" Version="4.1.2-develop" />
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.1" />
+    <PackageReference Include="NJsonSchema" Version="9.10.29" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="4.4.1" />
   </ItemGroup>
 

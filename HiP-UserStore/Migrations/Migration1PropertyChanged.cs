@@ -4,6 +4,7 @@ using PaderbornUniversity.SILab.Hip.EventSourcing.Migrations;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.Entity;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.Events;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.Rest;
+using PaderbornUniversity.SILab.Hip.UserStore.Model.EventArgs;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -30,12 +31,12 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Migrations
                     switch (currentEvent)
                     {
                         case UserCreated ev:
-                            var emptyUser = new User();
+                            var emptyUser = new UserEventArgs();
                             e.AppendEvent(new CreatedEvent(ev.GetEntityType().Name, ev.Id, ev.UserId)
                             {
                                 Timestamp = ev.Timestamp
                             });
-                            var newUser = new User
+                            var newUser = new UserEventArgs
                             {
                                 FirstName = ev.Properties?.FirstName,
                                 LastName = ev.Properties?.LastName,
@@ -49,10 +50,10 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Migrations
 
                         case UserUpdated ev:
                             timestamp = ev.Timestamp;
-                            var currentUser = argumentDictionary[(ev.GetEntityType(), ev.Id)] as User;
+                            var currentUser = argumentDictionary[(ev.GetEntityType(), ev.Id)] as UserEventArgs;
                             if (currentUser == null)
-                                currentUser = new User();
-                            newUser = new User(currentUser)
+                                currentUser = new UserEventArgs();
+                            newUser = new UserEventArgs(currentUser)
                             {
                                 FirstName = ev.Properties?.FirstName,
                                 LastName = ev.Properties?.LastName
@@ -63,10 +64,10 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Migrations
 
                         case UserPhotoUploaded ev:
                             timestamp = ev.Timestamp;
-                            currentUser = argumentDictionary[(ev.GetEntityType(), ev.Id)] as User;
+                            currentUser = argumentDictionary[(ev.GetEntityType(), ev.Id)] as UserEventArgs;
                             if (currentUser == null)
-                                currentUser = new User();
-                            newUser = new User(currentUser)
+                                currentUser = new UserEventArgs();
+                            newUser = new UserEventArgs(currentUser)
                             {
                                 ProfilePicturePath = ev.Path
                             };
@@ -76,10 +77,10 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Migrations
 
                         case UserPhotoDeleted ev:
                             timestamp = ev.Timestamp;
-                            currentUser = argumentDictionary[(ev.GetEntityType(), ev.Id)] as User;
+                            currentUser = argumentDictionary[(ev.GetEntityType(), ev.Id)] as UserEventArgs;
                             if (currentUser == null)
-                                currentUser = new User();
-                            newUser = new User(currentUser)
+                                currentUser = new UserEventArgs();
+                            newUser = new UserEventArgs(currentUser)
                             {
                                 ProfilePicturePath = null
                             };
@@ -89,10 +90,10 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Migrations
 
                         case UserStudentDetailsUpdated ev:
                             timestamp = ev.Timestamp;
-                            currentUser = argumentDictionary[(ev.GetEntityType(), ev.Id)] as User;
+                            currentUser = argumentDictionary[(ev.GetEntityType(), ev.Id)] as UserEventArgs;
                             if (currentUser == null)
-                                currentUser = new User();
-                            newUser = new User(currentUser)
+                                currentUser = new UserEventArgs();
+                            newUser = new UserEventArgs(currentUser)
                             {
                                 StudentDetails = new StudentDetails(new StudentDetailsArgs
                                 {

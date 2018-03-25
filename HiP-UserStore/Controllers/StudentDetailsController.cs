@@ -6,6 +6,7 @@ using PaderbornUniversity.SILab.Hip.UserStore.Core;
 using PaderbornUniversity.SILab.Hip.UserStore.Model;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.Entity;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.Rest;
+using PaderbornUniversity.SILab.Hip.UserStore.Model.EventArgs;
 using PaderbornUniversity.SILab.Hip.UserStore.Utility;
 using System.Collections.Generic;
 using System.Linq;
@@ -42,9 +43,9 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             if (!_userIndex.TryGetInternalId(userId, out var internalId))
                 return NotFound();
 
-            var oldUser = await _eventStore.EventStream.GetCurrentEntityAsync<User>(ResourceTypes.User, internalId);
+            var oldUser = await _eventStore.EventStream.GetCurrentEntityAsync<UserEventArgs>(ResourceTypes.User, internalId);
 
-            var newUser = new User(oldUser)
+            var newUser = new UserEventArgs(oldUser)
             {
                 StudentDetails = new StudentDetails(args)
             };
@@ -71,10 +72,10 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             if (!_userIndex.TryGetInternalId(userId, out var internalId))
                 return NotFound();
 
-            var oldUser = await _eventStore.EventStream.GetCurrentEntityAsync<User>(ResourceTypes.User, internalId);
+            var oldUser = await _eventStore.EventStream.GetCurrentEntityAsync<UserEventArgs>(ResourceTypes.User, internalId);
 
             //we need to set the StudentDetails to null to delete it
-            var newUserArgs = new User(oldUser)
+            var newUserArgs = new UserEventArgs(oldUser)
             {
                 StudentDetails = null
             };

@@ -1,5 +1,5 @@
-﻿using PaderbornUniversity.SILab.Hip.EventSourcing;
-using PaderbornUniversity.SILab.Hip.UserStore.Model.Rest;
+﻿using PaderbornUniversity.SILab.Hip.UserStore.Model.Rest;
+using PaderbornUniversity.SILab.Hip.UserStore.Model.EventArgs;
 
 namespace PaderbornUniversity.SILab.Hip.UserStore.Model.Entity
 {
@@ -11,7 +11,6 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Model.Entity
 
         public string LastName { get; set; }
 
-        [NestedObject]
         public StudentDetails StudentDetails { get; set; }
 
         /// <summary>
@@ -23,17 +22,27 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Model.Entity
         {
         }
 
-        public User(User other)
+        public User(UserEventArgs transferObject)
         {
-            Email = other.Email;
-            FirstName = other.FirstName;
-            LastName = other.LastName;
-            StudentDetails = other.StudentDetails;
-            ProfilePicturePath = other.ProfilePicturePath;
-            UserId = other.UserId;
-            Id = other.Id;
-            Timestamp = other.Timestamp;
+            Email = transferObject.Email;
+            FirstName = transferObject.FirstName;
+            LastName = transferObject.LastName;
+            StudentDetails = transferObject.StudentDetails;
+            ProfilePicturePath = transferObject.ProfilePicturePath;
+            UserId = transferObject.UserId;
         }
+
+        public UserEventArgs CreateUserTransferObject()
+        => new UserEventArgs()
+        {
+            UserId = UserId,
+            Email = Email,
+            FirstName = FirstName,
+            LastName = LastName,
+            ProfilePicturePath = ProfilePicturePath,
+            StudentDetails = StudentDetails
+        };
+
     }
 
     public class StudentDetails
