@@ -1,4 +1,5 @@
 ﻿using PaderbornUniversity.SILab.Hip.UserStore.Model.Rest;
+using PaderbornUniversity.SILab.Hip.UserStore.Model.EventArgs;
 
 namespace PaderbornUniversity.SILab.Hip.UserStore.Model.Entity
 {
@@ -16,6 +17,32 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Model.Entity
         /// The path to the actual profile picture file.
         /// </summary>
         public string ProfilePicturePath { get; set; }
+
+        public User()
+        {
+        }
+
+        public User(UserEventArgs transferObject)
+        {
+            Email = transferObject.Email;
+            FirstName = transferObject.FirstName;
+            LastName = transferObject.LastName;
+            StudentDetails = transferObject.StudentDetails;
+            ProfilePicturePath = transferObject.ProfilePicturePath;
+            UserId = transferObject.UserId;
+        }
+
+        public UserEventArgs CreateUserTransferObject()
+        => new UserEventArgs()
+        {
+            UserId = UserId,
+            Email = Email,
+            FirstName = FirstName,
+            LastName = LastName,
+            ProfilePicturePath = ProfilePicturePath,
+            StudentDetails = StudentDetails
+        };
+
     }
 
     public class StudentDetails
@@ -34,7 +61,18 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Model.Entity
         {
             Discipline = args.Discipline;
             CurrentDegree = args.CurrentDegree;
-            CurrentSemester = args.CurrentSemester;
+            CurrentSemester = args.CurrentSemester ?? new int();
+        }
+
+        public StudentDetailsArgs CreateStudentDetailsArgs()
+        {
+            var args = new StudentDetailsArgs
+            {
+                Discipline = Discipline,
+                CurrentDegree = CurrentDegree,
+                CurrentSemester = CurrentSemester
+            };
+            return args;
         }
     }
 }

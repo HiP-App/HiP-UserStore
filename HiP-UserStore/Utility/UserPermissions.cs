@@ -24,7 +24,21 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Utility
             return (identity.GetUserIdentity() == requestedUserId) || CheckRoles(identity);
         }
 
+        public static bool IsAllowedToGetHistory(IIdentity identity, string ownerId)
+        {
+            // The entity owner as well as supervisors and administrators are allowed
+            return (ownerId == identity.GetUserIdentity()) || CheckRoles(identity);
+        }
+
         public static bool IsAllowedToGetAll(IIdentity identity) => CheckRoles(identity);
+
+        /// <summary>
+        /// Only Supervisor and Administrator can get all information about Users Actions
+        /// </summary>
+        /// <param name="identity"></param>
+        /// <returns></returns>
+        public static bool IsAllowedToGetAllActions(IIdentity identity) => CheckRoles(identity);
+        
 
         public static bool IsAllowedToChangeRoles(IIdentity identity) => CheckRoles(identity, UserRoles.Administrator);
         

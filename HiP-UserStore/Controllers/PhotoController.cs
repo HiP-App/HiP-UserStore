@@ -11,6 +11,7 @@ using PaderbornUniversity.SILab.Hip.UserStore.Core;
 using PaderbornUniversity.SILab.Hip.UserStore.Model;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.Entity;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.Events;
+using PaderbornUniversity.SILab.Hip.UserStore.Model.EventArgs;
 using PaderbornUniversity.SILab.Hip.UserStore.Utility;
 using System;
 using System.ComponentModel.DataAnnotations;
@@ -57,7 +58,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             if (!UserPermissions.IsAllowedToGetPhoto(User.Identity, userId))
                 return Forbid();
 
-            var user = _db.Database.GetCollection<User>(ResourceType.User.Name)
+            var user = _db.Database.GetCollection<User>(ResourceTypes.User.Name)
                  .AsQueryable()
                  .FirstOrDefault(x => x.UserId == userId);
 
@@ -103,15 +104,13 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
 
             var filePath = SaveNewFile(file, userId);
 
-            var ev = new UserPhotoUploaded
+            var oldUser = await _eventStore.EventStream.GetCurrentEntityAsync<UserEventArgs>(ResourceTypes.User, internalId);
+            var newUser = new UserEventArgs(oldUser)
             {
-                Id = internalId,
-                UserId = User.Identity.GetUserIdentity(),
-                Path = filePath,
-                Timestamp = DateTimeOffset.Now
+                ProfilePicturePath = filePath
             };
 
-            await _eventStore.AppendEventAsync(ev);
+            await EntityManager.UpdateEntityAsync(_eventStore, oldUser, newUser, ResourceTypes.User, internalId, User.Identity.GetUserIdentity());
             await InvalidateThumbnailCacheAsync(userId);
             return NoContent();
         }

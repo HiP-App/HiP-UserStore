@@ -25,9 +25,9 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Utility
     /// </remarks>
     public static class Auth
     {
-        private static AuthConfig _authConfig;
+        private static UserStoreAuthConfig _authConfig;
 
-        public static void Initialize(IOptions<AuthConfig> authConfig)
+        public static void Initialize(IOptions<UserStoreAuthConfig> authConfig)
         {
             _authConfig = authConfig.Value;
         }

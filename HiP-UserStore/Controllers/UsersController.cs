@@ -9,8 +9,8 @@ using PaderbornUniversity.SILab.Hip.EventSourcing.EventStoreLlp;
 using PaderbornUniversity.SILab.Hip.UserStore.Core;
 using PaderbornUniversity.SILab.Hip.UserStore.Model;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.Entity;
-using PaderbornUniversity.SILab.Hip.UserStore.Model.Events;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.Rest;
+using PaderbornUniversity.SILab.Hip.UserStore.Model.EventArgs;
 using PaderbornUniversity.SILab.Hip.UserStore.Utility;
 using System;
 using System.Linq;
@@ -61,7 +61,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
                 // For filtering by role, we need to asynchronously retrieve the roles of each user
                 // which is horribly inefficient, but the only solution for now
                 // (only filtering by query text can be done beforehand)
-                var users = _db.Database.GetCollection<User>(ResourceType.User.Name)
+                var users = _db.Database.GetCollection<User>(ResourceTypes.User.Name)
                     .AsQueryable()
                     .FilterIf(!string.IsNullOrEmpty(args.Query), user =>
                         user.FirstName.ToLower().Contains(args.Query.ToLower()) ||
@@ -104,7 +104,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             if (!UserPermissions.IsAllowedToGet(User.Identity, userId))
                 return Forbid();
 
-            var user = _db.Database.GetCollection<User>(ResourceType.User.Name)
+            var user = _db.Database.GetCollection<User>(ResourceTypes.User.Name)
                 .AsQueryable()
                 .FirstOrDefault(u => u.UserId == userId);
 
@@ -133,7 +133,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             if (!UserPermissions.IsAllowedToGetAll(User.Identity))
                 return Forbid();
 
-            var user = _db.Database.GetCollection<User>(ResourceType.User.Name)
+            var user = _db.Database.GetCollection<User>(ResourceTypes.User.Name)
                 .AsQueryable()
                 .FirstOrDefault(u => u.Email == email);
 
@@ -171,15 +171,14 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             if (!UserPermissions.IsAllowedToModify(User.Identity, userId))
                 return Forbid();
 
-            var ev = new UserUpdated
+            var oldUser = await EventStreamExtensions.GetCurrentEntityAsync<UserEventArgs>(_eventStore.EventStream, ResourceTypes.User, internalId);
+            var changedUserArgs = new UserEventArgs(oldUser)
             {
-                Id = internalId,
-                UserId = User.Identity.GetUserIdentity(), // Note: refers to the API caller, not the updated user
-                Properties = args,
-                Timestamp = DateTimeOffset.Now
+                FirstName = args.FirstName,
+                LastName = args.LastName,
             };
-
-            await _eventStore.AppendEventAsync(ev);
+            await EntityManager.UpdateEntityAsync(_eventStore, oldUser, changedUserArgs, ResourceTypes.User, internalId,
+                User.Identity.GetUserIdentity());
             return NoContent();
         }
 
@@ -202,18 +201,16 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             if (_userIndex.IsEmailInUse(args.Email))
                 return StatusCode(409, new { Message = $"A user with email address '{args.Email}' already exists" });
 
-            var ev = new UserCreated
+            var user = new UserEventArgs
             {
-                Id = _entityIndex.NextId(ResourceType.User),
                 UserId = userId,
-                Timestamp = DateTimeOffset.Now,
-                Properties = new UserArgs
-                {
-                    Email = args.Email,
-                }
+                Email = args.Email,
+                FirstName = args.FirstName,
+                LastName = args.LastName,
             };
+            var id = _entityIndex.NextId(ResourceTypes.User);
 
-            await _eventStore.AppendEventAsync(ev);
+            await EntityManager.CreateEntityAsync(_eventStore, user, ResourceTypes.User, id, User.Identity.GetUserIdentity());
             return Created($"{Request.Scheme}://{Request.Host}/api/Users/{userId}", userId);
         }
 
@@ -240,15 +237,16 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
                 try
                 {
                     // Step 2) Register user in UserStore
-                    var ev = new UserCreated
+                    var userArgs = new UserEventArgs
                     {
-                        Id = _entityIndex.NextId(ResourceType.User),
                         UserId = userId,
-                        Timestamp = DateTimeOffset.Now,
-                        Properties = new UserArgs(args)
+                        Email = args.Email,
+                        FirstName = args.FirstName,
+                        LastName = args.LastName
                     };
 
-                    await _eventStore.AppendEventAsync(ev);
+                    var id = _entityIndex.NextId(ResourceTypes.User);
+                    await EntityManager.CreateEntityAsync(_eventStore, userArgs, ResourceTypes.User, id, User.Identity.GetUserIdentity());
                     return Created($"{Request.Scheme}://{Request.Host}/api/Users/{userId}", userId);
                 }
                 catch (Exception e)

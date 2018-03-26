@@ -3,10 +3,11 @@ using Microsoft.AspNetCore.Mvc;
 using PaderbornUniversity.SILab.Hip.EventSourcing;
 using PaderbornUniversity.SILab.Hip.EventSourcing.EventStoreLlp;
 using PaderbornUniversity.SILab.Hip.UserStore.Core;
-using PaderbornUniversity.SILab.Hip.UserStore.Model.Events;
+using PaderbornUniversity.SILab.Hip.UserStore.Model;
+using PaderbornUniversity.SILab.Hip.UserStore.Model.Entity;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.Rest;
+using PaderbornUniversity.SILab.Hip.UserStore.Model.EventArgs;
 using PaderbornUniversity.SILab.Hip.UserStore.Utility;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -42,15 +43,16 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             if (!_userIndex.TryGetInternalId(userId, out var internalId))
                 return NotFound();
 
-            var ev = new UserStudentDetailsUpdated
+            var oldUser = await _eventStore.EventStream.GetCurrentEntityAsync<UserEventArgs>(ResourceTypes.User, internalId);
+
+            var newUser = new UserEventArgs(oldUser)
             {
-                Id = internalId,
-                UserId = User.Identity.GetUserIdentity(),
-                Timestamp = DateTimeOffset.Now,
-                Properties = args
+                StudentDetails = new StudentDetails(args)
             };
 
-            await _eventStore.AppendEventAsync(ev);
+            await EntityManager.UpdateEntityAsync(_eventStore, oldUser, newUser, ResourceTypes.User,
+                internalId, User.Identity.GetUserIdentity());
+
             return NoContent();
         }
 
@@ -70,15 +72,16 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             if (!_userIndex.TryGetInternalId(userId, out var internalId))
                 return NotFound();
 
-            // Deletion is represented by an update-event with empty properties
-            var ev = new UserStudentDetailsUpdated
+            var oldUser = await _eventStore.EventStream.GetCurrentEntityAsync<UserEventArgs>(ResourceTypes.User, internalId);
+
+            //we need to set the StudentDetails to null to delete it
+            var newUserArgs = new UserEventArgs(oldUser)
             {
-                Id = internalId,
-                UserId = User.Identity.GetUserIdentity(),
-                Timestamp = DateTimeOffset.Now,
+                StudentDetails = null
             };
 
-            await _eventStore.AppendEventAsync(ev);
+            await EntityManager.UpdateEntityAsync(_eventStore, oldUser, newUserArgs, ResourceTypes.User,
+                internalId, User.Identity.GetUserIdentity());
             return NoContent();
         }
 
