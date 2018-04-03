@@ -46,7 +46,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             if (!validationResult.Success)
                 return validationResult.ActionResult;
 
-            var id = _entityIndex.NextId(ResourceTypes.Action);
+            var id = _entityIndex.NextId(ResourceType);
             await EntityManager.CreateEntityAsync(_eventStore, args, ResourceType, id, User.Identity.GetUserIdentity());
             return Created($"{Request.Scheme}://{Request.Host}/api/Action/{id}", id);
         }
