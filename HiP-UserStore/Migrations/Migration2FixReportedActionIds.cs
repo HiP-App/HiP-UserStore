@@ -1,9 +1,6 @@
 ﻿using PaderbornUniversity.SILab.Hip.EventSourcing.Events;
 using PaderbornUniversity.SILab.Hip.EventSourcing.Migrations;
 using PaderbornUniversity.SILab.Hip.UserStore.Model;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace PaderbornUniversity.SILab.Hip.UserStore.Migrations

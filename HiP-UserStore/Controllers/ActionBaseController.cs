@@ -6,7 +6,6 @@ using PaderbornUniversity.SILab.Hip.UserStore.Core;
 using System.Threading.Tasks;
 using PaderbornUniversity.SILab.Hip.UserStore.Utility;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.Rest;
-using PaderbornUniversity.SILab.Hip.UserStore.Model;
 
 namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
 {
