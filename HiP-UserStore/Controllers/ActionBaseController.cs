@@ -6,7 +6,6 @@ using PaderbornUniversity.SILab.Hip.UserStore.Core;
 using System.Threading.Tasks;
 using PaderbornUniversity.SILab.Hip.UserStore.Utility;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.Rest;
-using PaderbornUniversity.SILab.Hip.UserStore.Model;
 
 namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
 {
@@ -46,7 +45,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             if (!validationResult.Success)
                 return validationResult.ActionResult;
 
-            var id = _entityIndex.NextId(ResourceTypes.Action);
+            var id = _entityIndex.NextId(ResourceType);
             await EntityManager.CreateEntityAsync(_eventStore, args, ResourceType, id, User.Identity.GetUserIdentity());
             return Created($"{Request.Scheme}://{Request.Host}/api/Action/{id}", id);
         }
