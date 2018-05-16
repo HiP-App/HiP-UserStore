@@ -9,7 +9,6 @@ using PaderbornUniversity.SILab.Hip.UserStore.Utility;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 
 namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
 {
