@@ -43,7 +43,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
                 ExhibitPageIds = await GetContentIdsAsync(status, token, ResourceTypes.ExhibitPage)
             };
 
-            // remove Ids of content which does not contain changes
+            // Remove ids of content which does not contain changes
             activityResult.ExhibitIds = await RemoveIdsAsync(activityResult.ExhibitIds, ResourceTypes.Exhibit,
                 userId, token);
             activityResult.RouteIds = await RemoveIdsAsync(activityResult.RouteIds, ResourceTypes.Route,
