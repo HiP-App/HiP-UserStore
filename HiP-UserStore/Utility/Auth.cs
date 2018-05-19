@@ -138,11 +138,11 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Utility
                 Email = args.Email,
                 FirstName = args.FirstName,
                 LastName = args.LastName,
-                FullName = string.Join(' ', args.FirstName.Trim() ?? "", args.LastName.Trim() ?? ""),
+                FullName = string.Join(' ', args.FirstName?.Trim() ?? "", args.LastName?.Trim() ?? ""),
                 Password = args.Password,
                 AppMetadata = new { roles = new[] { UserRoles.Student.ToString() } },
                 Connection = "Username-Password-Authentication" // TODO: Make configurable
-            });
+            });            
 
             return user.UserId;
         }
