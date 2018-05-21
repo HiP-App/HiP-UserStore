@@ -72,6 +72,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
                     .Select(user => (user: user, roles: roles[user.UserId]))
                     .AsQueryable()
                     .FilterIf(!string.IsNullOrEmpty(args.Role), u => u.roles.Contains(args.Role))
+                    .FilterIf(!string.IsNullOrEmpty(args.EmailBeginning), u => u.user.Email != null && u.user.Email.StartsWith(args.EmailBeginning))
                     .Sort(args.OrderBy,
                         ("firstName", x => x.user.FirstName),
                         ("lastName", x => x.user.LastName),
