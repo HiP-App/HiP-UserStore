@@ -55,7 +55,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers.ActionControllers
                     continue;
                 }
 
-                var id = _entityIndex.NextId(ResourceTypes.Action);
+                var id = _entityIndex.NextId(ResourceType);
                 await EntityManager.CreateEntityAsync(_eventStore, (ExhibitVisitedActionArgs)arg, ResourceType, id, User.Identity.GetUserIdentity());
             }
             if (validationResultList.Any(x => x.Item2.Success))
