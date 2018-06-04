@@ -49,7 +49,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            if (!UserPermissions.IsAllowedToGetAll(User.Identity))
+            if (HttpContext.User.Identity.GetUserRoles().Any() && !UserPermissions.IsAllowedToGetAll(User.Identity))
                 return Forbid();
 
             args = args ?? new UserQueryArgs();
