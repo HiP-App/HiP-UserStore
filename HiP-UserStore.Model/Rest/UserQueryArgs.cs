@@ -18,6 +18,6 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Model.Rest
         /// If set, only those users, with their IDs specified, are included in the response.
         /// If null, all IDs are included in the response.
         /// </summary>
-        public List<string> UsersIdsToBeIncluded { get; set; }
+        public List<string> IncludeOnly { get; set; }
     }
 }
