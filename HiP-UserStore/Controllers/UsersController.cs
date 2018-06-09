@@ -63,6 +63,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
                 // (only filtering by query text can be done beforehand)
                 var users = _db.Database.GetCollection<User>(ResourceTypes.User.Name)
                     .AsQueryable()
+                    .FilterIf(args.IncludeOnly != null, x => args.IncludeOnly.Contains(x.UserId))
                     .FilterIf(!string.IsNullOrEmpty(args.Query), user =>
                         user.FirstName.ToLower().Contains(args.Query.ToLower()) ||
                         user.LastName.ToLower().Contains(args.Query.ToLower()) ||

@@ -1,4 +1,6 @@
-﻿namespace PaderbornUniversity.SILab.Hip.UserStore.Model.Rest
+﻿using System.Collections.Generic;
+
+namespace PaderbornUniversity.SILab.Hip.UserStore.Model.Rest
 {
     public class UserQueryArgs : QueryArgs
     {
@@ -11,5 +13,11 @@
         /// Restricts the response to users having an email that begins with the specified string
         /// </summary>
         public string EmailBeginning { get; set; }
+                
+        /// <summary>
+        /// If set, only those users, with their IDs specified, are included in the response.
+        /// If null, all IDs are included in the response.
+        /// </summary>
+        public List<string> IncludeOnly { get; set; }
     }
 }
