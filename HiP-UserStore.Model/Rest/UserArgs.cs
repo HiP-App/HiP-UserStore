@@ -14,6 +14,8 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Model.Rest
         public string FirstName { get; set; }
 
         public string LastName { get; set; }
+        
+        public string UserName { get; set; }
 
         public UserArgs()
         {
