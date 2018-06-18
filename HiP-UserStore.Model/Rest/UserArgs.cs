@@ -15,7 +15,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Model.Rest
 
         public string LastName { get; set; }
         
-        public string UserName { get; set; }
+        public string DisplayName { get; set; }
 
         public UserArgs()
         {
@@ -26,6 +26,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Model.Rest
             Email = args.Email;
             FirstName = args.FirstName;
             LastName = args.LastName;
+            DisplayName = args.DisplayName;
         }
     }
 }

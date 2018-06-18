@@ -210,7 +210,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
                 Email = args.Email,
                 FirstName = args.FirstName,
                 LastName = args.LastName,
-                DisplayName = args.UserName,
+                DisplayName = args.DisplayName,
             };
             var id = _entityIndex.NextId(ResourceTypes.User);
 
