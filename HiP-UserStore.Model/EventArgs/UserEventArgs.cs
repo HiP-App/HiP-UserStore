@@ -12,6 +12,8 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Model.EventArgs
 
         public string LastName { get; set; }
 
+        public string DisplayName { get; set; }
+
         [NestedObject]
         public StudentDetails StudentDetails { get; set; }
 
@@ -27,6 +29,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Model.EventArgs
             Email = other.Email;
             FirstName = other.FirstName;
             LastName = other.LastName;
+            DisplayName = other.DisplayName;
             StudentDetails = other.StudentDetails;
             ProfilePicturePath = other.ProfilePicturePath;
             UserId = other.UserId;  

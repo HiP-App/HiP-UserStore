@@ -17,6 +17,8 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Model.Rest
 
         public string LastName { get; set; }
 
+        public string DisplayName { get; set; }
+
         public string FullName => (FirstName == null && LastName == null) ? null : FirstName + ' ' + LastName;
 
         public StudentDetailsResult StudentDetails { get; set; }
@@ -34,6 +36,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Model.Rest
             Email = user.Email;
             FirstName = user.FirstName;
             LastName = user.LastName;
+            DisplayName = user.DisplayName;
             
             if (user.StudentDetails != null)
             {

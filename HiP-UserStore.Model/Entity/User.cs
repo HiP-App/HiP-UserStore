@@ -11,6 +11,8 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Model.Entity
 
         public string LastName { get; set; }
 
+        public string DisplayName { get; set; }
+
         public StudentDetails StudentDetails { get; set; }
 
         /// <summary>
@@ -27,6 +29,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Model.Entity
             Email = transferObject.Email;
             FirstName = transferObject.FirstName;
             LastName = transferObject.LastName;
+            DisplayName = transferObject.DisplayName;
             StudentDetails = transferObject.StudentDetails;
             ProfilePicturePath = transferObject.ProfilePicturePath;
             UserId = transferObject.UserId;
@@ -39,6 +42,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Model.Entity
             Email = Email,
             FirstName = FirstName,
             LastName = LastName,
+            DisplayName = DisplayName,
             ProfilePicturePath = ProfilePicturePath,
             StudentDetails = StudentDetails
         };
