@@ -2,6 +2,7 @@
 using PaderbornUniversity.SILab.Hip.DataStore;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.Rest;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.EventArgs;
+using PaderbornUniversity.SILab.Hip.Notifications.Model.EventArgs;
 
 namespace PaderbornUniversity.SILab.Hip.UserStore.Model
 {
@@ -14,6 +15,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Model
         public static ResourceType Tag { get; private set; }
         public static ResourceType Media { get; private set; }
         public static ResourceType Action { get; private set; }
+        public static ResourceType Notification { get; private set; }
 
         /// <summary>
         /// Initializes the fields
@@ -28,6 +30,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Model
             Tag = ResourceType.Register(nameof(Tag), typeof(TagArgs));
             Media = ResourceType.Register(nameof(Media), typeof(MediaArgs));
             Action = ResourceType.Register(nameof(Action), typeof(ActionArgs));
+            Notification = ResourceType.Register(nameof(Notification), typeof(NotificationBaseEventArgs));
         }
     }
 }

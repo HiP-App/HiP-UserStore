@@ -12,7 +12,11 @@
     <PackageReference Include="HiP-EventStoreLib" Version="4.2.1-develop" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.1" />
     <PackageReference Include="NJsonSchema" Version="9.10.29" />
-    <PackageReference Include="System.ComponentModel.Annotations" Version="4.4.1" />
+    <PackageReference Include="System.ComponentModel.Annotations" Version="4.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\HiP-NotificationLib\HiP-NotificationLib.csproj" />
   </ItemGroup>
 
 </Project>
