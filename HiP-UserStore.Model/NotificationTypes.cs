@@ -1,5 +1,5 @@
 ﻿using PaderbornUniversity.SILab.Hip.EventSourcing;
-using PaderbornUniversity.SILab.Hip.Notifications.Model.EventArgs;
+using PaderbornUniversity.SILab.Hip.UserStore.Model.EventArgs;
 
 namespace PaderbornUniversity.SILab.Hip.UserStore.Model
 {

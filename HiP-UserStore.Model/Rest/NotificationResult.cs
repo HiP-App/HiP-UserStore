@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 using NJsonSchema.Converters;
-using PaderbornUniversity.SILab.Hip.Notifications.Model;
+using PaderbornUniversity.SILab.Hip.UserStore.Model.Entity;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.Rest.Notifications;
 using System;
 using System.Runtime.Serialization;

@@ -2,7 +2,6 @@
 using PaderbornUniversity.SILab.Hip.DataStore;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.Rest;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.EventArgs;
-using PaderbornUniversity.SILab.Hip.Notifications.Model.EventArgs;
 
 namespace PaderbornUniversity.SILab.Hip.UserStore.Model
 {

@@ -1,7 +1,7 @@
 ﻿using PaderbornUniversity.SILab.Hip.EventSourcing;
 using PaderbornUniversity.SILab.Hip.EventSourcing.EventStoreLlp;
-using PaderbornUniversity.SILab.Hip.Notifications.Rest;
 using PaderbornUniversity.SILab.Hip.UserStore.Model;
+using PaderbornUniversity.SILab.Hip.UserStore.Rest;
 
 namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers.NotificationController
 {

@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
-using PaderbornUniversity.SILab.Hip.Notifications.Model;
+using PaderbornUniversity.SILab.Hip.UserStore.Model.Entity.Notifications;
 
 namespace PaderbornUniversity.SILab.Hip.UserStore.Model.Rest.Notifications
 {

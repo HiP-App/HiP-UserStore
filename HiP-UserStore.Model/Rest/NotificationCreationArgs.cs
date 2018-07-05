@@ -1,5 +1,5 @@
 ﻿using Newtonsoft.Json.Linq;
-using PaderbornUniversity.SILab.Hip.Notifications.Model;
+using PaderbornUniversity.SILab.Hip.UserStore.Model.Entity.Notifications;
 using System.ComponentModel.DataAnnotations;
 
 namespace PaderbornUniversity.SILab.Hip.UserStore.Model.Rest
