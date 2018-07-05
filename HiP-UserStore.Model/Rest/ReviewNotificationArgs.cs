@@ -1,6 +1,6 @@
 ﻿using PaderbornUniversity.SILab.Hip.UserStore.Model.Entity.Notifications;
 
-namespace PaderbornUniversity.SILab.Hip.UserStore.Rest
+namespace PaderbornUniversity.SILab.Hip.UserStore.Model.Rest
 {
     public class ReviewNotificationArgs : NotificationBaseArgs
     {

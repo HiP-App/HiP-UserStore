@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace PaderbornUniversity.SILab.Hip.UserStore.Rest
+namespace PaderbornUniversity.SILab.Hip.UserStore.Model.Rest
 {
     public abstract class NotificationBaseArgs
     {

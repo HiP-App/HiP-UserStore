@@ -5,10 +5,6 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Model.EventArgs
 {
     public class ReviewNotificationEventArgs : NotificationBaseEventArgs
     {
-        public ReviewNotificationEventArgs() : base()
-        {
-        }
-
         public int EntityId { get; set; }
 
         public ReviewEntityType EntityType { get; set; }

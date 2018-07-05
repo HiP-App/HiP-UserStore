@@ -4,7 +4,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Model.Entity.Notifications
 {
     public class ReviewNotification : NotificationBase
     {
-        public ReviewNotification() : base()
+        public ReviewNotification()
         {
         }
 

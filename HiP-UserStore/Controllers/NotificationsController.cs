@@ -22,13 +22,11 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
     public class NotificationsController : Controller
     {
         private EventStoreService _service;
-        private EntityIndex _entityIndex;
         private CacheDatabaseManager _db;
 
         public NotificationsController(EventStoreService service, InMemoryCache cache, CacheDatabaseManager db)
         {
             _service = service;
-            _entityIndex = cache.Index<EntityIndex>();
             _db = db;
         }
 
