@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Security.Principal;
+using PaderbornUniversity.SILab.Hip.UserStore.Model.Entity;
 
 namespace PaderbornUniversity.SILab.Hip.UserStore.Utility
 {
@@ -38,15 +39,21 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Utility
         /// <param name="identity"></param>
         /// <returns></returns>
         public static bool IsAllowedToGetAllActions(IIdentity identity) => CheckRoles(identity);
-        
+
 
         public static bool IsAllowedToChangeRoles(IIdentity identity) => CheckRoles(identity, UserRoles.Administrator);
-        
+
         // Check if the user has the nessesary roles
         static bool CheckRoles(IIdentity identity, UserRoles allowedToProceed = UserRoles.Administrator | UserRoles.Supervisor)
         {
             return identity.GetUserRoles()
                            .Any(x => (Enum.TryParse(x.Value, out UserRoles role) && (allowedToProceed & role) != 0)); // Bitwise AND
+        }
+
+        public static bool IsAllowedToModifyNotification(IIdentity identity, string recipientId, string ownerId)
+        {
+            //The recipient and owner of the notification is allowed to modify it (e.g. mark is as read)
+            return recipientId == identity.GetUserIdentity() || ownerId == identity.GetUserIdentity();
         }
     }
 

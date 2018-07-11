@@ -7,9 +7,9 @@ using PaderbornUniversity.SILab.Hip.UserStore.Model.Rest.Actions;
 
 namespace PaderbornUniversity.SILab.Hip.UserStore.Model.Rest
 {
-    [JsonConverter(typeof(JsonInheritanceConverter), "discriminator")]
     [KnownType(typeof(ExhibitVisitedActionResult))]
-    public abstract class ActionResult
+    [JsonConverter(typeof(JsonInheritanceConverter), "discriminator")]
+    public abstract class ActionResultBase
     {
         public int Id { get; set; }
 
@@ -21,7 +21,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Model.Rest
 
         public DateTimeOffset Timestamp { get; set; }
 
-        public ActionResult(Action action)
+        public ActionResultBase(Action action)
         {
             Id = action.Id;
             UserId = action.UserId;

@@ -47,6 +47,17 @@ namespace PaderbornUniversity.SILab.Hip.UserStore
             Authorization = _httpContextAccessor.HttpContext?.Request.Headers["Authorization"]
         };
 
+        public NotificationsClient Notifications => new NotificationsClient(_config.UserStoreHost)
+        {
+            Authorization = _httpContextAccessor.HttpContext?.Request.Headers["Authorization"]
+        };
+
+        public ReviewNotificationClient ReviewNotications => new ReviewNotificationClient(_config.UserStoreHost)
+        {
+            Authorization = _httpContextAccessor.HttpContext?.Request.Headers["Authorization"]
+        };
+
+
         public ActionsClient Actions => new ActionsClient(_config.UserStoreHost)
         {
             Authorization = _httpContextAccessor.HttpContext?.Request.Headers["Authorization"]
