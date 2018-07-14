@@ -50,10 +50,10 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Utility
                            .Any(x => (Enum.TryParse(x.Value, out UserRoles role) && (allowedToProceed & role) != 0)); // Bitwise AND
         }
 
-        public static bool IsAllowedToModifyNotification(IIdentity identity, string recipientId, string ownerId)
+        public static bool IsAllowedToModifyNotification(IIdentity identity, string recipientId)
         {
-            //The recipient and owner of the notification is allowed to modify it (e.g. mark is as read)
-            return recipientId == identity.GetUserIdentity() || ownerId == identity.GetUserIdentity();
+            //The recipient of the notification is allowed to modify it (e.g. mark is as read)
+            return recipientId == identity.GetUserIdentity();
         }
     }
 
