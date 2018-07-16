@@ -19,6 +19,8 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Model.Rest
 
         public string LastName { get; set; }
 
+        public string DisplayName { get; set; }
+
         [Required]
         public string Password { get; set; }
     }

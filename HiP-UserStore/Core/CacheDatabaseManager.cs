@@ -6,6 +6,7 @@ using PaderbornUniversity.SILab.Hip.EventSourcing.Events;
 using PaderbornUniversity.SILab.Hip.EventSourcing.EventStoreLlp;
 using PaderbornUniversity.SILab.Hip.UserStore.Model;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.Entity;
+using PaderbornUniversity.SILab.Hip.UserStore.Model.EventArgs;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.Rest;
 using PaderbornUniversity.SILab.Hip.UserStore.Utility;
 using System;
@@ -71,6 +72,15 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Core
                             newAction.Timestamp = e.Timestamp;
                             _db.GetCollection<Action>(ResourceTypes.Action.Name).InsertOne(newAction);
                             break;
+
+                        case ResourceType _ when resourceType.BaseResourceType == ResourceTypes.Notification:
+                            var notificationArgs = (NotificationBaseEventArgs)Activator.CreateInstance(resourceType.Type, true);
+                            var newNotification = notificationArgs.CreateNotification();
+                            newNotification.Id = e.Id;
+                            newNotification.UserId = e.UserId;
+                            newNotification.Timestamp = e.Timestamp;
+                            _db.GetCollection<NotificationBase>(ResourceTypes.Notification.Name).InsertOne(newNotification);
+                            break;
                     }
                     break;
 
@@ -99,6 +109,17 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Core
                             updatedAction.UserId = originalAction.UserId;
                             updatedAction.Id = originalAction.Id;
                             _db.GetCollection<Action>(ResourceTypes.Action.Name).ReplaceOne(a => a.Id == e.Id, updatedAction);
+                            break;
+
+                        case ResourceType _ when resourceType.BaseResourceType == ResourceTypes.Notification:
+                            var originalNotification = _db.GetCollection<NotificationBase>(ResourceTypes.Notification.Name).AsQueryable().First(a => a.Id == e.Id);
+                            var notificationArgs = originalNotification.CreateNotificationArgs();
+                            e.ApplyTo(notificationArgs);
+                            var updatedNotification = (NotificationBase)Activator.CreateInstance(originalNotification.GetType(), notificationArgs);
+                            updatedNotification.Timestamp = e.Timestamp;
+                            updatedNotification.UserId = originalNotification.UserId;
+                            updatedNotification.Id = originalNotification.Id;
+                            _db.GetCollection<NotificationBase>(ResourceTypes.Notification.Name).ReplaceOne(a => a.Id == e.Id, updatedNotification);
                             break;
                     }
                     break;

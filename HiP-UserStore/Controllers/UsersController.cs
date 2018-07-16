@@ -178,6 +178,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             {
                 FirstName = args.FirstName,
                 LastName = args.LastName,
+                DisplayName = args.DisplayName,
             };
             await EntityManager.UpdateEntityAsync(_eventStore, oldUser, changedUserArgs, ResourceTypes.User, internalId,
                 User.Identity.GetUserIdentity());
@@ -209,6 +210,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
                 Email = args.Email,
                 FirstName = args.FirstName,
                 LastName = args.LastName,
+                DisplayName = args.DisplayName,
             };
             var id = _entityIndex.NextId(ResourceTypes.User);
 
@@ -244,7 +246,8 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
                         UserId = userId,
                         Email = args.Email,
                         FirstName = args.FirstName,
-                        LastName = args.LastName
+                        LastName = args.LastName,
+                        DisplayName = args.DisplayName,
                     };
 
                     var id = _entityIndex.NextId(ResourceTypes.User);

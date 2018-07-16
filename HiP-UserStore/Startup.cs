@@ -32,6 +32,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore
             //Initialize ResourceTypes
             ResourceTypes.Initialize();
             ActionTypes.Initialize();
+            NotificationTypes.Initialize();
         }
 
         public IConfigurationRoot Configuration { get; }
