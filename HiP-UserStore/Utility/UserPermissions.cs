@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Security.Principal;
-using PaderbornUniversity.SILab.Hip.UserStore.Model.Entity;
 
 namespace PaderbornUniversity.SILab.Hip.UserStore.Utility
 {
