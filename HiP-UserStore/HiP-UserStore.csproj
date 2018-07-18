@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
     <RootNamespace>PaderbornUniversity.SILab.Hip.UserStore</RootNamespace>
     <AssemblyName>HiP-UserStore</AssemblyName>
     <NoWarn>1701;1702;1705;1591</NoWarn>
@@ -17,15 +17,15 @@
     <PackageReference Include="Auth0.AuthenticationApi" Version="5.3.1" />
     <PackageReference Include="Auth0.ManagementApi" Version="5.3.1" />
     <PackageReference Include="EventStore.ClientAPI.NetCore" Version="4.1.0.23" />
-    <PackageReference Include="HiP-WebserviceLib" Version="4.0.0-develop" />
-    <PackageReference Include="HiP-DataStore.Sdk" Version="3.6.0-develop" />
-    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.2.1" />
-    <PackageReference Include="Microsoft.AspNetCore" Version="2.0.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="2.0.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.0.2" />
-    <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.0.1" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="2.0.0" />
-    <PackageReference Include="NSwag.MSBuild" Version="11.15.4" />
+    <PackageReference Include="HiP-WebserviceLib" Version="4.0.2-develop" />
+    <PackageReference Include="HiP-DataStore.Sdk" Version="3.6.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.3.0" />
+    <PackageReference Include="Microsoft.AspNetCore" Version="2.1.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="2.1.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.1.0" />
+    <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.1.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="2.1.0" />
+    <PackageReference Include="NSwag.MSBuild" Version="11.17.15" />
   </ItemGroup>
 
   <ItemGroup>
@@ -37,8 +37,8 @@
   </ItemGroup>
 
   <Target Name="NSwag" AfterTargets="Build" Condition="'$(OS)'=='Windows_NT'">
-    <Exec Command="$(NSwagExe_Core20) webapi2swagger /assembly:$(TargetPath) /output:../swagger.json /defaultPropertyNameHandling:camelCase" />
-    <Exec Command="$(NSwagExe_Core20) swagger2csclient /input:../swagger.json /output:../$(ProjectName).Sdk/NSwag.g.cs /namespace:$(RootNamespace) /clientBaseClass:NSwagClientBase /useHttpClientCreationMethod:true /generateOptionalParameters:true" />
-    <Exec Command="$(NSwagExe_Core20) swagger2tsclient /input:../swagger.json /output:../$(ProjectName).TypeScript/package/lib/$(ProjectName).ts /baseUrlTokenName:$(ProjectName.Replace('-','_'))_URL /template:angular /clientBaseClass:NSwagClientBase /extensionCode:../$(ProjectName).TypeScript/NSwagClientBase.ts /injectionTokenType:InjectionToken  /generateOptionalParameters:true /useTransformOptionsMethod:true" />
+    <Exec Command="$(NSwagExe_Core21) webapi2swagger /assembly:$(TargetPath) /output:../swagger.json /defaultPropertyNameHandling:camelCase" />
+    <Exec Command="$(NSwagExe_Core21) swagger2csclient /input:../swagger.json /output:../$(ProjectName).Sdk/NSwag.g.cs /namespace:$(RootNamespace) /clientBaseClass:NSwagClientBase /useHttpClientCreationMethod:true /generateOptionalParameters:true" />
+    <Exec Command="$(NSwagExe_Core21) swagger2tsclient /input:../swagger.json /output:../$(ProjectName).TypeScript/package/lib/$(ProjectName).ts /baseUrlTokenName:$(ProjectName.Replace('-','_'))_URL /template:angular /clientBaseClass:NSwagClientBase /extensionCode:../$(ProjectName).TypeScript/NSwagClientBase.ts /injectionTokenType:InjectionToken  /generateOptionalParameters:true /useTransformOptionsMethod:true" />
   </Target>
 </Project>

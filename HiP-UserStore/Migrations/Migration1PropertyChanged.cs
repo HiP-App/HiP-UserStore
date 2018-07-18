@@ -19,7 +19,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Migrations
         public async Task MigrateAsync(IStreamMigrationArgs e)
         {
             var events = e.GetExistingEvents();
-            DateTimeOffset timestamp;
+            DateTimeOffset timestamp=new DateTimeOffset();
 
             while (await events.MoveNextAsync())
             {
