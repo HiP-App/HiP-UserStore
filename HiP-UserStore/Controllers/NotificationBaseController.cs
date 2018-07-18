@@ -46,8 +46,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             var id = _entityIndex.NextId(ResourceTypes.Notification);
             await EntityManager.CreateEntityAsync(_eventStore, args, ResourceType, id, User.Identity.GetUserIdentity());
             return Created($"{Request.Scheme}://{Request.Host}/api/Notification/{id}", id);
-        }
-
+        }       
 
     }
 }

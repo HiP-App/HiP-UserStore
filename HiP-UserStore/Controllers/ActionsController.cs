@@ -8,7 +8,6 @@ using PaderbornUniversity.SILab.Hip.UserStore.Utility;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Action = PaderbornUniversity.SILab.Hip.UserStore.Model.Entity.Action;
-using ActionResult = PaderbornUniversity.SILab.Hip.UserStore.Model.Rest.ActionResult;
 using System.Reflection;
 using PaderbornUniversity.SILab.Hip.EventSourcing;
 
@@ -27,7 +26,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
         }
 
         [HttpGet]
-        [ProducesResponseType(typeof(AllItemsResult<ActionResult>), 200)]
+        [ProducesResponseType(typeof(AllItemsResult<ActionResultBase>), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
         public IActionResult GetAllActions(string actionType = null)
@@ -54,7 +53,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
                               .FilterIf(actionType != null, x => x.TypeName == actionType)
                               .Select(x => x.CreateActionResult())
                               .ToList();
-            return Ok(new AllItemsResult<ActionResult>() { Total = result.Count, Items = result });
+            return Ok(new AllItemsResult<ActionResultBase>() { Total = result.Count, Items = result });
         }
     }
 }
