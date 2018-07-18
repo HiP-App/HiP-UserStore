@@ -16,7 +16,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Model.Entity
             EntityId = args.EntityId;
         }
         
-        public abstract ActionResult CreateActionResult();
+        public abstract ActionResultBase CreateActionResult();
 
         public abstract ActionArgs CreateActionArgs();
     }

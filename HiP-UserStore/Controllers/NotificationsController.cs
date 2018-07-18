@@ -57,6 +57,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
         [HttpGet("MarkAsRead")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
+        [ProducesResponseType(403)]
         [ProducesResponseType(404)]
         public async Task<IActionResult> MarkNotificationAsRead(int id)
         {
@@ -67,6 +68,9 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
 
             if (notification == null)
                 return NotFound($"A notification with the id {id} could not be found");
+
+            if (!UserPermissions.IsAllowedToModifyNotification(User.Identity, notification.Recipient))
+                return Forbid();
 
             var resourceType = GetResourceTypeForNotificationType(notification.Type);
             var args = notification.CreateNotificationArgs();
