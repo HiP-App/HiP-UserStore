@@ -66,10 +66,6 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
                  .AsQueryable()
                  .FirstOrDefault(x => x.UserId == userId);
 
-            bool picpath = user?.ProfilePicturePath == null;
-            bool fileex = !System.IO.File.Exists(user.ProfilePicturePath);
-            string path = user?.ProfilePicturePath;
-
             if (user?.ProfilePicturePath == null || !System.IO.File.Exists(user.ProfilePicturePath))
                 return NotFound();
 
@@ -184,15 +180,13 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
         [ProducesResponseType(400)]
         [ProducesResponseType(403)]
         [ProducesResponseType(404)]
-        public IActionResult GetPredefinedPictureByID(string id)
+        public IActionResult GetPredefinedPictureById(string id)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
             if (!System.IO.File.Exists(_avatarConfig.Path + "/"  + id))
                 return NotFound();
-
-            var filePath = Path.Combine(_avatarConfig.Path + "/", id);
 
             new FileExtensionContentTypeProvider().TryGetContentType(_avatarConfig.Path + "/"  + id, out var mimeType);
             mimeType = mimeType ?? "application/octet-stream";
