@@ -64,9 +64,20 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Core
                     lock (_lockObject)
                     {
                         var owner = ev.UserId;
-                        var info = GetOrCreateEntityTypeInfo(ev.GetEntityType());
-                        info.MaximumId = Math.Max(info.MaximumId, ev.Id);
-                        info.Entities.Add(ev.Id, new EntityInfo { UserId = owner });
+                        var resourceType = ev.GetEntityType();
+                        if (resourceType.BaseResourceType != null)
+                        {
+                            var info = GetOrCreateEntityTypeInfo(resourceType.BaseResourceType);
+                            info.MaximumId = Math.Max(info.MaximumId, ev.Id);
+                            info.Entities.Add(ev.Id, new EntityInfo { UserId = owner });
+                        }
+                        else
+                        {
+                            var info = GetOrCreateEntityTypeInfo(ev.GetEntityType());
+                            info.MaximumId = Math.Max(info.MaximumId, ev.Id);
+                            info.Entities.Add(ev.Id, new EntityInfo { UserId = owner });
+                        }
+
                     }
                     break;
             }
