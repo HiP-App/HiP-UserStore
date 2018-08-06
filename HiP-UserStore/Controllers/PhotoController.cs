@@ -30,17 +30,21 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
         private readonly CacheDatabaseManager _db;
         private readonly UserIndex _userIndex;
         private readonly UploadPhotoConfig _photoConfig;
+        private readonly PredefinedAvatarsConfig _avatarConfig;
         private readonly EndpointConfig _endpointConfig;
         private readonly ILogger<PhotoController> _logger;
 
         public PhotoController(EventStoreService eventStore, CacheDatabaseManager db, InMemoryCache cache,
-            IOptions<UploadPhotoConfig> photoConfig, IOptions<EndpointConfig> endpointConfig,
+            IOptions<UploadPhotoConfig> photoConfig,
+            IOptions<PredefinedAvatarsConfig> avatarConfig,
+            IOptions<EndpointConfig> endpointConfig,
             ILogger<PhotoController> logger)
         {
             _eventStore = eventStore;
             _db = db;
             _userIndex = cache.Index<UserIndex>();
             _photoConfig = photoConfig.Value;
+            _avatarConfig = avatarConfig.Value;
             _endpointConfig = endpointConfig.Value;
             _logger = logger;
         }
@@ -133,7 +137,9 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
 
             // Remove photo
             var directoryPath = Path.GetDirectoryName(_userIndex.GetProfilePicturePath(internalId));
-            if (directoryPath != null && Directory.Exists(directoryPath))
+            // if path points to predefined Avatar then no deletion
+            var avatarPath = Path.GetDirectoryName(_avatarConfig.Path + "/");
+            if (directoryPath != null && Directory.Exists(directoryPath) && !directoryPath.Contains(avatarPath))
                 Directory.Delete(directoryPath, true);
 
             var ev = new UserPhotoDeleted
@@ -147,6 +153,84 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             await InvalidateThumbnailCacheAsync(userId);
             return NoContent();
         }
+
+
+        [HttpGet("PredefinedAvatars")]
+        [ProducesResponseType(typeof(string[]), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public IActionResult GetPredefinedPictureList()
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            DirectoryInfo directoryInfo = new DirectoryInfo(_avatarConfig.Path + "/");
+            FileInfo[] fileInfoArray = directoryInfo.GetFiles();
+            string[] fileInfoStringArray = new string[fileInfoArray.Length];
+            for (int i = 0; i < fileInfoArray.Length; i++)
+            {
+                fileInfoStringArray[i] = Path.GetFileName(fileInfoArray[i].FullName);
+            }
+
+            return Ok(fileInfoStringArray);
+        }
+
+        [HttpGet("PredefinedAvatars/{id}")]
+        [ProducesResponseType(typeof(FileResult), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(403)]
+        [ProducesResponseType(404)]
+        public IActionResult GetPredefinedPictureById(string id)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            if (!System.IO.File.Exists(_avatarConfig.Path + "/"  + id))
+                return NotFound();
+
+            new FileExtensionContentTypeProvider().TryGetContentType(_avatarConfig.Path + "/"  + id, out var mimeType);
+            mimeType = mimeType ?? "application/octet-stream";
+
+            return File(new FileStream(_avatarConfig.Path + "/"  + id, FileMode.Open), mimeType, Path.GetFileName(_avatarConfig.Path + "/"  + id));
+        }
+
+
+        [HttpPut("{userId}/Avatar")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(403)]
+        [ProducesResponseType(404)]
+        public async Task<IActionResult> SetPredefinedAvatar([Required]string avatarId, string userId)
+        {
+            if (avatarId == null)
+                ModelState.AddModelError("Argument Error", "Avatar ID not provided");
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            if (!UserPermissions.IsAllowedToModify(User.Identity, userId))
+                return Forbid();
+
+            if (!_userIndex.TryGetInternalId(userId, out var internalId))
+                return NotFound();
+
+            // Remove old file
+            var oldFilePath = _userIndex.GetProfilePicturePath(internalId);
+            // must not point to predefined Avatars path
+            if (oldFilePath != null && System.IO.File.Exists(oldFilePath) && !oldFilePath.Contains(Path.GetDirectoryName(_avatarConfig.Path + "/")))
+                System.IO.File.Delete(oldFilePath);
+
+            var oldUser = await _eventStore.EventStream.GetCurrentEntityAsync<UserEventArgs>(ResourceTypes.User, internalId);
+            var newUser = new UserEventArgs(oldUser)
+            {
+                ProfilePicturePath = Path.GetDirectoryName(_avatarConfig.Path + "/") + "\\" + avatarId
+            };
+
+            await EntityManager.UpdateEntityAsync(_eventStore, oldUser, newUser, ResourceTypes.User, internalId, User.Identity.GetUserIdentity());
+            await InvalidateThumbnailCacheAsync(userId);
+            return NoContent();
+        }
+
 
         // Return path to file
         private string SaveNewFile(IFormFile file, string userId)

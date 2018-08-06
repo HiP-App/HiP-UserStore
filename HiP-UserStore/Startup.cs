@@ -45,6 +45,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore
                 .Configure<EventStoreConfig>(Configuration.GetSection("EventStore"))
                 .Configure<UserStoreAuthConfig>(Configuration.GetSection("Auth"))
                 .Configure<UploadPhotoConfig>(Configuration.GetSection("UploadingPhoto"))
+                .Configure<PredefinedAvatarsConfig>(Configuration.GetSection("PredefinedAvatars"))
                 .Configure<CorsConfig>(Configuration)
                 .Configure<LoggingConfig>(Configuration.GetSection("HiPLoggerConfig"));
 
