@@ -57,7 +57,8 @@ namespace PaderbornUniversity.SILab.Hip.UserStore
                 .AddSingleton<DataStoreService>()
                 .AddSingleton<IDomainIndex, EntityIndex>()
                 .AddSingleton<IDomainIndex, ExhibitsVisitedIndex>()
-                .AddSingleton<IDomainIndex, UserIndex>();
+                .AddSingleton<IDomainIndex, UserIndex>()
+                .AddSingleton<IDomainIndex, ActivityIndex>();
 
             var serviceProvider = services.BuildServiceProvider(); // allows us to actually get the configured services
             var authConfig = serviceProvider.GetService<IOptions<UserStoreAuthConfig>>();

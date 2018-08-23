@@ -3,11 +3,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using PaderbornUniversity.SILab.Hip.DataStore;
 using PaderbornUniversity.SILab.Hip.EventSourcing;
+using PaderbornUniversity.SILab.Hip.UserStore.Core;
 using PaderbornUniversity.SILab.Hip.UserStore.Model;
 using PaderbornUniversity.SILab.Hip.UserStore.Model.Rest;
 using PaderbornUniversity.SILab.Hip.UserStore.Utility;
+using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
@@ -17,10 +18,14 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
     public class ActivityController : Controller
     {
         private readonly EndpointConfig _endpointConfig;
+        private readonly DataStoreService _dataStoreService;
+        private readonly ActivityIndex _activityIndex;
 
-        public ActivityController(IOptions<EndpointConfig> endpointConfig)
+        public ActivityController(IOptions<EndpointConfig> endpointConfig, DataStoreService dataStoreService, InMemoryCache cache)
         {
             _endpointConfig = endpointConfig.Value;
+            _dataStoreService = dataStoreService;
+            _activityIndex = cache.Index<ActivityIndex>();
         }
 
         [HttpGet("Activity")]
@@ -32,28 +37,29 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
                 return BadRequest(ModelState);
 
             var userId = User.Identity.GetUserIdentity();
-            var token = Request.Headers["Authorization"];
 
             var activityResult = new ActivityResult
             {
-                ExhibitIds = await GetContentIdsAsync(status, token, ResourceTypes.Exhibit),
-                RouteIds = await GetContentIdsAsync(status, token, ResourceTypes.Route),
-                MediaIds = await GetContentIdsAsync(status, token, ResourceTypes.Media),
-                TagIds = await GetContentIdsAsync(status, token, ResourceTypes.Tag),
-                ExhibitPageIds = await GetContentIdsAsync(status, token, ResourceTypes.ExhibitPage)
+                ExhibitIds = await GetContentIdsAsync(status, ResourceTypes.Exhibit),
+                RouteIds = await GetContentIdsAsync(status, ResourceTypes.Route),
+                MediaIds = await GetContentIdsAsync(status, ResourceTypes.Media),
+                TagIds = await GetContentIdsAsync(status, ResourceTypes.Tag),
+                ExhibitPageIds = await GetContentIdsAsync(status, ResourceTypes.ExhibitPage)
             };
 
             // Remove ids of content which does not contain changes
-            activityResult.ExhibitIds = await RemoveIdsAsync(activityResult.ExhibitIds, ResourceTypes.Exhibit,
-                userId, token);
+            activityResult.ExhibitIds = await RemoveIdsAsync(activityResult.ExhibitIds, ResourceTypes.Exhibit, 
+                userId, _activityIndex.GetTimestamp(userId, ResourceTypes.Exhibit));
             activityResult.RouteIds = await RemoveIdsAsync(activityResult.RouteIds, ResourceTypes.Route,
-                userId, token);
+                userId, _activityIndex.GetTimestamp(userId, ResourceTypes.Route));
             activityResult.MediaIds = await RemoveIdsAsync(activityResult.MediaIds, ResourceTypes.Media,
-                userId, token);
+                userId, _activityIndex.GetTimestamp(userId, ResourceTypes.Media));
             activityResult.TagIds = await RemoveIdsAsync(activityResult.TagIds, ResourceTypes.Tag,
-                userId, token);
+                userId, _activityIndex.GetTimestamp(userId, ResourceTypes.Tag));
             activityResult.ExhibitPageIds = await RemoveIdsAsync(activityResult.ExhibitPageIds, ResourceTypes.ExhibitPage,
-                userId, token);
+                userId, _activityIndex.GetTimestamp(userId, ResourceTypes.ExhibitPage));
+
+            _activityIndex.UpdateAllTimestamps(userId, DateTimeOffset.Now);
 
             return Ok(activityResult);
         }
@@ -67,11 +73,11 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
                 return BadRequest(ModelState);
 
             var userId = User.Identity.GetUserIdentity();
-            var token = Request.Headers["Authorization"];
 
-            var exhibits = await GetContentIdsAsync(status, token, ResourceTypes.Exhibit);
-            exhibits = await RemoveIdsAsync(exhibits, ResourceTypes.Exhibit,
-                userId, token);
+            var exhibits = await GetContentIdsAsync(status, ResourceTypes.Exhibit);
+            exhibits = await RemoveIdsAsync(exhibits, ResourceTypes.Exhibit, userId, _activityIndex.GetTimestamp(userId, ResourceTypes.Exhibit));
+
+            _activityIndex.UpdateTimestamp(userId, DateTimeOffset.Now, ResourceTypes.Exhibit);
 
             return Ok(exhibits);
         }
@@ -85,11 +91,11 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
                 return BadRequest(ModelState);
 
             var userId = User.Identity.GetUserIdentity();
-            var token = Request.Headers["Authorization"];
 
-            var routes = await GetContentIdsAsync(status, token, ResourceTypes.Route);
-            routes = await RemoveIdsAsync(routes, ResourceTypes.Route,
-                userId, token);
+            var routes = await GetContentIdsAsync(status, ResourceTypes.Route);
+            routes = await RemoveIdsAsync(routes, ResourceTypes.Route, userId, _activityIndex.GetTimestamp(userId, ResourceTypes.Route));
+
+            _activityIndex.UpdateTimestamp(userId, DateTimeOffset.Now, ResourceTypes.Route);
 
             return Ok(routes);
         }
@@ -103,11 +109,11 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
                 return BadRequest(ModelState);
 
             var userId = User.Identity.GetUserIdentity();
-            var token = Request.Headers["Authorization"];
 
-            var tags = await GetContentIdsAsync(status, token, ResourceTypes.Tag);
-            tags = await RemoveIdsAsync(tags, ResourceTypes.Tag,
-                userId, token);
+            var tags = await GetContentIdsAsync(status, ResourceTypes.Tag);
+            tags = await RemoveIdsAsync(tags, ResourceTypes.Tag, userId, _activityIndex.GetTimestamp(userId, ResourceTypes.Tag));
+
+            _activityIndex.UpdateTimestamp(userId, DateTimeOffset.Now, ResourceTypes.Tag);
 
             return Ok(tags);
         }
@@ -123,9 +129,10 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             var userId = User.Identity.GetUserIdentity();
             var token = Request.Headers["Authorization"];
 
-            var media = await GetContentIdsAsync(status, token, ResourceTypes.Media);
-            media = await RemoveIdsAsync(media, ResourceTypes.Media,
-                userId, token);
+            var media = await GetContentIdsAsync(status, ResourceTypes.Media);
+            media = await RemoveIdsAsync(media, ResourceTypes.Media, userId, _activityIndex.GetTimestamp(userId, ResourceTypes.Media));
+
+            _activityIndex.UpdateTimestamp(userId, DateTimeOffset.Now, ResourceTypes.Media);
 
             return Ok(media);
         }
@@ -139,52 +146,48 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
                 return BadRequest(ModelState);
 
             var userId = User.Identity.GetUserIdentity();
-            var token = Request.Headers["Authorization"];
 
-            var exhibitPages = await GetContentIdsAsync(status, token, ResourceTypes.ExhibitPage);
-            exhibitPages = await RemoveIdsAsync(exhibitPages, ResourceTypes.ExhibitPage,
-                userId, token);
+            var exhibitPages = await GetContentIdsAsync(status, ResourceTypes.ExhibitPage);
+            exhibitPages = await RemoveIdsAsync(exhibitPages, ResourceTypes.ExhibitPage, 
+                userId, _activityIndex.GetTimestamp(userId, ResourceTypes.ExhibitPage));
+
+            _activityIndex.UpdateTimestamp(userId, DateTimeOffset.Now, ResourceTypes.ExhibitPage);
 
             return Ok(exhibitPages);
         }
 
-        private async Task<List<int>> GetContentIdsAsync(ContentStatus status, string token, ResourceType type)
+        private async Task<List<int>> GetContentIdsAsync(ContentStatus status, ResourceType type)
         {
             var ids = new List<int>();
 
             switch (type)
             {
                 case ResourceType _ when type == ResourceTypes.Exhibit:
-                    var exhibitsClient = new ExhibitsClient(_endpointConfig.DataStoreUrl) { Authorization = token };
-                    var exhibits = await exhibitsClient.GetAsync(status: status);
+                    var exhibits = await _dataStoreService.Exhibits.GetAsync(status: status);
                     foreach (var exhibit in exhibits.Items)
                         if (UserPermissions.IsAllowedToGetHistory(User.Identity, exhibit.UserId))
                             ids.Add(exhibit.Id);
                     break;
                 case ResourceType _ when type == ResourceTypes.Route:
-                    var routesClient = new RoutesClient(_endpointConfig.DataStoreUrl) { Authorization = token };
-                    var routes = await routesClient.GetAsync(status: status);
+                    var routes = await _dataStoreService.Routes.GetAsync(status: status);
                     foreach (var route in routes.Items)
                         if (UserPermissions.IsAllowedToGetHistory(User.Identity, route.UserId))
                             ids.Add(route.Id);
                     break;
                 case ResourceType _ when type == ResourceTypes.Tag:
-                    var tagsClient = new TagsClient(_endpointConfig.DataStoreUrl) { Authorization = token };
-                    var tags = await tagsClient.GetAllAsync(status: status);
+                    var tags = await _dataStoreService.Tags.GetAllAsync(status: status);
                     foreach (var tag in tags.Items)
                         if (UserPermissions.IsAllowedToGetHistory(User.Identity, tag.UserId))
                             ids.Add(tag.Id);
                     break;
                 case ResourceType _ when type == ResourceTypes.Media:
-                    var mediaClient = new MediaClient(_endpointConfig.DataStoreUrl) { Authorization = token };
-                    var media = await mediaClient.GetAsync(status: status);
+                    var media = await _dataStoreService.Media.GetAsync(status: status);
                     foreach (var medium in media.Items)
                         if (UserPermissions.IsAllowedToGetHistory(User.Identity, medium.UserId))
                             ids.Add(medium.Id);
                     break;
                 case ResourceType _ when type == ResourceTypes.ExhibitPage:
-                    var exhibitPagesClient = new ExhibitPagesClient(_endpointConfig.DataStoreUrl) { Authorization = token };
-                    var exhibitPages = await exhibitPagesClient.GetAllPagesAsync(status: status);
+                    var exhibitPages = await _dataStoreService.ExhibitPages.GetAllPagesAsync(status: status);
                     foreach (var exhibitPage in exhibitPages.Items)
                         if (UserPermissions.IsAllowedToGetHistory(User.Identity, exhibitPage.UserId))
                             ids.Add(exhibitPage.Id);
@@ -193,27 +196,26 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             return ids;
         }
 
-        private async Task<HistorySummary> GetHistorySummary(int id, ResourceType resourceType, string token)
+        private async Task<HistorySummary> GetHistorySummary(int id, ResourceType resourceType)
         {
-            var client = new HistoryClient(_endpointConfig.DataStoreUrl) { Authorization = token };
             try
             {
                 switch (resourceType)
                 {
                     case ResourceType _ when resourceType == ResourceTypes.Exhibit:
-                        var exhibitHistorySummary = await client.GetExhibitSummaryAsync(id: id);
+                        var exhibitHistorySummary = await _dataStoreService.History.GetExhibitSummaryAsync(id: id);
                         return exhibitHistorySummary;
                     case ResourceType _ when resourceType == ResourceTypes.Route:
-                        var routeHistorySummary = await client.GetRouteSummaryAsync(id: id);
+                        var routeHistorySummary = await _dataStoreService.History.GetRouteSummaryAsync(id: id);
                         return routeHistorySummary;
                     case ResourceType _ when resourceType == ResourceTypes.Media:
-                        var mediaHistorySummary = await client.GetMediaSummaryAsync(id: id);
+                        var mediaHistorySummary = await _dataStoreService.History.GetMediaSummaryAsync(id: id);
                         return mediaHistorySummary;
                     case ResourceType _ when resourceType == ResourceTypes.Tag:
-                        var tagHistorySummary = await client.GetTagSummaryAsync(id: id);
+                        var tagHistorySummary = await _dataStoreService.History.GetTagSummaryAsync(id: id);
                         return tagHistorySummary;
                     case ResourceType _ when resourceType == ResourceTypes.ExhibitPage:
-                        var exhibitPageHistorySummary = await client.GetExhibitPageSummaryAsync(id: id);
+                        var exhibitPageHistorySummary = await _dataStoreService.History.GetExhibitPageSummaryAsync(id: id);
                         return exhibitPageHistorySummary;
                     default:
                         return new HistorySummary();
@@ -224,26 +226,30 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
             }
         }
 
-        private async Task<List<int>> RemoveIdsAsync(List<int> ids, ResourceType resourceType, string userId, string token)
+        private async Task<List<int>> RemoveIdsAsync(List<int> ids, ResourceType resourceType, string userId, DateTimeOffset time)
         {
+            var finalIds = new List<int>(ids);
+
             for (var i = ids.Count - 1; i >= 0; i--)
             {
-                var summary = await GetHistorySummary(ids[i], resourceType, token);
+                var summary = await GetHistorySummary(ids[i], resourceType);
+                var hasChanges = false;
 
-                if (summary.Changes != null)
+                foreach (var change in summary.Changes)
                 {
-                    if (summary.Changes.Count == 0)
-                        ids.RemoveAt(i);
-                    else if (summary.Changes.Last().UserId == userId || summary.Changes.Last().Description == "Created")
-                        ids.RemoveAt(i);
+                    if (change.Timestamp < time) continue;
+
+                    if (change.UserId != userId)
+                    {
+                        hasChanges = true;
+                        break;
+                    }
                 }
-                else
-                {
-                    ids.RemoveAt(i);
-                }
-                    
+
+                if (!hasChanges)
+                    finalIds.RemoveAt(i);
             }
-            return ids;
+            return finalIds;
         }
     }
 }
