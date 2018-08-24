@@ -20,7 +20,7 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
         private readonly DataStoreService _dataStoreService;
         private readonly ActivityIndex _activityIndex;
 
-        public ActivityController(IOptions<EndpointConfig> endpointConfig, DataStoreService dataStoreService, InMemoryCache cache)
+        public ActivityController(DataStoreService dataStoreService, InMemoryCache cache)
         {
             _dataStoreService = dataStoreService;
             _activityIndex = cache.Index<ActivityIndex>();
