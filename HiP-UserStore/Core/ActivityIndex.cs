@@ -32,13 +32,16 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Core
 
         public void UpdateAllTimestamps (string userId, DateTimeOffset time)
         {
-            if (_userTimestamps.ContainsKey(userId))
+            lock (_lockObject)
             {
-                var tempTypeDict = new Dictionary<ResourceType, DateTimeOffset>(_userTimestamps[userId]);
-
-                foreach (var type in tempTypeDict)
+                if (_userTimestamps.ContainsKey(userId))
                 {
-                    _userTimestamps[userId][type.Key] = time;
+                    var tempTypeDict = new Dictionary<ResourceType, DateTimeOffset>(_userTimestamps[userId]);
+
+                    foreach (var type in tempTypeDict)
+                    {
+                        _userTimestamps[userId][type.Key] = time;
+                    }
                 }
             }
         }

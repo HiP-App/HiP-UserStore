@@ -17,13 +17,11 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
     [Authorize]
     public class ActivityController : Controller
     {
-        private readonly EndpointConfig _endpointConfig;
         private readonly DataStoreService _dataStoreService;
         private readonly ActivityIndex _activityIndex;
 
         public ActivityController(IOptions<EndpointConfig> endpointConfig, DataStoreService dataStoreService, InMemoryCache cache)
         {
-            _endpointConfig = endpointConfig.Value;
             _dataStoreService = dataStoreService;
             _activityIndex = cache.Index<ActivityIndex>();
         }
@@ -127,7 +125,6 @@ namespace PaderbornUniversity.SILab.Hip.UserStore.Controllers
                 return BadRequest(ModelState);
 
             var userId = User.Identity.GetUserIdentity();
-            var token = Request.Headers["Authorization"];
 
             var media = await GetContentIdsAsync(status, ResourceTypes.Media);
             media = await RemoveIdsAsync(media, ResourceTypes.Media, userId, _activityIndex.GetTimestamp(userId, ResourceTypes.Media));
